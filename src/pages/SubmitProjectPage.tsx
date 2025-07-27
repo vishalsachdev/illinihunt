@@ -1,9 +1,10 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { ProjectForm } from '@/components/project/ProjectForm'
 
 export function SubmitProjectPage() {
   const { user, loading } = useAuth()
+  const navigate = useNavigate()
 
   if (loading) {
     return (
@@ -23,8 +24,10 @@ export function SubmitProjectPage() {
   return (
     <ProjectForm 
       onSuccess={() => {
-        // Navigate to home page after successful submission
-        window.location.href = '/'
+        navigate('/')
+      }}
+      onCancel={() => {
+        navigate('/')
       }}
     />
   )

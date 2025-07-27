@@ -1,10 +1,11 @@
 import './App.css'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { LoginButton } from '@/components/auth/LoginButton'
 import { UserMenu } from '@/components/auth/UserMenu'
 import { HomePage } from '@/pages/HomePage'
 import { SubmitProjectPage } from '@/pages/SubmitProjectPage'
+import { DebugSubmitPage } from '@/pages/DebugSubmitPage'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 
@@ -28,12 +29,12 @@ function App() {
         <header className="bg-uiuc-blue text-white p-4">
           <div className="container mx-auto flex items-center justify-between">
             <div>
-              <a href="/" className="block">
+              <Link to="/" className="block">
                 <h1 className="text-2xl font-bold hover:text-uiuc-light-orange transition-colors">
                   IlliniHunt
                 </h1>
                 <p className="text-uiuc-light-blue">Discover UIUC Innovation</p>
-              </a>
+              </Link>
             </div>
             
             <div className="flex items-center gap-4">
@@ -43,10 +44,10 @@ function App() {
                   variant="outline" 
                   className="bg-transparent border-white text-white hover:bg-white hover:text-uiuc-blue"
                 >
-                  <a href="/submit">
+                  <Link to="/submit">
                     <Plus className="w-4 h-4 mr-2" />
                     Submit Project
-                  </a>
+                  </Link>
                 </Button>
               )}
               {user ? <UserMenu /> : <LoginButton />}
@@ -67,6 +68,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/submit" element={<SubmitProjectPage />} />
+            <Route path="/debug" element={<DebugSubmitPage />} />
           </Routes>
         </main>
       </div>

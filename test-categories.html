@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Categories</title>
+</head>
+<body>
+    <h1>Testing Supabase Categories</h1>
+    <div id="result"></div>
+
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+        
+        // Replace with your actual values from .env.local
+        const supabaseUrl = 'YOUR_SUPABASE_URL'
+        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY'
+        
+        const supabase = createClient(supabaseUrl, supabaseKey)
+        
+        async function testCategories() {
+            try {
+                const { data, error } = await supabase
+                    .from('categories')
+                    .select('*')
+                    .eq('is_active', true)
+                
+                if (error) {
+                    document.getElementById('result').innerHTML = `Error: ${error.message}`
+                } else {
+                    document.getElementById('result').innerHTML = `
+                        <h2>Categories found: ${data.length}</h2>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `
+                }
+            } catch (err) {
+                document.getElementById('result').innerHTML = `Exception: ${err.message}`
+            }
+        }
+        
+        testCategories()
+    </script>
+</body>
+</html>

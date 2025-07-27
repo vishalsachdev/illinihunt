@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>IlliniHunt Supabase Connection Test</h1>
+    <div id="results"></div>
+
+    <script type="module">
+        // Read your actual values from .env.local file
+        const supabaseUrl = 'https://catzwowmxluzwbhdyhnf.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNhdHp3b3dteGx1endiaGR5aG5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2NTEzNDksImV4cCI6MjA2OTIyNzM0OX0.J3IqDt8SYhe4uKhjKVgSgVqEhcI14yO8yginzsvQYt8'
+        
+        const results = document.getElementById('results')
+        
+        function addResult(message, isError = false) {
+            const div = document.createElement('div')
+            div.className = `result ${isError ? 'error' : 'success'}`
+            div.innerHTML = message
+            results.appendChild(div)
+        }
+        
+        async function testConnection() {
+            try {
+                addResult('🔄 Testing Supabase connection...')
+                
+                // Import Supabase
+                const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
+                const supabase = createClient(supabaseUrl, supabaseKey)
+                
+                addResult('✅ Supabase client created successfully')
+                
+                // Test categories query
+                addResult('🔄 Testing categories query...')
+                const { data: categories, error: categoriesError } = await supabase
+                    .from('categories')
+                    .select('*')
+                    .eq('is_active', true)
+                
+                if (categoriesError) {
+                    addResult(`❌ Categories error: ${categoriesError.message}`, true)
+                } else {
+                    addResult(`✅ Categories loaded: ${categories.length} found`)
+                    addResult(`<pre>${JSON.stringify(categories, null, 2)}</pre>`)
+                }
+                
+                // Test authentication status
+                addResult('🔄 Testing authentication...')
+                const { data: { user }, error: authError } = await supabase.auth.getUser()
+                
+                if (authError) {
+                    addResult(`❌ Auth error: ${authError.message}`, true)
+                } else if (user) {
+                    addResult(`✅ User authenticated: ${user.email}`)
+                } else {
+                    addResult('ℹ️ No user currently authenticated')
+                }
+                
+            } catch (error) {
+                addResult(`❌ Connection failed: ${error.message}`, true)
+            }
+        }
+        
+        testConnection()
+    </script>
+</body>
+</html>
