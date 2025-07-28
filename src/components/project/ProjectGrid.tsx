@@ -69,12 +69,21 @@ export function ProjectGrid() {
       setLoading(true)
       setError(null)
 
+      // Debug environment variables
+      console.log('Environment check:', {
+        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
+        hasAnonKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+        env: import.meta.env
+      })
+
       const { data, error } = await ProjectsService.getProjects({
         search: searchQuery || undefined,
         category: selectedCategory || undefined,
         sortBy,
         limit: 20
       })
+
+      console.log('Projects query result:', { data, error })
 
       if (error) throw error
       setProjects(data || [])
