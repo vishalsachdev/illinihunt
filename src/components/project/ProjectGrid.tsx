@@ -38,7 +38,7 @@ export function ProjectGrid() {
   
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string>('')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent')
 
   useEffect(() => {
@@ -69,21 +69,12 @@ export function ProjectGrid() {
       setLoading(true)
       setError(null)
 
-      // Debug environment variables
-      console.log('Environment check:', {
-        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
-        hasAnonKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
-        env: import.meta.env
-      })
-
       const { data, error } = await ProjectsService.getProjects({
         search: searchQuery || undefined,
-        category: selectedCategory || undefined,
+        category: selectedCategory === 'all' ? undefined : selectedCategory,
         sortBy,
         limit: 20
       })
-
-      console.log('Projects query result:', { data, error })
 
       if (error) throw error
       setProjects(data || [])
@@ -118,8 +109,6 @@ export function ProjectGrid() {
     )
   }
 
-  // Debug: Always show current state
-  console.log('ProjectGrid state:', { loading, error, projectsCount: projects.length, projects })
 
   return (
     <div className="space-y-6">
@@ -146,7 +135,7 @@ export function ProjectGrid() {
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
@@ -210,17 +199,9 @@ export function ProjectGrid() {
                 ? 'Try adjusting your search or filters'
                 : 'Be the first to submit a project!'}
             </p>
-            <div className="mt-4 text-xs text-gray-400">
-              Debug: Loading={loading.toString()}, Error={error || 'null'}, Count={projects.length}
-            </div>
           </div>
         </div>
       )}
-
-      {/* Debug info - temporary */}
-      <div className="text-xs text-gray-400 text-center">
-        State: loading={loading.toString()}, error={error || 'none'}, projects={projects.length}
-      </div>
     </div>
   )
 }
