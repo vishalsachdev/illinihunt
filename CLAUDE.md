@@ -1,134 +1,129 @@
-# IlliniHunt Development Notes
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-IlliniHunt V2 - A Product Hunt-style platform for the University of Illinois community to showcase projects, apps, and startups. Built with React + TypeScript + Supabase + Vercel.
 
-## Recent Session Summary (2025-07-28)
+IlliniHunt V2 is a Product Hunt-style platform for the University of Illinois community (students, faculty, and staff) to showcase projects, apps, and startups. Built with React + TypeScript + Supabase + Vercel.
 
-### Key Accomplishments
+**Live URL**: https://illinihunt.vercel.app
 
-#### 1. Hero Landing Page Implementation
-- **Built full-screen hero section** with UIUC branding and professional design
-- **Features implemented**:
-  - Gradient background (UIUC blue to slate)
-  - Subtle dot pattern overlay for visual texture
-  - "Calling all Illini Builders" badge with lightning icon
-  - Large compelling headline: "Showcase Your Innovation Built at UIUC"
-  - Dual call-to-action buttons (Submit Project, Explore Projects)
-  - Statistics section (150+ Community Projects, 50+ Active Builders, 25 Categories)
-  - Smooth scroll indicator
-- **Responsive design** with proper mobile, tablet, and desktop layouts
+## Development Commands
 
-#### 2. Browser Auto-Resize Responsiveness Fix
-- **Problem**: Page wasn't responding to browser window resize events
-- **Root cause**: React components don't auto-re-render on window resize
-- **Solution implemented**: 
-  - Created `useWindowSize` hook with window resize event listeners
-  - Integrated hook into HomePage component to force re-renders
-  - Added proper viewport meta tag with `shrink-to-fit=no`
-- **Result**: Page now dynamically adapts to browser window resizing
+```bash
+# Development
+npm run dev              # Start Vite dev server
+npm run build           # Build for production (runs TypeScript check + Vite build)
+npm run preview         # Preview production build locally
+npm run type-check      # Run TypeScript compiler without emitting files
+npm run lint            # Run ESLint with TypeScript support
 
-#### 3. Inclusive Language Updates
-- **Updated all text** to welcome entire UIUC community, not just students
-- **Changes made**:
-  - Hero text: "University of Illinois community" instead of "students"
-  - Subtitle: "Join students, faculty, and staff in building the future together"
-  - Statistics: "Community Projects" instead of "Student Projects"
-  - Auth message: "UIUC account" instead of "UIUC Google account"
-  - Meta description: Explicitly mentions faculty and staff
-
-#### 4. Authentication Improvements (User-Added)
-- User pushed additional commit with enhanced authentication UX
-- **New features**:
-  - `AuthPromptProvider` context for better auth state management
-  - `ProtectedRoute` component for cleaner route protection
-  - Conditional authentication prompts with improved user experience
-  - Better handling of redirect flow after authentication
-
-### Technical Implementation Details
-
-#### useWindowSize Hook
-```typescript
-export function useWindowSize(): WindowSize {
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  })
-
-  useEffect(() => {
-    function handleResize() {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      })
-    }
-
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  return windowSize
-}
+# No test commands are configured in this project
 ```
 
-#### Key Responsive Classes Used
-- Hero text: `text-4xl sm:text-5xl lg:text-6xl xl:text-7xl`
-- Buttons: Full-width on mobile, side-by-side on desktop
-- Statistics: Always 3-column grid with responsive text sizes
-- Container: Uses Tailwind's responsive container system
+## Architecture Overview
 
-### File Changes Made
-- `src/pages/HomePage.tsx` - Complete hero section redesign + responsive fixes
-- `src/App.tsx` - Header transparency and mobile optimization
-- `src/hooks/useWindowSize.ts` - New hook for resize responsiveness
-- `src/index.css` - Enhanced CSS for responsive behavior
-- `index.html` - Updated viewport and meta description
+### Frontend Stack
+- **React 18** with TypeScript and Vite
+- **Tailwind CSS** with custom UIUC brand colors (`uiuc-orange: #FF6B35`, `uiuc-blue: #13294B`)
+- **shadcn/ui** components built on Radix UI primitives
+- **React Router** for client-side routing with protected routes
+- **React Hook Form** with Zod validation for forms
+- **Lucide React** for icons
+
+### Backend & Database
+- **Supabase** handles authentication, database, and real-time features
+- **PostgreSQL** database with Row Level Security (RLS) policies
+- **Google OAuth** restricted to @illinois.edu email domains
+- Environment variables: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
+
+### Key Architecture Patterns
+
+#### Authentication Flow
+The app uses a layered authentication system:
+
+1. **`useAuth` hook** (`src/hooks/useAuth.ts`) - Core auth state management
+2. **`AuthPromptContext`** (`src/contexts/AuthPromptContext.tsx`) - Handles auth prompts with user-friendly messaging
+3. **`ProtectedRoute` component** - Wraps protected pages and redirects unauthenticated users
+4. **Domain restriction** - Only @illinois.edu emails can authenticate
+
+#### Database Layer
+- **`ProjectsService`** in `src/lib/database.ts` - All project-related database operations
+- **`CategoriesService`** in `src/lib/database.ts` - Category management
+- **Typed queries** using generated TypeScript types from Supabase schema
+- **Real-time subscriptions** available through Supabase client
+
+#### Component Structure
+```
+src/components/
+├── auth/           # Authentication components (LoginButton, UserMenu, AuthPrompt)
+├── project/        # Project-related components (ProjectCard, ProjectForm, ProjectGrid, VoteButton)
+└── ui/            # Reusable UI components (shadcn/ui primitives)
+```
+
+#### State Management
+- **React Context** for authentication state and prompts
+- **React Hook Form** for form state
+- **Supabase real-time** for live data updates
+- **Custom hooks** like `useWindowSize` for responsive behavior
+
+## Key Implementation Details
+
+### Responsive Design
+The app uses a custom `useWindowSize` hook to force React re-renders on window resize, ensuring Tailwind responsive classes update properly during browser resizing.
+
+### UIUC Branding
+- Custom Tailwind colors for University of Illinois brand consistency
+- Inclusive messaging that welcomes students, faculty, and staff
+- Professional design matching university standards
+
+### Form Validation
+All forms use React Hook Form with Zod schemas defined in `src/lib/validations.ts`.
+
+### Database Schema Key Tables
+- `users` - User profiles linked to Supabase auth
+- `projects` - Project submissions with voting counts
+- `categories` - Project categories with colors and icons
+- `votes` - User votes on projects (one per user per project)
+
+### Environment Setup
+Required environment variables in `.env.local`:
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
 ### Deployment
-- **Live URL**: https://illinihunt.vercel.app
-- **Auto-deployment**: Configured with Vercel + GitHub integration
-- **Build status**: All builds successful, TypeScript compilation passes
+- **Vercel** with automatic deployments from GitHub main branch
+- **Build command**: `npm run build` (includes TypeScript compilation)
+- **Environment variables** configured in Vercel dashboard
 
-### Quality Metrics
-- ✅ TypeScript compilation: No errors
-- ✅ Build process: Successful
-- ✅ Responsive design: Works across all device sizes
-- ✅ Browser compatibility: Resize functionality works properly
-- ✅ Inclusive messaging: All stakeholders welcomed
+## Important Files to Understand
 
-### Architecture Notes
-- **Frontend**: React 18 + TypeScript + Vite
-- **Backend**: Supabase (Auth + Database + Real-time)
-- **Styling**: Tailwind CSS + shadcn/ui components
-- **Deployment**: Vercel with automatic GitHub deploys
-- **Authentication**: Google OAuth restricted to @illinois.edu domains
+- `src/App.tsx` - Main app structure with routing and auth providers
+- `src/pages/HomePage.tsx` - Landing page with hero section and project grid
+- `src/lib/supabase.ts` - Supabase client configuration
+- `src/lib/database.ts` - Database service layer with typed methods
+- `src/contexts/AuthPromptContext.tsx` - Authentication UX management
+- `src/hooks/useAuth.ts` - Core authentication hook
+- `tailwind.config.js` - Custom UIUC colors and design tokens
 
-### Future Enhancement Opportunities
-1. **Comments System**: Add threaded commenting on projects
-2. **User Profiles**: Enhanced profile pages with project history
-3. **Advanced Search**: Filtering by tags, categories, date ranges
-4. **Admin Panel**: Category management and moderation tools
-5. **Analytics**: Project view tracking and trending algorithms
-6. **Email Notifications**: Project approval and comment notifications
+## Development Notes
 
-### Session Quality Assessment
-- **Code Quality**: High - TypeScript compilation clean, responsive design properly implemented
-- **User Experience**: Excellent - Professional hero design, smooth responsive behavior
-- **Inclusivity**: Complete - All UIUC stakeholders explicitly welcomed
-- **Technical Implementation**: Solid - Proper React patterns, clean hook implementation
-- **Documentation**: Comprehensive - All changes tracked and explained
+### Code Quality
+- TypeScript strict mode enabled
+- ESLint configured for React and TypeScript
+- Build process includes type checking before Vite build
+- No test framework currently configured
 
-### Development Best Practices Followed
-- Responsive-first design with proper breakpoints
-- TypeScript for type safety
-- Custom hooks for reusable logic
-- Semantic HTML and accessible design
-- Git commits with clear messages and co-authorship
-- Build verification before deployment
-- Systematic approach with todo tracking
+### Styling Approach
+- Tailwind utility-first CSS with custom UIUC brand colors
+- shadcn/ui component system for consistent UI primitives
+- Responsive design with mobile-first approach
+- Custom CSS utilities in `src/index.css` for specialized needs
 
----
-
-**Last Updated**: 2025-07-28  
-**Status**: Production Ready  
-**Next Session**: Ready for feature enhancements or user feedback integration
+### Authentication Security
+- Row Level Security (RLS) policies enforce data access rules
+- @illinois.edu domain restriction in authentication flow
+- Protected routes prevent unauthorized access to submission forms
+- User session persistence across browser sessions
