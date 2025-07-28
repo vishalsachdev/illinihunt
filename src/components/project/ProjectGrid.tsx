@@ -109,6 +109,9 @@ export function ProjectGrid() {
     )
   }
 
+  // Debug: Always show current state
+  console.log('ProjectGrid state:', { loading, error, projectsCount: projects.length, projects })
+
   return (
     <div className="space-y-6">
       {/* Filters */}
@@ -198,9 +201,17 @@ export function ProjectGrid() {
                 ? 'Try adjusting your search or filters'
                 : 'Be the first to submit a project!'}
             </p>
+            <div className="mt-4 text-xs text-gray-400">
+              Debug: Loading={loading.toString()}, Error={error || 'null'}, Count={projects.length}
+            </div>
           </div>
         </div>
       )}
+
+      {/* Debug info - temporary */}
+      <div className="text-xs text-gray-400 text-center">
+        State: loading={loading.toString()}, error={error || 'none'}, projects={projects.length}
+      </div>
     </div>
   )
 }
