@@ -45,13 +45,11 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
 
   const loadCategories = async () => {
     try {
-      console.log('Loading categories...')
       const { data, error } = await CategoriesService.getCategories()
       if (error) {
         console.error('Categories error:', error)
         throw error
       }
-      console.log('Categories loaded:', data)
       setCategories(data || [])
     } catch (error) {
       console.error('Error loading categories:', error)

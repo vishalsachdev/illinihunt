@@ -86,9 +86,9 @@ export function ProjectGrid() {
     }
   }
 
-  const handleViewDetails = (projectId: string) => {
+  const handleViewDetails = (_projectId: string) => {
     // TODO: Navigate to project detail page
-    console.log('View details for project:', projectId)
+    // Future implementation: navigate to /project/:id
   }
 
   if (error) {

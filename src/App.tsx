@@ -5,7 +5,6 @@ import { LoginButton } from '@/components/auth/LoginButton'
 import { UserMenu } from '@/components/auth/UserMenu'
 import { HomePage } from '@/pages/HomePage'
 import { SubmitProjectPage } from '@/pages/SubmitProjectPage'
-import { DebugSubmitPage } from '@/pages/DebugSubmitPage'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 
@@ -68,7 +67,6 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/submit" element={<SubmitProjectPage />} />
-            <Route path="/debug" element={<DebugSubmitPage />} />
           </Routes>
         </main>
       </div>
