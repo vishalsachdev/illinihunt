@@ -42,10 +42,10 @@ export function HomePage() {
             
             {/* Subtitle */}
             <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 mb-4 max-w-4xl mx-auto leading-relaxed px-4">
-              Discover amazing projects, apps, and startups created by University of Illinois students.
+              Discover amazing projects, apps, and startups created by the University of Illinois community.
             </p>
             <p className="text-base sm:text-lg lg:text-xl text-gray-400 mb-12 max-w-3xl mx-auto px-4">
-              Join the community of makers, builders, and innovators shaping the future.
+              Join students, faculty, and staff in building the future together.
             </p>
             
             {/* CTA Buttons */}
@@ -79,7 +79,7 @@ export function HomePage() {
             <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-5xl mx-auto px-4">
               <div className="text-center">
                 <div className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white mb-1 sm:mb-2">150+</div>
-                <div className="text-gray-400 text-sm sm:text-base lg:text-lg">Student Projects</div>
+                <div className="text-gray-400 text-sm sm:text-base lg:text-lg">Community Projects</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white mb-1 sm:mb-2">50+</div>
@@ -106,7 +106,7 @@ export function HomePage() {
         {!user && (
           <div className="bg-uiuc-orange text-white p-6 rounded-lg mb-8 text-center">
             <p className="font-semibold text-lg mb-2">🔐 @illinois.edu Authentication Required</p>
-            <p className="text-sm opacity-90">Sign in with your UIUC Google account to vote and submit projects</p>
+            <p className="text-sm opacity-90">Sign in with your UIUC account to vote and submit projects</p>
           </div>
         )}
         
