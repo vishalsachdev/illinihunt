@@ -25,14 +25,14 @@ function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-background">
-        <header className="bg-uiuc-blue text-white p-4">
+        <header className="absolute top-0 left-0 right-0 z-50 bg-transparent text-white p-4">
           <div className="container mx-auto flex items-center justify-between">
             <div>
               <Link to="/" className="block">
                 <h1 className="text-2xl font-bold hover:text-uiuc-light-orange transition-colors">
                   IlliniHunt
                 </h1>
-                <p className="text-uiuc-light-blue">Discover UIUC Innovation</p>
+                <p className="text-gray-300">Discover UIUC Innovation</p>
               </Link>
             </div>
             
