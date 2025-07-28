@@ -1,4 +1,5 @@
 import { useAuth } from '@/hooks/useAuth'
+import { useWindowSize } from '@/hooks/useWindowSize'
 import { ProjectGrid } from '@/components/project/ProjectGrid'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
@@ -6,6 +7,7 @@ import { ArrowRight, Zap } from 'lucide-react'
 
 export function HomePage() {
   const { user } = useAuth()
+  const windowSize = useWindowSize()
 
   return (
     <div>
@@ -23,6 +25,13 @@ export function HomePage() {
         {/* Hero Content */}
         <div className="relative z-10 container mx-auto px-4 min-h-screen flex items-center">
           <div className="text-center w-full py-20">
+            {/* Debug info - will remove after testing */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="fixed top-4 right-4 bg-black/80 text-white text-xs p-2 rounded z-50">
+                {windowSize.width}x{windowSize.height}
+              </div>
+            )}
+            
             {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-uiuc-orange/20 border border-uiuc-orange/30 rounded-full px-4 py-2 mb-6 sm:mb-8">
               <Zap className="w-4 h-4 text-uiuc-orange" />
