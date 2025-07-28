@@ -27,25 +27,27 @@ function App() {
       <div className="min-h-screen bg-background">
         <header className="absolute top-0 left-0 right-0 z-50 bg-transparent text-white p-4">
           <div className="container mx-auto flex items-center justify-between">
-            <div>
+            <div className="flex-shrink-0">
               <Link to="/" className="block">
-                <h1 className="text-2xl font-bold hover:text-uiuc-light-orange transition-colors">
+                <h1 className="text-xl sm:text-2xl font-bold hover:text-uiuc-light-orange transition-colors">
                   IlliniHunt
                 </h1>
-                <p className="text-gray-300">Discover UIUC Innovation</p>
+                <p className="text-gray-300 text-xs sm:text-sm hidden sm:block">Discover UIUC Innovation</p>
               </Link>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
               {user && (
                 <Button 
                   asChild
                   variant="outline" 
-                  className="bg-transparent border-white text-white hover:bg-white hover:text-uiuc-blue"
+                  size="sm"
+                  className="bg-transparent border-white text-white hover:bg-white hover:text-uiuc-blue text-xs sm:text-sm"
                 >
                   <Link to="/submit">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Submit Project
+                    <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Submit Project</span>
+                    <span className="sm:hidden">Submit</span>
                   </Link>
                 </Button>
               )}
