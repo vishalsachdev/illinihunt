@@ -65,20 +65,18 @@ function AppContent() {
             </div>
             
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-              {user && (
-                <Button 
-                  asChild
-                  variant="outline" 
-                  size="sm"
-                  className="bg-transparent border-white text-white hover:bg-white hover:text-uiuc-blue text-xs sm:text-sm"
-                >
-                  <Link to="/submit">
-                    <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    <span className="hidden sm:inline">Submit Project</span>
-                    <span className="sm:hidden">Submit</span>
-                  </Link>
-                </Button>
-              )}
+              <Button 
+                asChild
+                variant="outline" 
+                size="sm"
+                className="bg-transparent border-white text-white hover:bg-white hover:text-uiuc-blue text-xs sm:text-sm"
+              >
+                <Link to="/submit">
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Submit Project</span>
+                  <span className="sm:hidden">Submit</span>
+                </Link>
+              </Button>
               {user ? <UserMenu /> : <LoginButton />}
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { useAuthPrompt } from '@/contexts/AuthPromptContext'
 import { ProjectsService } from '@/lib/database'
 import { Button } from '@/components/ui/button'
 import { ChevronUp } from 'lucide-react'
@@ -13,6 +14,7 @@ interface VoteButtonProps {
 
 export function VoteButton({ projectId, initialVoteCount, className }: VoteButtonProps) {
   const { user } = useAuth()
+  const { showAuthPrompt } = useAuthPrompt()
   const [voteCount, setVoteCount] = useState(initialVoteCount)
   const [hasVoted, setHasVoted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -34,7 +36,7 @@ export function VoteButton({ projectId, initialVoteCount, className }: VoteButto
 
   const handleVote = async () => {
     if (!user) {
-      alert('Please sign in to vote')
+      showAuthPrompt('vote on projects')
       return
     }
 
@@ -64,7 +66,7 @@ export function VoteButton({ projectId, initialVoteCount, className }: VoteButto
       variant="outline"
       size="sm"
       onClick={handleVote}
-      disabled={isLoading || !user}
+      disabled={isLoading}
       className={cn(
         'flex flex-col items-center gap-1 h-auto p-2 min-w-[60px]',
         hasVoted && 'bg-uiuc-orange text-white border-uiuc-orange hover:bg-uiuc-orange/90',

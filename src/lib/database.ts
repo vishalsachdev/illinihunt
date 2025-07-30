@@ -188,3 +188,101 @@ export class CategoriesService {
       .single()
   }
 }
+
+export class StatsService {
+  // Get platform statistics
+  static async getPlatformStats() {
+    try {
+      // Get total projects count
+      const { count: projectsCount, error: projectsError } = await supabase
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active')
+
+      if (projectsError) throw projectsError
+
+      // Get unique users count (project creators)
+      const { data: uniqueUsers, error: usersError } = await supabase
+        .from('projects')
+        .select('user_id')
+        .eq('status', 'active')
+
+      if (usersError) throw usersError
+
+      const uniqueUsersCount = new Set(uniqueUsers?.map(p => p.user_id)).size
+
+      // Get categories count
+      const { count: categoriesCount, error: categoriesError } = await supabase
+        .from('categories')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true)
+
+      if (categoriesError) throw categoriesError
+
+      return {
+        data: {
+          projectsCount: projectsCount || 0,
+          usersCount: uniqueUsersCount || 0,
+          categoriesCount: categoriesCount || 0
+        },
+        error: null
+      }
+    } catch (error) {
+      return {
+        data: null,
+        error: error instanceof Error ? error.message : 'Failed to load statistics'
+      }
+    }
+  }
+
+  // Get featured projects for hero section
+  static async getFeaturedProjects(limit = 3) {
+    return supabase
+      .from('projects')
+      .select(`
+        *,
+        users (
+          id,
+          username,
+          full_name,
+          avatar_url
+        ),
+        categories (
+          id,
+          name,
+          color,
+          icon
+        )
+      `)
+      .eq('status', 'active')
+      .order('upvotes_count', { ascending: false })
+      .limit(limit)
+  }
+
+  // Get recent activity for community feed
+  static async getRecentActivity(limit = 5) {
+    return supabase
+      .from('projects')
+      .select(`
+        id,
+        name,
+        tagline,
+        created_at,
+        users (
+          id,
+          username,
+          full_name,
+          avatar_url
+        ),
+        categories (
+          id,
+          name,
+          color,
+          icon
+        )
+      `)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+  }
+}

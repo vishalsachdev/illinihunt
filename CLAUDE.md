@@ -7,6 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 IlliniHunt V2 is a Product Hunt-style platform for the University of Illinois community (students, faculty, and staff) to showcase projects, apps, and startups. Built with React + TypeScript + Supabase + Vercel.
 
 **Live URL**: https://illinihunt.vercel.app
+and https://illinihunt.org/
+
 
 ## Development Commands
 
@@ -68,6 +70,23 @@ src/components/
 - **Custom hooks** like `useWindowSize` for responsive behavior
 
 ## Key Implementation Details
+
+### Style Guide & Design System
+**Reference File**: `/Users/vishal/Desktop/illinihunt/STYLE_GUIDE.md`
+
+A comprehensive design system document with:
+- **Brand Colors**: UIUC Orange (#FF6B35) and UIUC Blue (#13294B) with Tailwind class references
+- **Typography Scale**: Inter font family with consistent heading hierarchy and body text patterns
+- **Component Patterns**: Code examples for buttons, forms, cards, badges with proper variants
+- **Layout Principles**: Container widths, grid systems, and responsive design patterns
+- **Spacing Scale**: Tailwind spacing guidelines and consistent usage patterns
+- **Accessibility Guidelines**: Color contrast requirements, ARIA labeling, semantic HTML
+- **Usage Rules**: Comprehensive do's and don'ts for maintaining design consistency
+- **Development Workflow**: Step-by-step process for implementing new UI components
+
+**Important**: Always reference STYLE_GUIDE.md when creating new components or modifying existing UI elements to ensure brand consistency and accessibility compliance.
+
+**Implementation Note**: The style guide was initially created as a client-facing page but has been converted to a development reference document. The client-facing components have been removed to keep the production app clean while maintaining comprehensive design system documentation for future development.
 
 ### Responsive Design
 The app uses a custom `useWindowSize` hook to force React re-renders on window resize, ensuring Tailwind responsive classes update properly during browser resizing.

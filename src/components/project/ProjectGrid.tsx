@@ -112,33 +112,56 @@ export function ProjectGrid() {
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
+      {/* Section Header */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-uiuc-blue mb-3">
+          Discover Amazing Projects
+        </h2>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          Explore innovative projects from the UIUC community. Vote for your favorites, discover new ideas, and connect with brilliant minds.
+        </p>
+      </div>
+
+      {/* Enhanced Filters */}
+      <div className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Find Your Perfect Project</h3>
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Search Projects
+            </label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Search projects..."
+                placeholder="Search by name, description, or technology..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-11"
               />
             </div>
           </div>
 
           {/* Category Filter */}
-          <div className="sm:w-48">
+          <div className="sm:w-56">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Category
+            </label>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
-                    {category.name}
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: category.color }}
+                      />
+                      {category.name}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -146,14 +169,17 @@ export function ProjectGrid() {
           </div>
 
           {/* Sort */}
-          <div className="sm:w-36">
+          <div className="sm:w-40">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Sort By
+            </label>
             <Select value={sortBy} onValueChange={(value: 'recent' | 'popular') => setSortBy(value)}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="recent">Recent</SelectItem>
-                <SelectItem value="popular">Popular</SelectItem>
+                <SelectItem value="recent">Most Recent</SelectItem>
+                <SelectItem value="popular">Most Popular</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -162,10 +188,31 @@ export function ProjectGrid() {
 
       {/* Results Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900">
-          {searchQuery ? `Search results for "${searchQuery}"` : 'Latest Projects'}
-          {!loading && ` (${projects.length})`}
-        </h2>
+        <div>
+          <h3 className="text-xl font-semibold text-gray-900">
+            {searchQuery ? `Search results for "${searchQuery}"` : 
+             selectedCategory !== 'all' ? `${categories.find(c => c.id === selectedCategory)?.name || ''} Projects` :
+             'All Projects'}
+          </h3>
+          {!loading && (
+            <p className="text-sm text-gray-600 mt-1">
+              {projects.length} {projects.length === 1 ? 'project' : 'projects'} found
+            </p>
+          )}
+        </div>
+        {(searchQuery || selectedCategory !== 'all') && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setSearchQuery('')
+              setSelectedCategory('all')
+            }}
+            className="text-uiuc-blue hover:text-uiuc-orange"
+          >
+            Clear filters
+          </Button>
+        )}
       </div>
 
       {/* Loading State */}
@@ -178,7 +225,7 @@ export function ProjectGrid() {
 
       {/* Projects Grid */}
       {!loading && projects.length > 0 && (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
             <ProjectCard
               key={project.id}
