@@ -8,10 +8,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { User, LogOut } from 'lucide-react'
+import { User, LogOut, LayoutDashboard, FolderOpen } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export function UserMenu() {
-  const { profile, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
 
   if (!profile) return null
 
@@ -19,7 +20,7 @@ export function UserMenu() {
     try {
       await signOut()
     } catch (error) {
-      console.error('Sign out error:', error)
+      // Sign out errors are handled by the auth hook
     }
   }
 
@@ -47,9 +48,23 @@ export function UserMenu() {
           </div>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <User className="mr-2 h-4 w-4" />
-          <span>Profile</span>
+        <DropdownMenuItem asChild>
+          <Link to="/dashboard" className="flex items-center">
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            <span>Dashboard</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/collections" className="flex items-center">
+            <FolderOpen className="mr-2 h-4 w-4" />
+            <span>Collections</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to={`/user/${user?.id}`} className="flex items-center">
+            <User className="mr-2 h-4 w-4" />
+            <span>View Profile</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>

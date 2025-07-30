@@ -47,12 +47,11 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
     try {
       const { data, error } = await CategoriesService.getCategories()
       if (error) {
-        console.error('Categories error:', error)
         throw error
       }
       setCategories(data || [])
     } catch (error) {
-      console.error('Error loading categories:', error)
+      // Categories will remain empty, form will still be functional
     }
   }
 
@@ -78,7 +77,6 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
       alert('Project submitted successfully!')
       onSuccess?.()
     } catch (error) {
-      console.error('Error submitting project:', error)
       alert('Failed to submit project. Please try again.')
     } finally {
       setIsSubmitting(false)

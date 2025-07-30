@@ -5,6 +5,12 @@ import { LoginButton } from '@/components/auth/LoginButton'
 import { UserMenu } from '@/components/auth/UserMenu'
 import { HomePage } from '@/pages/HomePage'
 import { SubmitProjectPage } from '@/pages/SubmitProjectPage'
+import { ProjectDetailPage } from '@/pages/ProjectDetailPage'
+import { UserProfilePage } from '@/pages/UserProfilePage'
+import { DashboardPage } from '@/pages/DashboardPage'
+import { EditProfilePage } from '@/pages/EditProfilePage'
+import { CollectionsPage } from '@/pages/CollectionsPage'
+import { CollectionViewPage } from '@/pages/CollectionViewPage'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { AuthPromptProvider, useAuthPrompt } from '@/contexts/AuthPromptContext'
@@ -65,6 +71,18 @@ function AppContent() {
             </div>
             
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+              {user && (
+                <Button 
+                  asChild
+                  variant="ghost" 
+                  size="sm"
+                  className="bg-transparent text-white hover:bg-white/10 text-xs sm:text-sm hidden sm:inline-flex"
+                >
+                  <Link to="/dashboard">
+                    Dashboard
+                  </Link>
+                </Button>
+              )}
               <Button 
                 asChild
                 variant="outline" 
@@ -102,6 +120,33 @@ function AppContent() {
                 </ProtectedRoute>
               } 
             />
+            <Route path="/project/:id" element={<ProjectDetailPage />} />
+            <Route path="/user/:id" element={<UserProfilePage />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile/edit" 
+              element={
+                <ProtectedRoute>
+                  <EditProfilePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/collections" 
+              element={
+                <ProtectedRoute>
+                  <CollectionsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/collections/:id" element={<CollectionViewPage />} />
           </Routes>
         </main>
       </div>

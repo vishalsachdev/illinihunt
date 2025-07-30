@@ -34,7 +34,7 @@ export function RecentActivityFeed() {
           setActivities(data as unknown as RecentActivity[])
         }
       } catch (error) {
-        console.error('Error loading recent activity:', error)
+        // Silently fail, activities will remain empty
       } finally {
         setLoading(false)
       }

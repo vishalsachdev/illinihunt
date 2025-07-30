@@ -30,7 +30,7 @@ export function VoteButton({ projectId, initialVoteCount, className }: VoteButto
       const voted = await ProjectsService.hasUserVoted(projectId)
       setHasVoted(voted)
     } catch (error) {
-      console.error('Error checking vote status:', error)
+      // Silently handle error - vote status will remain unchecked
     }
   }
 
@@ -54,7 +54,6 @@ export function VoteButton({ projectId, initialVoteCount, className }: VoteButto
         setHasVoted(true)
       }
     } catch (error) {
-      console.error('Error voting:', error)
       alert('Failed to vote. Please try again.')
     } finally {
       setIsLoading(false)

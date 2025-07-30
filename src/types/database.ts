@@ -208,6 +208,109 @@ export interface Database {
           created_at?: string
         }
       }
+      bookmarks: {
+        Row: {
+          id: string
+          user_id: string
+          project_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          project_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          project_id?: string
+          created_at?: string
+        }
+      }
+      collections: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          description: string | null
+          is_public: boolean
+          projects_count: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          description?: string | null
+          is_public?: boolean
+          projects_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          description?: string | null
+          is_public?: boolean
+          projects_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      collection_projects: {
+        Row: {
+          id: string
+          collection_id: string
+          project_id: string
+          added_at: string
+        }
+        Insert: {
+          id?: string
+          collection_id: string
+          project_id: string
+          added_at?: string
+        }
+        Update: {
+          id?: string
+          collection_id?: string
+          project_id?: string
+          added_at?: string
+        }
+      }
+    }
+    Views: {
+      user_bookmarks_with_projects: {
+        Row: {
+          id: string
+          user_id: string
+          bookmarked_at: string
+          project_id: string
+          project_name: string
+          tagline: string
+          image_url: string | null
+          upvotes_count: number
+          status: string
+          project_created_at: string
+          project_author: string | null
+          category_name: string | null
+          category_color: string | null
+        }
+      }
+      public_collections_with_stats: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          projects_count: number
+          created_at: string
+          owner_username: string | null
+          owner_name: string | null
+          owner_avatar: string | null
+        }
+      }
     }
   }
 }

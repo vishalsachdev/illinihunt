@@ -1,0 +1,284 @@
+import { useState, useEffect } from 'react'
+import { useParams, Link, Navigate } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
+import { ProjectsService } from '@/lib/database'
+import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { VoteButton } from '@/components/project/VoteButton'
+import { ArrowLeft, ExternalLink, Github, User } from 'lucide-react'
+import { CommentList } from '@/components/comment/CommentList'
+
+type ProjectDetail = {
+  id: string
+  name: string
+  tagline: string
+  description: string
+  image_url: string | null
+  website_url: string | null
+  github_url: string | null
+  upvotes_count: number
+  comments_count: number
+  created_at: string
+  users: {
+    id: string
+    username: string | null
+    full_name: string | null
+    avatar_url: string | null
+  } | null
+  categories: {
+    id: string
+    name: string
+    color: string
+    icon: string | null
+  } | null
+}
+
+export function ProjectDetailPage() {
+  const { id } = useParams<{ id: string }>()
+  const { user } = useAuth()
+  const [project, setProject] = useState<ProjectDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const loadProject = async () => {
+      if (!id) return
+      
+      setLoading(true)
+      const { data, error } = await ProjectsService.getProject(id)
+      
+      if (error) {
+        setError('Failed to load project')
+        setLoading(false)
+        return
+      }
+      
+      if (!data) {
+        setError('Project not found')
+        setLoading(false)
+        return
+      }
+      
+      setProject(data)
+      setLoading(false)
+    }
+
+    loadProject()
+  }, [id])
+
+  if (!id) {
+    return <Navigate to="/" replace />
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading project...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !project) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Project Not Found</h1>
+          <p className="text-gray-600 mb-6">{error || 'The requested project could not be found.'}</p>
+          <Button asChild>
+            <Link to="/">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Link>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Navigation */}
+      <div className="container mx-auto px-4 pt-24 pb-8">
+        <Button variant="ghost" asChild className="mb-6">
+          <Link to="/">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Projects
+          </Link>
+        </Button>
+      </div>
+
+      {/* Project Header */}
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            {/* Project Image */}
+            {project.image_url && (
+              <div className="mb-8">
+                <img
+                  src={project.image_url}
+                  alt={project.name}
+                  className="w-full h-64 md:h-80 object-cover rounded-lg border"
+                />
+              </div>
+            )}
+
+            {/* Project Info */}
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                      {project.name}
+                    </h1>
+                    <p className="text-xl text-gray-700 leading-relaxed">
+                      {project.tagline}
+                    </p>
+                  </div>
+                  <div className="ml-4 flex-shrink-0">
+                    <VoteButton 
+                      projectId={project.id} 
+                      initialVoteCount={project.upvotes_count}
+                    />
+                  </div>
+                </div>
+
+                {/* Category Badge */}
+                {project.categories && (
+                  <Badge 
+                    variant="secondary" 
+                    className="mb-4"
+                    style={{ 
+                      backgroundColor: `${project.categories.color}20`,
+                      color: project.categories.color,
+                      borderColor: `${project.categories.color}40`
+                    }}
+                  >
+                    {project.categories.icon && (
+                      <span className="mr-1">{project.categories.icon}</span>
+                    )}
+                    {project.categories.name}
+                  </Badge>
+                )}
+              </div>
+
+              {/* Description */}
+              <div className="prose max-w-none">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">About this project</h2>
+                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {project.description}
+                </div>
+              </div>
+
+              {/* Links */}
+              <div className="flex flex-wrap gap-4">
+                {project.website_url && (
+                  <Button asChild variant="outline">
+                    <a href={project.website_url} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Visit Website
+                    </a>
+                  </Button>
+                )}
+                {project.github_url && (
+                  <Button asChild variant="outline">
+                    <a href={project.github_url} target="_blank" rel="noopener noreferrer">
+                      <Github className="w-4 h-4 mr-2" />
+                      View Source
+                    </a>
+                  </Button>
+                )}
+              </div>
+
+              {/* Comments Section */}
+              <div className="border-t pt-8">
+                <CommentList 
+                  projectId={project.id} 
+                  totalComments={project.comments_count}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 space-y-6">
+              {/* Creator Info */}
+              <div className="bg-white border rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Creator</h3>
+                {project.users ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={project.users.avatar_url || undefined} />
+                        <AvatarFallback>
+                          {project.users.full_name?.charAt(0) || 
+                           project.users.username?.charAt(0) || 
+                           '?'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {project.users.full_name || project.users.username || 'Anonymous'}
+                        </p>
+                        {project.users.username && project.users.full_name && (
+                          <p className="text-sm text-gray-600">@{project.users.username}</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <Button asChild variant="outline" className="w-full">
+                      <Link to={`/user/${project.users.id}`}>
+                        <User className="w-4 h-4 mr-2" />
+                        View Profile
+                      </Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-gray-600">Anonymous creator</p>
+                )}
+              </div>
+
+              {/* Project Stats */}
+              <div className="bg-white border rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Stats</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Upvotes</span>
+                    <span className="font-medium">{project.upvotes_count}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Comments</span>
+                    <span className="font-medium">{project.comments_count}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Created</span>
+                    <span className="font-medium">
+                      {new Date(project.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Edit Button for Project Owner */}
+              {user && project.users && user.id === project.users.id && (
+                <div className="bg-white border rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Manage Project</h3>
+                  <Button asChild className="w-full">
+                    <Link to="/dashboard">
+                      Go to Dashboard
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

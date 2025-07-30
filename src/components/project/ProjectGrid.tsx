@@ -60,7 +60,7 @@ export function ProjectGrid() {
       if (error) throw error
       setCategories(data || [])
     } catch (err) {
-      console.error('Error loading categories:', err)
+      // Categories will remain empty if loading fails
     }
   }
 
@@ -79,17 +79,12 @@ export function ProjectGrid() {
       if (error) throw error
       setProjects(data || [])
     } catch (err) {
-      console.error('Error loading projects:', err)
       setError(err instanceof Error ? err.message : 'Failed to load projects')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleViewDetails = (_projectId: string) => {
-    // TODO: Navigate to project detail page
-    // Future implementation: navigate to /project/:id
-  }
 
   if (error) {
     return (
@@ -230,7 +225,6 @@ export function ProjectGrid() {
             <ProjectCard
               key={project.id}
               project={project}
-              onViewDetails={handleViewDetails}
             />
           ))}
         </div>

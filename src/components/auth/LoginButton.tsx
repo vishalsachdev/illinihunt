@@ -8,7 +8,7 @@ export function LoginButton() {
     try {
       await signInWithGoogle()
     } catch (error) {
-      console.error('Login error:', error)
+      // Login errors are handled by the auth hook
     }
   }
 

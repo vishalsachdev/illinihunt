@@ -1,6 +1,9 @@
 import { formatDistance } from 'date-fns'
 import { ExternalLink, Github, MessageCircle } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { VoteButton } from './VoteButton'
+import { BookmarkButton } from './BookmarkButton'
+import { AddToCollectionButton } from './AddToCollectionButton'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
@@ -31,10 +34,9 @@ interface ProjectData {
 
 interface ProjectCardProps {
   project: ProjectData
-  onViewDetails?: (projectId: string) => void
 }
 
-export function ProjectCard({ project, onViewDetails }: ProjectCardProps) {
+export function ProjectCard({ project }: ProjectCardProps) {
   const user = project.users
   const category = project.categories
 
@@ -124,15 +126,31 @@ export function ProjectCard({ project, onViewDetails }: ProjectCardProps) {
         {/* Footer */}
         <div className="flex items-center justify-between text-sm border-t border-gray-100 pt-3">
           <div className="flex items-center gap-2">
-            <Avatar className="w-6 h-6">
-              <AvatarImage src={user?.avatar_url || ''} />
-              <AvatarFallback className="text-xs">
-                {user?.full_name ? user.full_name.slice(0, 2).toUpperCase() : 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-xs text-gray-600 truncate">
-              {user?.full_name || user?.username || 'Anonymous'}
-            </span>
+            {user ? (
+              <Link 
+                to={`/user/${user.id}`} 
+                className="flex items-center gap-2 hover:text-uiuc-blue transition-colors"
+              >
+                <Avatar className="w-6 h-6">
+                  <AvatarImage src={user.avatar_url || ''} />
+                  <AvatarFallback className="text-xs">
+                    {user.full_name ? user.full_name.slice(0, 2).toUpperCase() : 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-xs text-gray-600 truncate hover:text-uiuc-blue transition-colors">
+                  {user.full_name || user.username || 'Anonymous'}
+                </span>
+              </Link>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Avatar className="w-6 h-6">
+                  <AvatarFallback className="text-xs">U</AvatarFallback>
+                </Avatar>
+                <span className="text-xs text-gray-600 truncate">
+                  Anonymous
+                </span>
+              </div>
+            )}
           </div>
           
           <div className="flex items-center gap-3 text-gray-500">
@@ -143,20 +161,30 @@ export function ProjectCard({ project, onViewDetails }: ProjectCardProps) {
             <span className="text-xs">
               {formatDistance(new Date(project.created_at), new Date(), { addSuffix: true })}
             </span>
+            <BookmarkButton 
+              projectId={project.id}
+              variant="ghost"
+              size="sm"
+            />
+            <AddToCollectionButton 
+              projectId={project.id}
+              variant="ghost"
+              size="sm"
+            />
           </div>
         </div>
 
         {/* View Details Button */}
-        {onViewDetails && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onViewDetails(project.id)}
-            className="mt-3 w-full h-8 text-xs text-uiuc-blue hover:text-white hover:bg-uiuc-blue transition-colors"
-          >
+        <Button
+          variant="ghost"
+          size="sm"
+          asChild
+          className="mt-3 w-full h-8 text-xs text-uiuc-blue hover:text-white hover:bg-uiuc-blue transition-colors"
+        >
+          <Link to={`/project/${project.id}`}>
             View Details →
-          </Button>
-        )}
+          </Link>
+        </Button>
       </div>
     </div>
   )

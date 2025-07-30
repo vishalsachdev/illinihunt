@@ -34,7 +34,7 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
       await signInWithGoogle()
       handleClose()
     } catch (error) {
-      console.error('Error during sign in:', error)
+      // Sign in errors are handled by the auth hook
     }
   }
 
