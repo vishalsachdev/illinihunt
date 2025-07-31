@@ -1,0 +1,229 @@
+name: 🐛 Bug Report
+description: Report a bug or issue with IlliniHunt V2
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+projects: ["vishalsachdev/illinihunt"]
+assignees:
+  - vishalsachdev
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve IlliniHunt! Clear bug reports help us fix issues quickly.
+        
+        🤖 **AI Assistant**: Mention @claude to get automatic bug analysis and potential fixes!
+
+  - type: input
+    id: summary
+    attributes:
+      label: Bug Summary
+      description: Brief description of the issue
+      placeholder: "Project cards not loading on mobile devices"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Bug Severity
+      description: How severe is this issue?
+      options:
+        - 🔴 Critical (app crashes, data loss, security issue)
+        - 🟡 High (major feature broken, affects many users)
+        - 🟠 Medium (feature partially broken, workaround exists)
+        - 🟢 Low (minor issue, cosmetic problem)
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this bug?
+      placeholder: |
+        1. Go to 'https://illinihunt.vercel.app'
+        2. Sign in with @illinois.edu account
+        3. Navigate to 'Projects' page
+        4. Switch to mobile view (or use phone)
+        5. Scroll down to load more projects
+        6. See error: cards fail to load
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen?
+      placeholder: "Project cards should load smoothly on mobile devices, showing project information clearly"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happens?
+      placeholder: "Project cards show loading spinner indefinitely, or display error message 'Failed to load projects'"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      description: Which browser are you using?
+      multiple: true
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Mobile Safari (iOS)
+        - Chrome Mobile (Android)
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device Type
+      description: What device are you using?
+      options:
+        - Desktop (Windows)
+        - Desktop (Mac)
+        - Desktop (Linux)
+        - Laptop
+        - Tablet (iPad)
+        - Tablet (Android)
+        - Phone (iPhone)
+        - Phone (Android)
+    validations:
+      required: true
+
+  - type: input
+    id: screen_size
+    attributes:
+      label: Screen Size/Resolution
+      description: If relevant, what's your screen size?
+      placeholder: "1920x1080, iPhone 13 Pro, iPad Air, etc."
+
+  - type: dropdown
+    id: user_type
+    attributes:
+      label: User Type
+      description: What type of UIUC user are you?
+      options:
+        - Undergraduate student
+        - Graduate student  
+        - Faculty
+        - Staff
+        - Alumni
+        - External visitor
+    validations:
+      required: true
+
+  - type: textarea
+    id: console_errors
+    attributes:
+      label: Console Errors
+      description: Any errors in browser console? (F12 > Console tab)
+      placeholder: |
+        Example:
+        TypeError: Cannot read property 'map' of undefined
+        at ProjectGrid.tsx:45:12
+        
+        Or: "No console errors visible"
+      render: text
+
+  - type: textarea
+    id: network_errors
+    attributes:
+      label: Network Errors
+      description: Any failed network requests? (F12 > Network tab)
+      placeholder: |
+        Example:
+        GET https://illinihunt.vercel.app/api/projects - 500 Internal Server Error
+        
+        Or: "No network errors visible"
+      render: text
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots/Videos
+      description: Visual evidence helps! Drag and drop images here.
+      placeholder: "Drag and drop screenshots, or paste image URLs"
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: How Often Does This Happen?
+      description: Is this bug reproducible?
+      options:
+        - Always (100% of the time)
+        - Often (more than 50% of the time)
+        - Sometimes (less than 50% of the time)
+        - Rarely (happened once or twice)
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround
+      description: Have you found any way to work around this issue?
+      placeholder: "Refreshing the page fixes it temporarily, or switching to desktop works"
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Anything else that might help?
+      placeholder: |
+        - When did this start happening?
+        - Does it happen on specific pages only?
+        - Any browser extensions that might interfere?
+        - Internet connection type/speed?
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution Interest  
+      description: Would you like to help fix this bug?
+      options:
+        - label: I'd like to investigate and fix this myself
+        - label: I'd like to work with @claude to fix this
+        - label: I can help test the fix when it's ready
+        - label: I'm just reporting for someone else to fix
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        ### 🤖 AI Assistant Integration
+        
+        Get AI help with this bug:
+        
+        ```
+        @claude analyze this bug report and suggest potential causes
+        
+        @claude create a fix for this mobile responsive issue
+        
+        @claude review the ProjectGrid component for this error
+        ```
+        
+        ### 🎓 Learning Opportunity
+        
+        This bug report could be great for:
+        - Learning debugging techniques
+        - Understanding responsive design challenges  
+        - Mobile web development experience
+        - Working with React error boundaries
+        - Database query optimization
+        
+        Don't hesitate to ask questions or request mentorship!

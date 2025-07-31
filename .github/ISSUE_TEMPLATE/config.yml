@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/vishalsachdev/illinihunt/discussions
+    about: Ask questions, share ideas, or discuss features with the community
+  - name: 🤖 AI Assistant Help
+    url: https://github.com/vishalsachdev/illinihunt/discussions/categories/claude-ai-help
+    about: Get help from Claude AI assistant with coding questions and guidance
+  - name: 🎓 Academic Integration Support
+    url: https://github.com/vishalsachdev/illinihunt/discussions/categories/academic-integration
+    about: Discuss course projects, research opportunities, and academic credit
+  - name: 📚 Learning Resources
+    url: https://github.com/vishalsachdev/illinihunt/blob/main/CONTRIBUTING.md
+    about: Read our comprehensive guide for UIUC student contributors

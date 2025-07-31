@@ -188,21 +188,135 @@ supabase/
 - **Industry Partnerships** - Connect projects to career opportunities
 - **Mobile App** - Native iOS/Android applications
 
-## 🤝 Contributing
+## 🤝 Contributing to IlliniHunt
 
-This project is currently in active development for the UIUC community. If you're a UIUC student, faculty, or staff member interested in contributing:
+**Welcome UIUC Students!** 🎓 IlliniHunt is built by students, for students. Contributing offers unique opportunities for portfolio building, academic credit, and real-world experience with modern web development.
 
-1. **Fork the repository**
-2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
-3. **Commit your changes** (`git commit -m 'Add amazing feature'`)
-4. **Push to the branch** (`git push origin feature/amazing-feature`)
-5. **Open a Pull Request**
+### 🚀 Quick Start for Students
+1. **Read our [Contributing Guide](CONTRIBUTING.md)** - Comprehensive guide for UIUC contributors
+2. **Browse [Student-Friendly Issues](https://github.com/vishalsachdev/illinihunt/labels/student-friendly)** - Perfect starting points
+3. **Try AI-Assisted Development** - Use @claude for help and learning
+4. **Connect Course Projects** - Integrate with CS/ECE/BADM coursework
 
-### Code Quality Standards
-- **TypeScript**: Strict mode enabled, no `any` types in new code
-- **ESLint**: Follow configured rules for consistency
-- **Testing**: Add tests for new features (framework TBD)
-- **Documentation**: Update relevant docs for significant changes
+### 🤖 AI-Powered Development Workflow
+
+IlliniHunt now includes **Claude Code automation** to help students learn and contribute more effectively:
+
+**How It Works:**
+- Mention **@claude** in any issue or PR comment
+- Get automatic code suggestions, reviews, and implementations  
+- Learn best practices through AI explanations and guidance
+
+**Example Commands:**
+```markdown
+@claude implement user notification system with real-time updates
+
+@claude review this component for accessibility and performance
+
+@claude fix the TypeScript error in the ProjectCard component
+```
+
+**Learning Benefits:**
+- 📚 **Code Explanations**: Understand complex patterns and architecture
+- 🏆 **Best Practices**: Learn React, TypeScript, and Supabase through AI guidance
+- 🔍 **Code Reviews**: Get detailed feedback on your contributions
+- 🤝 **Collaborative Learning**: Work alongside AI to tackle challenging features
+
+### 🎯 Contribution Opportunities
+
+#### 🟢 **Beginner-Friendly** (New to web development)
+- UI improvements and visual fixes
+- Documentation updates and examples
+- Simple component modifications
+- Icon and styling enhancements
+
+#### 🟡 **Intermediate** (Some React/JS experience)
+- New feature components and pages
+- Database schema improvements
+- API integration enhancements
+- Performance optimizations
+
+#### 🔴 **Advanced** (Experienced developers)
+- Architecture improvements and refactoring
+- Complex feature implementations
+- Security enhancements and audits
+- DevOps and deployment improvements
+
+### 🏫 Academic Integration
+
+**Course Project Opportunities:**
+- **CS 225**: Data structures for search/filtering algorithms
+- **CS 411**: Database optimization and query improvements
+- **CS 465**: UI/UX research and design improvements
+- **CS 519**: Data visualization and analytics features
+- **BADM 350**: Business model analysis and user engagement
+
+**Research Opportunities:**
+- Human-computer interaction studies
+- Software engineering methodology research
+- Social computing and community analysis
+- AI-assisted development effectiveness studies
+
+**Getting Academic Credit:**
+1. Use our [Course Project Template](https://github.com/vishalsachdev/illinihunt/issues/new?template=course_project.yml)
+2. Discuss integration with your professor
+3. Document learning outcomes and contributions
+4. Present results in class or research papers
+
+### 🛠️ Development Workflow
+
+```bash
+# 1. Fork and clone
+git clone https://github.com/YOUR_USERNAME/illinihunt.git
+cd illinihunt
+
+# 2. Install dependencies
+npm install
+
+# 3. Set up environment
+cp .env.example .env.local
+# Add Supabase credentials
+
+# 4. Start development
+npm run dev
+
+# 5. Create feature branch
+git checkout -b feature/your-feature-name
+
+# 6. Use AI assistance
+# Comment on issues with @claude for help
+```
+
+### 🎨 Code Quality Standards
+- **TypeScript**: Strict mode enabled, avoid `any` types
+- **React**: Functional components with hooks
+- **Styling**: Tailwind CSS with design system
+- **AI Review**: Use @claude for code review and suggestions
+- **Testing**: Add tests for new features when applicable
+
+### 🌟 Student Success Stories
+
+*Coming soon: Showcase of UIUC students who have:*
+- Landed tech internships through IlliniHunt contributions
+- Published research papers based on their work
+- Received academic credit for open source contributions
+- Built impressive portfolio projects for career advancement
+
+### 📞 Getting Help
+
+- **GitHub Discussions**: Ask questions and share ideas
+- **Issue Comments**: Tag maintainers or use @claude for AI help
+- **Contributing Guide**: [Detailed instructions](CONTRIBUTING.md)
+- **AI Assistant**: Get coding help and explanations anytime
+
+### 🎊 Recognition
+
+Contributors receive:
+- GitHub contributor recognition
+- LinkedIn recommendations for significant contributions
+- Portfolio project showcase opportunities
+- Potential research collaboration and co-authorship
+- Academic credit coordination with professors
 
 ## 📊 Platform Analytics
 

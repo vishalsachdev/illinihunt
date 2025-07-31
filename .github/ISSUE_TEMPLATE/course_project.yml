@@ -1,0 +1,288 @@
+name: 🎓 Course Project Integration
+description: Propose integrating IlliniHunt with your UIUC coursework
+title: "[COURSE] "
+labels: ["course-project", "academic-integration", "student-friendly"]
+projects: ["vishalsachdev/illinihunt"]
+assignees:
+  - vishalsachdev
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Perfect! We love when students integrate IlliniHunt contributions with their coursework. This creates real-world learning opportunities while improving the platform.
+        
+        🤖 **AI Support**: @claude can help design your project scope and implementation approach!
+
+  - type: input
+    id: course_info
+    attributes:
+      label: Course Information
+      description: What course is this for?
+      placeholder: "CS 465 - User Interface Design, Spring 2025, Prof. Smith"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: course_code
+    attributes:
+      label: Course Code
+      description: Select your course (or closest match)
+      options:
+        - CS 225 - Data Structures
+        - CS 233 - Computer Architecture  
+        - CS 411 - Database Systems
+        - CS 465 - User Interface Design
+        - CS 473 - Algorithms
+        - CS 519 - Scientific Visualization
+        - CS 527 - Computer Security
+        - CS 591 - Advanced Topics
+        - BADM 350 - Foundations of Business
+        - BADM 554 - Business Intelligence
+        - ECE 391 - Computer Systems Engineering
+        - STAT 420 - Methods of Applied Statistics
+        - Other (specify in project description)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: project_type
+    attributes:
+      label: Project Type
+      description: What kind of course project is this?
+      options:
+        - Final Project
+        - Midterm Project
+        - Weekly Assignment
+        - Research Paper/Presentation
+        - Group Project
+        - Independent Study
+        - Capstone Project
+        - Extra Credit
+    validations:
+      required: true
+
+  - type: textarea
+    id: assignment_requirements
+    attributes:
+      label: Assignment Requirements
+      description: What are the specific requirements from your professor?
+      placeholder: |
+        Example:
+        - Create a user interface improvement with A/B testing
+        - Must demonstrate user research methods
+        - Implement accessibility features (WCAG 2.1)
+        - Write a 10-page report on design decisions
+        - Present findings to class
+        - Due: April 15, 2025
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_contribution
+    attributes:
+      label: Proposed IlliniHunt Contribution
+      description: What would you like to implement or improve?
+      placeholder: |
+        Example:
+        - Redesign the project submission form with better UX
+        - Add user testing and analytics to measure improvement
+        - Implement accessibility features for screen readers
+        - Create A/B test for two different layouts
+        - Document the entire design process
+    validations:
+      required: true
+
+  - type: dropdown
+    id: timeline
+    attributes:
+      label: Project Timeline
+      description: How long do you have to complete this?
+      options:
+        - 1-2 weeks
+        - 3-4 weeks  
+        - 5-8 weeks (half semester)
+        - 9-16 weeks (full semester)
+        - Flexible/ongoing
+    validations:
+      required: true
+
+  - type: dropdown
+    id: team_size
+    attributes:
+      label: Team Size
+      description: Are you working alone or with others?
+      options:
+        - Individual (just me)
+        - 2 people
+        - 3 people
+        - 4 people
+        - 5+ people
+    validations:
+      required: true
+
+  - type: textarea
+    id: learning_objectives
+    attributes:
+      label: Learning Objectives
+      description: What do you hope to learn from this project?
+      placeholder: |
+        Example:
+        - Learn React and TypeScript in a real production environment
+        - Understand user research and A/B testing methodologies  
+        - Gain experience with accessibility standards
+        - Practice working with a real codebase and GitHub workflow
+        - Build portfolio project for internship applications
+    validations:
+      required: true
+
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Course Deliverables
+      description: What do you need to submit for your course?
+      placeholder: |
+        Example:
+        - Working implementation deployed to production
+        - Technical documentation and code comments
+        - User research report with testing results
+        - Class presentation (15 minutes)
+        - Reflection paper on lessons learned
+        - GitHub repository with commit history
+    validations:
+      required: true
+
+  - type: dropdown
+    id: technical_skills
+    attributes:
+      label: Current Technical Skills
+      description: What's your experience level?
+      options:
+        - Beginner (new to web development)
+        - Some experience (built small projects)
+        - Intermediate (comfortable with React/JS)
+        - Advanced (professional or extensive experience)
+        - Expert (could mentor others)
+    validations:
+      required: true
+
+  - type: textarea
+    id: mentor_needs
+    attributes:
+      label: Mentorship Needs
+      description: What kind of support would help you succeed?
+      placeholder: |
+        Example:
+        - Weekly check-ins with maintainers
+        - Code review and feedback on approach
+        - Help understanding the existing codebase
+        - Guidance on user research methodologies
+        - Support with technical implementation challenges
+        - Help preparing final presentation
+    validations:
+      required: true
+
+  - type: dropdown
+    id: professor_involvement
+    attributes:
+      label: Professor Involvement
+      description: Is your professor aware of this integration?
+      options:
+        - Yes, professor suggested using open source project
+        - Yes, professor approved this specific project
+        - No, but professor is open to external projects  
+        - No, need to get approval first
+        - Not sure, need to discuss with professor
+    validations:
+      required: true
+
+  - type: textarea
+    id: academic_credit
+    attributes:
+      label: Academic Credit Requirements
+      description: Any special requirements for academic credit?
+      placeholder: |
+        Example:
+        - Must demonstrate original contribution
+        - Need to show learning progression over time
+        - Requires peer review from classmates
+        - Must align with specific course learning objectives
+        - Professor needs progress reports every two weeks
+
+  - type: checkboxes
+    id: collaboration_preferences
+    attributes:
+      label: Collaboration Preferences
+      description: How would you like to work with the IlliniHunt team?
+      options:
+        - label: Regular mentorship meetings (weekly/bi-weekly)
+        - label: Code review and feedback on my contributions
+        - label: Help with technical implementation challenges
+        - label: Support with user research and testing
+        - label: Guidance on documentation and presentation
+        - label: Connection with other student contributors
+        - label: Potential co-authorship on research papers
+
+  - type: textarea
+    id: success_metrics
+    attributes:
+      label: Success Metrics
+      description: How will you measure success for your course project?
+      placeholder: |
+        Example:
+        - Feature successfully deployed to production
+        - Positive user feedback from A/B testing
+        - Improved accessibility score (WCAG compliance)
+        - Positive code review from maintainers
+        - Course grade of A- or better
+        - Portfolio piece ready for job applications
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        ### 🤖 AI Assistant Integration
+        
+        Get AI guidance for your course project:
+        
+        ```
+        @claude help me scope this course project appropriately for CS 465
+        
+        @claude suggest a user research methodology for testing this feature
+        
+        @claude create a project timeline with milestones for this assignment
+        ```
+        
+        ### 🎯 Course Integration Benefits
+        
+        **For You:**
+        - Real-world development experience
+        - Portfolio project for job applications  
+        - Mentorship from experienced developers
+        - Learning modern tech stack (React, TypeScript, Supabase)
+        - Understanding of production software development
+        
+        **For IlliniHunt:**
+        - Fresh perspectives from students
+        - Features aligned with student needs
+        - Academic rigor in implementation
+        - Documentation that helps future contributors
+        
+        **For UIUC:**
+        - Showcase of student innovation
+        - Bridge between academia and open source
+        - Real-world learning opportunities
+        - Potential research collaboration
+        
+        ---
+        
+        ### 📚 Next Steps
+        
+        1. **Professor Approval**: Confirm this aligns with course requirements
+        2. **Scope Discussion**: We'll help refine your project scope
+        3. **Timeline Planning**: Create realistic milestones
+        4. **Mentorship Setup**: Connect you with appropriate guidance
+        5. **Implementation**: Start building with AI and human support!
+        
+        We're excited to support your academic success! 🚀
