@@ -1,0 +1,132 @@
+name: Requirement Clarification
+
+concurrency:
+  group: claude-clarification-${{ github.workflow }}-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+on:
+  issues:
+    types: [opened]
+    # Only trigger on issues with specific labels
+  issue_comment:
+    types: [created]
+
+jobs:
+  claude-clarification:
+    # Only run on new issues with needs-clarification label or @claude mentions in comments
+    if: |
+      (github.event_name == 'issues' && 
+       contains(github.event.issue.labels.*.name, 'needs-clarification') &&
+       (contains(github.event.issue.labels.*.name, 'enhancement') || contains(github.event.issue.labels.*.name, 'bug')) &&
+       contains(github.event.issue.body, '@claude')) ||
+      (github.event_name == 'issue_comment' && 
+       contains(github.event.comment.body, '@claude') &&
+       contains(github.event.issue.labels.*.name, 'needs-clarification'))
+    
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+      id-token: write
+      actions: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Requirement Clarification
+        id: claude-clarification
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          
+          # Custom instructions for requirement clarification
+          custom_instructions: |
+            You are helping clarify requirements for IlliniHunt V2, a Product Hunt-style platform for UIUC students.
+            
+            Your role in this workflow:
+            1. ANALYZE the issue thoroughly to understand what the user wants
+            2. ASK specific clarifying questions to fill gaps in the requirements
+            3. PROBE for edge cases, user flows, and technical constraints
+            4. REQUEST mockups, examples, or references if needed
+            5. When requirements are clear, CREATE a comprehensive specification
+            
+            Key areas to clarify:
+            - Exact user flows and interactions
+            - Edge cases and error handling
+            - Mobile vs desktop behavior differences
+            - Integration with existing features
+            - Performance and accessibility requirements
+            - Success criteria and acceptance tests
+            
+            Architecture context:
+            - Frontend: React + TypeScript + Tailwind CSS + shadcn/ui
+            - Backend: Supabase (PostgreSQL + Auth + Real-time)
+            - Deployment: Vercel
+            - Authentication: Google OAuth restricted to @illinois.edu
+            
+            Communication style:
+            - Be friendly and encouraging for non-technical users
+            - Ask one focused question at a time to avoid overwhelming
+            - Provide examples to help users understand what you need
+            - Use emojis and clear formatting for readability
+            
+            Label management:
+            - Keep 'needs-clarification' until requirements are fully clear
+            - When ready to create specification, ask user to confirm and you'll update to 'spec-in-progress'
+          
+          # Allow Claude to manage labels and create comprehensive responses
+          allowed_tools: "Bash(echo)"
+
+  # Separate job to handle label transitions based on conversation progress
+  label-management:
+    if: |
+      github.event_name == 'issue_comment' && 
+      contains(github.event.comment.body, 'spec-in-progress') &&
+      github.event.comment.user.login == 'claude[bot]'
+    
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      
+    steps:
+      - name: Update labels for specification phase
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Remove needs-clarification and add spec-in-progress
+            await github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: 'needs-clarification'
+            });
+            
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['spec-in-progress']
+            });
+            
+            // Add a status comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🤖 **Workflow Status Update**
+              
+              ✅ Requirements clarification complete
+              🔄 Moving to specification generation phase
+              
+              **Next Steps:**
+              1. @claude will create a detailed technical specification
+              2. You'll be asked to review and approve the specification
+              3. Once approved, implementation will begin automatically
+              
+              You can track progress through the issue labels! 🏷️`
+            });

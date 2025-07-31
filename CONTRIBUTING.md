@@ -49,29 +49,86 @@ IlliniHunt is built **by students, for students**. Contributing to this project 
    - Comment on an issue to get assigned
    - Create a branch: `git checkout -b feature/your-feature-name`
 
-## 🤖 AI-Powered Development with Claude
+## 🤖 AI-Powered Development Workflow
 
-IlliniHunt now includes **Claude Code automation** to help students learn and contribute more effectively!
+IlliniHunt features a **complete automated development workflow** that takes non-technical users from feature request to working implementation!
 
-### How It Works
-- **Mention @claude** in any GitHub issue or PR comment
-- Claude will automatically provide code suggestions, reviews, and implementations
-- Perfect for learning: Claude explains its reasoning and teaches best practices
+### 🔄 Full Automation Workflow (Recommended for Non-Technical Users)
 
-### Example Usage
+**Perfect for:** Students, faculty, staff who have great ideas but limited coding experience.
+
+1. **📝 Submit Feature Request/Bug Report**
+   - Use our GitHub issue templates with built-in @claude integration
+   - Describe what you want in plain English
+   - @claude automatically analyzes your request
+
+2. **❓ Requirement Clarification** 
+   - @claude asks specific questions to understand your needs
+   - You provide answers and feedback
+   - Process continues until requirements are crystal clear
+
+3. **📋 Specification Generation**
+   - @claude creates a detailed technical specification
+   - You review and approve the implementation plan
+   - Specification includes UI mockups, technical details, testing plan
+
+4. **⚡ Automatic Implementation**
+   - @claude writes production-ready code
+   - Follows best practices and project standards
+   - Creates comprehensive pull request
+
+5. **👥 Human Code Review**
+   - Experienced developers review the implementation
+   - @claude assists in explaining technical decisions
+   - Any needed adjustments are made
+
+6. **🚀 Deployment**
+   - Once approved, feature goes live automatically
+   - You get notified when your feature is deployed!
+
+### 🔍 Workflow Status Tracking
+
+Track your request through GitHub labels:
+- 🟡 `needs-clarification` - @claude is asking questions
+- 🔵 `spec-in-progress` - @claude is writing specification  
+- 🟢 `spec-ready` - Specification ready for your approval
+- 🟣 `ready-for-implementation` - Approved, ready for coding
+- 🟠 `claude-implementing` - @claude is writing code
+- 🔴 `claude-pr-ready` - Code complete, needs human review
+
+### 💬 Traditional AI Assistance (For Developers)
+
+For developers who want AI help with their own coding:
+
 ```markdown
 @claude implement a dark mode toggle for the user settings page
 
 @claude review this PR for security issues and performance improvements  
 
 @claude fix the TypeScript error in the ProjectCard component
+
+@claude create a technical specification for user notifications
 ```
 
-### Learning Benefits
-- **Code Explanations**: Claude explains complex patterns and architectural decisions
-- **Best Practices**: Learn React, TypeScript, and Supabase patterns through AI guidance
-- **Code Reviews**: Get detailed feedback on your contributions
-- **Problem Solving**: Work alongside AI to tackle challenging features
+### 🎯 Which Approach Should You Use?
+
+**🤖 Full Automation Workflow** if you:
+- Have limited coding experience
+- Want to focus on the idea, not the implementation
+- Are looking for a learning opportunity
+- Want to see professional development practices
+
+**💬 AI Assistance** if you:
+- Are an experienced developer
+- Want to learn specific techniques
+- Need help with code reviews
+- Want to collaborate with AI on your code
+
+### 📚 Learning Benefits
+- **See Professional Development**: Watch how features go from idea to production
+- **Learn Best Practices**: @claude explains architectural decisions and patterns
+- **Understand Code Reviews**: Learn what experienced developers look for
+- **Modern Tech Stack**: Experience with React, TypeScript, Supabase, and modern tooling
 
 ## 🎯 Development Workflow
 

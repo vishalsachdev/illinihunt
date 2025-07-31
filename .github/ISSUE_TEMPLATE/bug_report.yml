@@ -1,7 +1,7 @@
 name: 🐛 Bug Report
 description: Report a bug or issue with IlliniHunt V2
 title: "[BUG] "
-labels: ["bug", "needs-triage"]
+labels: ["bug", "needs-clarification"]
 projects: ["vishalsachdev/illinihunt"]
 assignees:
   - vishalsachdev
@@ -10,9 +10,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping improve IlliniHunt! Clear bug reports help us fix issues quickly.
+        Thanks for helping improve IlliniHunt! Clear bug reports help us fix issues quickly with our AI-assisted development workflow.
         
-        🤖 **AI Assistant**: Mention @claude to get automatic bug analysis and potential fixes!
+        🤖 **Automated Workflow**: @claude will automatically analyze your bug report, ask clarifying questions if needed, and implement a fix once the issue is clear!
 
   - type: input
     id: summary
@@ -190,15 +190,32 @@ body:
         - Internet connection type/speed?
 
   - type: checkboxes
-    id: contribution
+    id: automated_workflow
     attributes:
-      label: Contribution Interest  
-      description: Would you like to help fix this bug?
+      label: 🤖 AI-Assisted Bug Fix Workflow
+      description: How would you like this bug to be resolved?
       options:
-        - label: I'd like to investigate and fix this myself
-        - label: I'd like to work with @claude to fix this
+        - label: "✅ **I want @claude to automatically analyze and fix this bug** (Recommended)"
+        - label: I'd like to investigate and fix this myself with @claude assistance
         - label: I can help test the fix when it's ready
-        - label: I'm just reporting for someone else to fix
+        - label: I'm just reporting for manual investigation by the team
+
+  - type: textarea
+    id: claude_request
+    attributes:
+      label: 🤖 Direct Request to @claude
+      description: "REQUIRED: Tell @claude exactly what you want (this triggers the automated workflow)"
+      placeholder: |
+        @claude please analyze this bug report, ask me clarifying questions if needed, and implement a fix.
+        
+        Priority considerations:
+        - This bug affects [specify user group/functionality]
+        - Fix should maintain existing functionality
+        - Please ensure mobile compatibility
+      value: |
+        @claude please analyze this bug report, ask me clarifying questions if needed, and implement a fix.
+    validations:
+      required: true
 
   - type: markdown
     attributes:

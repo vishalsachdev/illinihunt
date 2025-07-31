@@ -1,0 +1,237 @@
+name: Claude Implementation
+
+concurrency:
+  group: claude-implementation-${{ github.workflow }}-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+on:
+  issues:
+    types: [labeled]
+  issue_comment:
+    types: [created]
+
+jobs:
+  claude-implementation:
+    # Trigger when ready-for-implementation label is added or @claude is mentioned on ready issues
+    if: |
+      (github.event_name == 'issues' && 
+       github.event.label.name == 'ready-for-implementation') ||
+      (github.event_name == 'issue_comment' && 
+       contains(github.event.comment.body, '@claude') &&
+       contains(github.event.issue.labels.*.name, 'ready-for-implementation'))
+    
+    runs-on: ubuntu-latest
+    timeout-minutes: 45  # Longer timeout for implementation
+    permissions:
+      contents: write      # Need write access to create branches and commits
+      issues: write
+      pull-requests: write # Need to create PRs
+      id-token: write
+      actions: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for branching
+
+      - name: Run Claude Implementation
+        id: claude-implementation
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          
+          # Allow Claude to run development commands
+          allowed_tools: |
+            Bash(npm install)
+            Bash(npm run build)
+            Bash(npm run lint)
+            Bash(npm run type-check)
+            Bash(npm test --passWithNoTests)
+          
+          # Custom instructions for implementation
+          custom_instructions: |
+            You are implementing features for IlliniHunt V2 based on approved specifications.
+            
+            Your role in this workflow:
+            1. CREATE a feature branch from main for this implementation
+            2. IMPLEMENT the feature following the approved specification exactly
+            3. ENSURE code quality with proper TypeScript types and error handling
+            4. RUN all quality checks (build, lint, type-check)
+            5. CREATE a comprehensive pull request with testing instructions
+            6. UPDATE issue labels to indicate PR is ready for review
+            
+            Implementation Guidelines:
+            
+            ### Branch Management
+            - Create branch with format: `feature/issue-{issue_number}-{feature-name}`
+            - Base branch should always be `main`
+            - Keep commits focused and atomic
+            
+            ### Code Quality Standards
+            - Use TypeScript strict mode - no `any` types
+            - Follow existing code patterns and architecture
+            - Use existing components from shadcn/ui library
+            - Maintain consistent styling with Tailwind CSS
+            - Follow UIUC brand colors (uiuc-orange: #FF6B35, uiuc-blue: #13294B)
+            - Add proper error handling and loading states
+            - Ensure mobile-responsive design
+            
+            ### Frontend Implementation
+            - React functional components with hooks
+            - TypeScript interfaces for all data structures
+            - React Hook Form + Zod for form validation
+            - Proper state management with React Context when needed
+            - Accessibility: ARIA labels, keyboard navigation
+            - Performance: lazy loading, optimized re-renders
+            
+            ### Backend Integration
+            - Use existing database service layer in `src/lib/database.ts`
+            - Follow Supabase patterns for data fetching
+            - Implement proper Row Level Security (RLS) policies
+            - Add real-time subscriptions where specified
+            - Handle authentication with existing auth context
+            
+            ### Testing & Validation
+            - Run `npm run build` to ensure TypeScript compilation
+            - Run `npm run lint` to check code style
+            - Run `npm run type-check` for type validation
+            - Test basic functionality manually if possible
+            - Ensure no console errors in development
+            
+            ### Documentation
+            - Add JSDoc comments for complex functions
+            - Update component props interfaces
+            - Document any new environment variables needed
+            - Include inline comments for business logic
+            
+            ### Pull Request Creation
+            After implementation, create a PR with this template:
+            
+            ```markdown
+            ## 🤖 Claude Implementation: [Feature Name]
+            
+            Implements feature requested in issue #{issue_number}
+            
+            ### 📋 Implementation Summary
+            - [x] Created [list of components/files modified]
+            - [x] Added [database changes if any]
+            - [x] Implemented [key functionality points]
+            - [x] Added proper error handling and loading states
+            - [x] Ensured mobile responsiveness
+            - [x] Passed all quality checks (build, lint, type-check)
+            
+            ### 🧪 Testing Instructions
+            1. [Step-by-step testing instructions]
+            2. [Expected behavior descriptions]
+            3. [Edge cases to test]
+            
+            ### 🔍 Code Review Focus Areas
+            - [ ] TypeScript type safety and interfaces
+            - [ ] React component patterns and performance
+            - [ ] Error handling and user feedback
+            - [ ] Mobile responsiveness and accessibility
+            - [ ] Integration with existing features
+            - [ ] Database queries and security
+            
+            ### 📸 Screenshots/Demo
+            [Include screenshots of the implemented feature]
+            
+            **Ready for Review by:** @vishalsachdev and student developers
+            ```
+            
+            ### Error Handling
+            If implementation fails:
+            - Document the specific issue encountered
+            - Suggest alternative approaches
+            - Request clarification if specification is unclear
+            - Maintain clear communication with the user
+            
+            Current Project Context:
+            - Frontend: React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui
+            - Backend: Supabase (PostgreSQL + Auth + Real-time)
+            - Deployment: Vercel
+            - Auth: Google OAuth with @illinois.edu restriction
+            - Design: UIUC brand colors and responsive design
+            - Code Style: Functional components, hooks, strict TypeScript
+
+  # Handle implementation status updates
+  implementation-labeling:
+    if: |
+      github.event_name == 'issue_comment' && 
+      github.event.comment.user.login == 'claude[bot]' &&
+      (contains(github.event.comment.body, 'claude-implementing') ||
+       contains(github.event.comment.body, 'claude-pr-ready'))
+    
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      
+    steps:
+      - name: Update implementation status labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment.body;
+            const issueNumber = context.issue.number;
+            
+            if (comment.includes('claude-implementing')) {
+              // Remove ready-for-implementation, add claude-implementing
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: 'ready-for-implementation'
+                });
+              } catch (e) {
+                console.log('Label ready-for-implementation may not exist');
+              }
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: ['claude-implementing']
+              });
+              
+            } else if (comment.includes('claude-pr-ready')) {
+              // Remove claude-implementing, add claude-pr-ready
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: 'claude-implementing'
+                });
+              } catch (e) {
+                console.log('Label claude-implementing may not exist');
+              }
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: ['claude-pr-ready']
+              });
+              
+              // Notify stakeholders
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: `🚀 **Implementation Complete!**
+                
+                @claude has finished implementing your feature and created a pull request for review.
+                
+                **Next Steps:**
+                1. 👥 Experienced developers (@vishalsachdev and student reviewers) will review the code
+                2. 🧪 You can test the implementation using the instructions in the PR
+                3. 🔧 Any necessary adjustments will be made based on review feedback
+                4. ✅ Once approved, your feature will be merged and deployed automatically
+                
+                **Review Timeline:** Code reviews typically happen within 24-48 hours.
+                
+                Thank you for your patience! Your feature is almost ready to go live! 🎉`
+              });
+            }
