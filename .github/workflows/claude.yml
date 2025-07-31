@@ -1,8 +1,8 @@
 name: Claude Code
 
 concurrency:
-  group: claude-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: claude-simple-${{ github.event.issue.number || github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
 
 on:
   issue_comment:

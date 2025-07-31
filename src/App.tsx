@@ -1,6 +1,6 @@
 import './App.css'
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useState, useEffect } from 'react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { useAuth } from '@/hooks/useAuth'
 import { LoginButton } from '@/components/auth/LoginButton'
@@ -56,8 +56,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth()
   const location = useLocation()
   const { showAuthPrompt } = useAuthPrompt()
+  const [initialLoad, setInitialLoad] = useState(true)
 
-  if (loading) {
+  // Track initial auth state load to prevent race conditions
+  useEffect(() => {
+    if (!loading) {
+      setInitialLoad(false)
+    }
+  }, [loading])
+
+  // Show loading only during initial auth check, not during navigation
+  if (initialLoad && loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
