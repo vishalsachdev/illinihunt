@@ -3,6 +3,7 @@ import { ProjectGrid } from '@/components/project/ProjectGrid'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Zap } from 'lucide-react'
+import { CategoryIcon } from '@/lib/categoryIcons'
 import { StatsService, CategoriesService } from '@/lib/database'
 import { useState, useEffect } from 'react'
 import { RecentActivityFeed } from '@/components/RecentActivityFeed'
@@ -243,7 +244,11 @@ export function HomePage() {
                         className="w-8 h-8 sm:w-10 sm:h-10 rounded-full mx-auto mb-2 flex items-center justify-center text-white font-semibold text-sm sm:text-base"
                         style={{ backgroundColor: category.color }}
                       >
-                        {category.icon || category.name.charAt(0)}
+                        <CategoryIcon 
+                          iconName={category.icon} 
+                          className="w-4 h-4 sm:w-5 sm:h-5" 
+                          fallback={category.name}
+                        />
                       </div>
                       <span className="text-white text-xs sm:text-sm font-medium group-hover:text-uiuc-light-orange transition-colors">
                         {category.name}

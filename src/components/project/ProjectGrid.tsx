@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Search } from 'lucide-react'
+import { CategoryIcon } from '@/lib/categoryIcons'
 import type { Database } from '@/types/database'
 
 type Project = Database['public']['Tables']['projects']['Row'] & {
@@ -140,7 +141,7 @@ export function ProjectGrid() {
           {/* Category Filter */}
           <div className="sm:w-56">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category
+              Problem Area
             </label>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger className="h-11">
@@ -152,9 +153,15 @@ export function ProjectGrid() {
                   <SelectItem key={category.id} value={category.id}>
                     <div className="flex items-center gap-2">
                       <div 
-                        className="w-3 h-3 rounded-full"
+                        className="w-4 h-4 rounded-full flex items-center justify-center"
                         style={{ backgroundColor: category.color }}
-                      />
+                      >
+                        <CategoryIcon 
+                          iconName={category.icon} 
+                          className="w-2.5 h-2.5 text-white" 
+                          fallback=""
+                        />
+                      </div>
                       {category.name}
                     </div>
                   </SelectItem>

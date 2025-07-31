@@ -1,5 +1,6 @@
 import { formatDistance } from 'date-fns'
 import { ExternalLink, Github, MessageCircle } from 'lucide-react'
+import { CategoryIcon } from '@/lib/categoryIcons'
 import { Link } from 'react-router-dom'
 import { VoteButton } from './VoteButton'
 import { BookmarkButton } from './BookmarkButton'
@@ -69,9 +70,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
         {category && (
           <div className="absolute top-3 left-3">
             <span 
-              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white shadow-sm"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white shadow-sm"
               style={{ backgroundColor: category.color }}
             >
+              <CategoryIcon 
+                iconName={category.icon} 
+                className="w-3 h-3" 
+                fallback={category.name}
+              />
               {category.name}
             </span>
           </div>

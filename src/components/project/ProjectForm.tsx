@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { CategoryIcon } from '@/lib/categoryIcons'
 import type { Database } from '@/types/database'
 
 type Category = Database['public']['Tables']['categories']['Row']
@@ -119,15 +120,32 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
 
         {/* Category */}
         <div className="space-y-2">
-          <Label htmlFor="category">Category *</Label>
+          <Label htmlFor="category">What problem does your project solve? *</Label>
+          <p className="text-sm text-gray-600 mb-2">
+            Choose the category that best describes what your project does, not just the technology used.
+          </p>
           <Select onValueChange={(value) => setValue('category_id', value)}>
             <SelectTrigger>
-              <SelectValue placeholder="Select a category" />
+              <SelectValue placeholder="Select the problem your project solves" />
             </SelectTrigger>
             <SelectContent>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.id}>
-                  {category.name}
+                  <div className="flex items-center gap-2">
+                    <CategoryIcon 
+                      iconName={category.icon} 
+                      className="w-4 h-4" 
+                      fallback={category.name}
+                    />
+                    <div className="flex flex-col">
+                      <span className="font-medium">{category.name}</span>
+                      {category.description && (
+                        <span className="text-xs text-gray-500 line-clamp-1">
+                          {category.description}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>
