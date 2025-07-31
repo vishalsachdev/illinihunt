@@ -44,16 +44,15 @@ export function ProjectGrid() {
 
   useEffect(() => {
     loadCategories()
-    loadProjects()
-  }, [selectedCategory, sortBy])
+  }, [])
 
   useEffect(() => {
-    // Debounce search
+    // Debounce all filters including search
     const timer = setTimeout(() => {
       loadProjects()
-    }, 300)
+    }, searchQuery ? 300 : 0) // Only debounce search, immediate for filters
     return () => clearTimeout(timer)
-  }, [searchQuery])
+  }, [searchQuery, selectedCategory, sortBy])
 
   const loadCategories = async () => {
     try {
