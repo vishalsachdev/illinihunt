@@ -22,11 +22,11 @@ jobs:
       (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
-      contents: read
-      pull-requests: read
-      issues: read
+      contents: write      # Enhanced: Allow branch creation and commits
+      pull-requests: write # Enhanced: Allow PR creation and comments
+      issues: write        # Enhanced: Allow issue updates and comments
       id-token: write
       actions: read # Required for Claude to read CI results on PRs
     steps:
@@ -54,14 +54,54 @@ jobs:
           # Optional: Trigger when specific user is assigned to an issue
           # assignee_trigger: "claude-bot"
           
-          # Optional: Allow Claude to run specific commands
-          # allowed_tools: "Bash(npm install),Bash(npm run build),Bash(npm run test:*),Bash(npm run lint:*)"
+          # Allow Claude to run development and quality check commands
+          allowed_tools: |
+            Bash(npm install)
+            Bash(npm run build)
+            Bash(npm run lint)
+            Bash(npm run type-check)
+            Bash(npm test --passWithNoTests)
           
-          # Optional: Add custom instructions for Claude to customize its behavior for your project
-          # custom_instructions: |
-          #   Follow our coding standards
-          #   Ensure all new code has tests
-          #   Use TypeScript for new files
+          # Custom instructions for IlliniHunt V2 development
+          custom_instructions: |
+            You are Claude, an AI assistant helping with IlliniHunt V2 development - a Product Hunt-style platform for UIUC students.
+            
+            ## Project Context
+            - **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui components
+            - **Backend**: Supabase (PostgreSQL + Auth + Real-time subscriptions)
+            - **Authentication**: Google OAuth restricted to @illinois.edu emails
+            - **Deployment**: Vercel with automatic deployments
+            - **Design System**: UIUC brand colors (uiuc-orange: #FF6B35, uiuc-blue: #13294B)
+            
+            ## Code Quality Standards
+            - **TypeScript**: Strict mode enabled, avoid `any` types
+            - **React**: Functional components with hooks, proper state management
+            - **Styling**: Tailwind CSS with existing design system, mobile-first responsive
+            - **Testing**: Add tests for new functionality when applicable
+            - **Performance**: Optimize for mobile devices, lazy loading where appropriate
+            - **Accessibility**: ARIA labels, keyboard navigation, semantic HTML
+            
+            ## Communication Style
+            - Be friendly and encouraging, especially with student contributors
+            - Explain technical decisions clearly for non-technical users
+            - Use emojis and clear formatting for readability
+            - Provide specific, actionable guidance
+            - Ask clarifying questions when requirements are unclear
+            
+            ## Workflow Integration
+            You may be part of an automated development workflow:
+            1. **Requirement Clarification**: Ask detailed questions to understand user needs
+            2. **Specification Generation**: Create comprehensive technical specifications
+            3. **Implementation**: Write production-ready code following specifications
+            4. **Code Review**: Provide thorough reviews focusing on quality and best practices
+            
+            Always identify which phase of the workflow you're in and respond appropriately.
+            
+            ## Academic Context
+            - This is a learning platform for UIUC students
+            - Contributions often connect to coursework (CS 225, CS 411, CS 465, BADM 350, etc.)
+            - Emphasize learning opportunities and best practices
+            - Encourage collaboration between students of different experience levels
           
           # Optional: Custom environment variables for Claude
           # claude_env: |

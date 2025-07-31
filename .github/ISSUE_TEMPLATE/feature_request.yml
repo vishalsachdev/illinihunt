@@ -1,7 +1,7 @@
 name: 🚀 Feature Request
 description: Propose a new feature for IlliniHunt V2
 title: "[FEATURE] "
-labels: ["enhancement", "student-friendly"]
+labels: ["enhancement", "needs-clarification"]
 projects: ["vishalsachdev/illinihunt"]
 assignees:
   - vishalsachdev
@@ -10,9 +10,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to improve IlliniHunt! This template helps you create clear feature requests that can be implemented with AI assistance.
+        Thanks for taking the time to improve IlliniHunt! This template helps you create clear feature requests that will be automatically processed by our AI-assisted development workflow.
         
-        💡 **Pro Tip**: Mention @claude in your description to get automatic implementation suggestions!
+        🤖 **Automated Workflow**: @claude will automatically analyze your request, ask clarifying questions, create a detailed specification, and implement the feature once you approve it!
 
   - type: input
     id: summary
@@ -141,15 +141,32 @@ body:
         - Timeline preferences
 
   - type: checkboxes
-    id: contribution
+    id: automated_workflow
     attributes:
-      label: Contribution Interest
-      description: Are you interested in working on this feature?
+      label: 🤖 AI-Assisted Development Workflow
+      description: Choose how you'd like this feature to be developed
       options:
-        - label: I'd like to work on this feature myself
-        - label: I'd like to collaborate with others on this
-        - label: I'd like @claude to help implement this
-        - label: I'm proposing this for someone else to implement
+        - label: "✅ **I want @claude to automatically analyze, specify, and implement this feature** (Recommended for non-technical users)"
+        - label: I'd like to work on this feature myself with @claude assistance
+        - label: I'd like to collaborate with student developers on this
+        - label: I'm proposing this for manual implementation by the team
+
+  - type: textarea
+    id: claude_request
+    attributes:
+      label: 🤖 Direct Request to @claude
+      description: "REQUIRED: Tell @claude exactly what you want (this triggers the automated workflow)"
+      placeholder: |
+        @claude please analyze this feature request, ask me clarifying questions, create a detailed specification, and implement it once I approve.
+        
+        Key priorities for this feature:
+        - User experience should be intuitive for UIUC students
+        - Performance should be optimized for mobile devices
+        - Implementation should follow existing design patterns
+      value: |
+        @claude please analyze this feature request, ask me clarifying questions, create a detailed specification, and implement it once I approve.
+    validations:
+      required: true
 
   - type: markdown
     attributes:

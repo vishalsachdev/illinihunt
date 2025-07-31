@@ -1,0 +1,223 @@
+name: Specification Generation
+
+concurrency:
+  group: claude-spec-${{ github.workflow }}-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+on:
+  issues:
+    types: [labeled]
+  issue_comment:
+    types: [created]
+
+jobs:
+  claude-specification:
+    # Trigger when spec-in-progress label is added or @claude is mentioned on spec-in-progress issues
+    if: |
+      (github.event_name == 'issues' && 
+       github.event.label.name == 'spec-in-progress') ||
+      (github.event_name == 'issue_comment' && 
+       contains(github.event.comment.body, '@claude') &&
+       contains(github.event.issue.labels.*.name, 'spec-in-progress'))
+    
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+      id-token: write
+      actions: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Specification Generation
+        id: claude-spec
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          
+          # Custom instructions for specification generation
+          custom_instructions: |
+            You are creating detailed technical specifications for IlliniHunt V2 features.
+            
+            Your role in this workflow:
+            1. ANALYZE the clarified requirements from the issue conversation
+            2. CREATE a comprehensive technical specification using the SPEC_TEMPLATE format
+            3. INCLUDE all necessary technical details for implementation
+            4. REQUEST user approval with a clear approval checklist
+            5. When approved, prepare for implementation phase
+            
+            Specification must include:
+            
+            ## 📋 Feature Specification: [Feature Name]
+            
+            ### 🎯 Overview
+            - Brief description and purpose
+            - Target users and use cases
+            - Success criteria and metrics
+            
+            ### 🔍 Requirements Analysis
+            - Functional requirements (what it does)
+            - Non-functional requirements (performance, security, etc.)
+            - Edge cases and error scenarios
+            - Acceptance criteria (testable conditions)
+            
+            ### 🏗️ Technical Architecture
+            
+            #### Frontend Components
+            - React components to create/modify
+            - TypeScript interfaces and types
+            - UI/UX design patterns from shadcn/ui
+            - Tailwind CSS styling approach
+            - Mobile responsiveness considerations
+            
+            #### Backend Integration
+            - Supabase database changes (tables, columns, indexes)
+            - Row Level Security (RLS) policies
+            - Real-time subscriptions if needed
+            - API endpoints and data flows
+            
+            #### Authentication & Authorization
+            - Access control requirements
+            - User permission levels
+            - Integration with existing @illinois.edu auth
+            
+            ### 📱 User Experience Design
+            - User flow diagrams
+            - Key interactions and states
+            - Error handling and feedback
+            - Loading states and performance
+            - Accessibility considerations (ARIA labels, keyboard navigation)
+            
+            ### 🧪 Testing Strategy
+            - Unit testing approach
+            - Integration testing scenarios
+            - User acceptance testing criteria
+            - Performance testing considerations
+            
+            ### 📈 Implementation Plan
+            - Development phases and milestones
+            - Dependencies and prerequisites
+            - Estimated timeline
+            - Risk assessment and mitigation
+            
+            ### ✅ User Approval Checklist
+            Present a clear checklist for the user to approve:
+            
+            **Please review this specification and check all boxes to approve:**
+            - [ ] Feature scope and functionality matches my request
+            - [ ] User interface design will meet my expectations
+            - [ ] Edge cases and error handling are appropriately covered
+            - [ ] Performance and security considerations are addressed
+            - [ ] Implementation plan is reasonable and clear
+            
+            **Reply with "✅ I approve this specification" to proceed to implementation phase.**
+            
+            After creating the specification, update the issue label to 'spec-ready' and wait for user approval.
+            
+            Architecture context:
+            - Frontend: React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui
+            - State: React Context + React Hook Form + Zod validation
+            - Backend: Supabase (PostgreSQL + Auth + Real-time + Storage)
+            - Deployment: Vercel with automatic deployments
+            - Authentication: Google OAuth restricted to @illinois.edu domains
+            - Design System: UIUC brand colors (uiuc-orange: #FF6B35, uiuc-blue: #13294B)
+            
+            Communication style:
+            - Be thorough but accessible to non-technical users
+            - Use visual formatting (headers, lists, checkboxes) for clarity
+            - Explain technical decisions in user-friendly terms
+            - Provide mockup descriptions where helpful
+
+  # Handle label transitions and user approval detection
+  approval-management:
+    if: |
+      github.event_name == 'issue_comment' && 
+      contains(github.event.issue.labels.*.name, 'spec-ready') &&
+      (contains(github.event.comment.body, '✅ I approve this specification') || 
+       contains(github.event.comment.body, 'I approve this specification') ||
+       contains(github.event.comment.body, 'approved') ||
+       contains(github.event.comment.body, 'looks good'))
+    
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      
+    steps:
+      - name: Update labels for implementation phase
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Remove spec-ready and add ready-for-implementation
+            await github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: 'spec-ready'
+            });
+            
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['ready-for-implementation']
+            });
+            
+            // Add approval confirmation comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🎉 **Specification Approved!**
+              
+              Thank you for approving the technical specification! 
+              
+              **Next Steps:**
+              1. 🤖 @claude will now begin implementing your feature
+              2. 📝 A new branch will be created for the implementation
+              3. 🔧 Code will be developed following the approved specification
+              4. 📋 A pull request will be created for code review
+              5. 👥 Experienced developers will review the implementation
+              6. ✅ Once approved, your feature will be merged and deployed!
+              
+              **Estimated Timeline:** Implementation typically takes 1-3 days depending on complexity.
+              
+              You can track progress through the issue labels and will be notified when the PR is ready for your testing! 🚀`
+            });
+
+  # Handle specification ready labeling
+  spec-ready-labeling:
+    if: |
+      github.event_name == 'issue_comment' && 
+      contains(github.event.comment.body, 'spec-ready') &&
+      github.event.comment.user.login == 'claude[bot]' &&
+      contains(github.event.issue.labels.*.name, 'spec-in-progress')
+    
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      
+    steps:
+      - name: Update labels to spec-ready
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Remove spec-in-progress and add spec-ready
+            await github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: 'spec-in-progress'
+            });
+            
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['spec-ready']
+            });
