@@ -11,5 +11,13 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     detectSessionInUrl: true
+  },
+  db: {
+    schema: 'public'
+  },
+  global: {
+    headers: {
+      'Cache-Control': 'max-age=60' // Cache responses for 1 minute
+    }
   }
 })

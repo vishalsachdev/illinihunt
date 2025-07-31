@@ -24,13 +24,20 @@ const preloadRoute = (importFn: () => Promise<any>) => {
   return componentImport
 }
 
-// Preload most visited routes after initial load
+// Preload most visited routes after initial load (only if user interacts)
 if (typeof window !== 'undefined') {
-  // Preload submit and project detail pages after a delay
-  setTimeout(() => {
-    preloadRoute(() => import('@/pages/SubmitProjectPage'))
-    preloadRoute(() => import('@/pages/ProjectDetailPage'))
-  }, 2000)
+  let preloaded = false
+  const preloadOnInteraction = () => {
+    if (!preloaded) {
+      preloaded = true
+      preloadRoute(() => import('@/pages/SubmitProjectPage'))
+      preloadRoute(() => import('@/pages/ProjectDetailPage'))
+    }
+  }
+  
+  // Preload on first user interaction instead of timeout
+  document.addEventListener('click', preloadOnInteraction, { once: true })
+  document.addEventListener('scroll', preloadOnInteraction, { once: true })
 }
 
 // Loading component for Suspense fallback
