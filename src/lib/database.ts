@@ -162,14 +162,25 @@ export class ProjectsService {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return false
 
-    const { data, error } = await supabase
-      .from('votes')
-      .select('id')
-      .eq('project_id', projectId)
-      .eq('user_id', user.id)
-      .maybeSingle()
+    try {
+      const { data, error } = await supabase
+        .from('votes')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('user_id', user.id)
+        .maybeSingle()
 
-    return !error && !!data
+      // Handle case where votes table doesn't exist (406 error)
+      if (error && (error.code === 'PGRST202' || error.code === '406' || error.message.includes('406'))) {
+        console.warn('Votes table not found - voting feature not available')
+        return false
+      }
+
+      return !error && !!data
+    } catch (err) {
+      console.warn('Error checking vote status:', err)
+      return false
+    }
   }
 
   // Get user profile by ID
@@ -519,14 +530,25 @@ export class BookmarkService {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return false
 
-    const { data, error } = await supabase
-      .from('bookmarks')
-      .select('id')
-      .eq('project_id', projectId)
-      .eq('user_id', user.id)
-      .maybeSingle()
+    try {
+      const { data, error } = await supabase
+        .from('bookmarks')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('user_id', user.id)
+        .maybeSingle()
 
-    return !error && !!data
+      // Handle case where bookmarks table doesn't exist (406 error)
+      if (error && (error.code === 'PGRST202' || error.code === '406' || error.message.includes('406'))) {
+        console.warn('Bookmarks table not found - bookmark feature not available')
+        return false
+      }
+
+      return !error && !!data
+    } catch (err) {
+      console.warn('Error checking bookmark status:', err)
+      return false
+    }
   }
 
   // Get user's bookmarked projects using the view
