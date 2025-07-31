@@ -1,19 +1,47 @@
 import './App.css'
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
+import { Suspense, lazy } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { LoginButton } from '@/components/auth/LoginButton'
 import { UserMenu } from '@/components/auth/UserMenu'
-import { HomePage } from '@/pages/HomePage'
-import { SubmitProjectPage } from '@/pages/SubmitProjectPage'
-import { ProjectDetailPage } from '@/pages/ProjectDetailPage'
-import { UserProfilePage } from '@/pages/UserProfilePage'
-import { DashboardPage } from '@/pages/DashboardPage'
-import { EditProfilePage } from '@/pages/EditProfilePage'
-import { CollectionsPage } from '@/pages/CollectionsPage'
-import { CollectionViewPage } from '@/pages/CollectionViewPage'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { AuthPromptProvider, useAuthPrompt } from '@/contexts/AuthPromptContext'
+
+// Lazy load all pages for code splitting
+const HomePage = lazy(() => import('@/pages/HomePage').then(module => ({ default: module.HomePage })))
+const SubmitProjectPage = lazy(() => import('@/pages/SubmitProjectPage').then(module => ({ default: module.SubmitProjectPage })))
+const ProjectDetailPage = lazy(() => import('@/pages/ProjectDetailPage').then(module => ({ default: module.ProjectDetailPage })))
+const UserProfilePage = lazy(() => import('@/pages/UserProfilePage').then(module => ({ default: module.UserProfilePage })))
+const DashboardPage = lazy(() => import('@/pages/DashboardPage').then(module => ({ default: module.DashboardPage })))
+const EditProfilePage = lazy(() => import('@/pages/EditProfilePage').then(module => ({ default: module.EditProfilePage })))
+const CollectionsPage = lazy(() => import('@/pages/CollectionsPage').then(module => ({ default: module.CollectionsPage })))
+const CollectionViewPage = lazy(() => import('@/pages/CollectionViewPage').then(module => ({ default: module.CollectionViewPage })))
+
+// Preload critical routes for better UX
+const preloadRoute = (importFn: () => Promise<any>) => {
+  const componentImport = importFn()
+  return componentImport
+}
+
+// Preload most visited routes after initial load
+if (typeof window !== 'undefined') {
+  // Preload submit and project detail pages after a delay
+  setTimeout(() => {
+    preloadRoute(() => import('@/pages/SubmitProjectPage'))
+    preloadRoute(() => import('@/pages/ProjectDetailPage'))
+  }, 2000)
+}
+
+// Loading component for Suspense fallback
+const PageLoader = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
+      <p className="text-gray-600">Loading...</p>
+    </div>
+  </div>
+)
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -110,44 +138,46 @@ function AppContent() {
             </div>
           )}
           
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route 
-              path="/submit" 
-              element={
-                <ProtectedRoute>
-                  <SubmitProjectPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/project/:id" element={<ProjectDetailPage />} />
-            <Route path="/user/:id" element={<UserProfilePage />} />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/profile/edit" 
-              element={
-                <ProtectedRoute>
-                  <EditProfilePage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/collections" 
-              element={
-                <ProtectedRoute>
-                  <CollectionsPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/collections/:id" element={<CollectionViewPage />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route 
+                path="/submit" 
+                element={
+                  <ProtectedRoute>
+                    <SubmitProjectPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/project/:id" element={<ProjectDetailPage />} />
+              <Route path="/user/:id" element={<UserProfilePage />} />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/profile/edit" 
+                element={
+                  <ProtectedRoute>
+                    <EditProfilePage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/collections" 
+                element={
+                  <ProtectedRoute>
+                    <CollectionsPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/collections/:id" element={<CollectionViewPage />} />
+            </Routes>
+          </Suspense>
         </main>
       </div>
   )

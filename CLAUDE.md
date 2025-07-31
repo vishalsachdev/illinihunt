@@ -8,6 +8,7 @@ IlliniHunt V2 is a Product Hunt-style platform for the University of Illinois co
 
 **Live URL**: https://illinihunt.vercel.app
 and https://illinihunt.org/
+and https://www.illinihunt.org/
 
 
 ## Development Commands
@@ -393,3 +394,4 @@ CREATE TABLE bookmarks (
 3. **Analytics Integration**: User engagement tracking and project view counts
 4. **Advanced Moderation**: Admin tools and content management features
 5. **Testing Framework**: Jest/Vitest setup for critical user flows
+```
