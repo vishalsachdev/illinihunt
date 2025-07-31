@@ -167,7 +167,7 @@ export class ProjectsService {
       .select('id')
       .eq('project_id', projectId)
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
     return !error && !!data
   }
@@ -524,7 +524,7 @@ export class BookmarkService {
       .select('id')
       .eq('project_id', projectId)
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
     return !error && !!data
   }

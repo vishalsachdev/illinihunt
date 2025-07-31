@@ -58,7 +58,7 @@ const DEPARTMENT_OPTIONS = [
 ]
 
 export function EditProfilePage() {
-  const { user, profile } = useAuth()
+  const { user, profile, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -120,6 +120,18 @@ export function EditProfilePage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Show loading screen while auth is being checked
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    )
   }
 
   if (!user) {
