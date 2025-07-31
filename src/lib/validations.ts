@@ -27,9 +27,7 @@ export const projectSchema = z.object({
     .min(1, 'Please select a category'),
   
   image_url: z.string()
-    .url('Please enter a valid image URL')
     .optional()
-    .or(z.literal(''))
 })
 
 export type ProjectFormData = z.infer<typeof projectSchema>

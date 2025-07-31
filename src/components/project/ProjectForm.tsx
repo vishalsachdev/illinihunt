@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { ImageUpload } from '@/components/ui/ImageUpload'
 import { CategoryIcon } from '@/lib/categoryIcons'
 import type { Database } from '@/types/database'
 
@@ -29,6 +30,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
   const { user } = useAuth()
   const [categories, setCategories] = useState<Category[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [imageUrl, setImageUrl] = useState<string>('')
 
   const {
     register,
@@ -69,7 +71,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
         user_id: user.id,
         website_url: data.website_url || null,
         github_url: data.github_url || null,
-        image_url: data.image_url || null,
+        image_url: imageUrl || null,
       }
 
       const { error } = await ProjectsService.createProject(projectData)
@@ -197,22 +199,13 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           )}
         </div>
 
-        {/* Image URL */}
-        <div className="space-y-2">
-          <Label htmlFor="image_url">Screenshot/Logo URL</Label>
-          <Input
-            id="image_url"
-            type="url"
-            placeholder="https://example.com/screenshot.png"
-            {...register('image_url')}
-          />
-          <p className="text-sm text-gray-500">
-            Upload your image to a service like Imgur, GitHub, or your own website and paste the URL here.
-          </p>
-          {errors.image_url && (
-            <p className="text-sm text-red-600">{errors.image_url.message}</p>
-          )}
-        </div>
+        {/* Image Upload */}
+        <ImageUpload
+          onImageUploaded={setImageUrl}
+          onImageRemoved={() => setImageUrl('')}
+          currentImageUrl={imageUrl}
+          disabled={isSubmitting}
+        />
 
         {/* Submit Buttons */}
         <div className="flex gap-3 pt-4">
