@@ -1,6 +1,7 @@
 import './App.css'
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import { useAuth } from '@/hooks/useAuth'
 import { LoginButton } from '@/components/auth/LoginButton'
 import { UserMenu } from '@/components/auth/UserMenu'
@@ -195,6 +196,7 @@ function App() {
     <BrowserRouter>
       <AuthPromptProvider>
         <AppContent />
+        <SpeedInsights />
       </AuthPromptProvider>
     </BrowserRouter>
   )
