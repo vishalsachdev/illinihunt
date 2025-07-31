@@ -24,32 +24,34 @@ body:
       required: true
 
   - type: dropdown
-    id: category
+    id: platform_area
     attributes:
-      label: Problem Category
-      description: What area does this feature improve?
+      label: Platform Area
+      description: Which part of the IlliniHunt platform does this feature improve?
       options:
-        - Learning & Education Tools
-        - Social & Communication
-        - Productivity & Organization
-        - Health & Wellness
-        - Creative & Entertainment
-        - Research & Data Analysis
-        - Business & Entrepreneurship
-        - Emerging Technology
-        - Platform Infrastructure
-        - User Experience
+        - User Interface & Design
+        - Search & Discovery
+        - Project Submission & Management
+        - User Authentication & Profiles
+        - Voting & Engagement
+        - Comments & Community
+        - Performance & Technical
+        - Mobile Experience
+        - Admin & Moderation
+        - Analytics & Insights
+        - Notifications & Alerts
+        - API & Integrations
     validations:
       required: true
 
   - type: textarea
     id: problem
     attributes:
-      label: Problem Statement
-      description: What problem does this feature solve for UIUC students?
+      label: Platform Issue or Need
+      description: What issue with IlliniHunt does this feature address, or what need does it fulfill?
       placeholder: |
-        Example: Students miss new project submissions in categories they're interested in. 
-        They have to manually check the platform frequently to stay updated.
+        Example: Users miss new project submissions in categories they're interested in. 
+        They have to manually check the platform frequently to stay updated, which reduces engagement.
     validations:
       required: true
 
@@ -57,17 +59,17 @@ body:
     id: solution
     attributes:
       label: Proposed Solution
-      description: How would you like this feature to work?
+      description: How would you like this platform feature to work?
       placeholder: |
         Example: Add a notification bell icon in the header that shows:
-        - New projects in bookmarked categories
-        - Comments on projects you've voted on
-        - Replies to your comments
+        - New projects in categories the user follows
+        - Comments on projects they've voted on
+        - Replies to their comments
         
-        Users should be able to:
-        - Mark notifications as read
-        - Configure notification preferences
-        - Get email summaries (optional)
+        The feature should allow users to:
+        - Mark notifications as read/unread
+        - Configure notification preferences in settings
+        - Optionally receive email summaries
     validations:
       required: true
 
