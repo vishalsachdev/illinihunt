@@ -5,6 +5,8 @@
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-illinihunt.vercel.app-blue?style=for-the-badge&logo=vercel)](https://illinihunt.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-View%20Source-black?style=for-the-badge&logo=github)](https://github.com/vishalsachdev/illinihunt)
 
+> 🤖 **NEW**: World's first platform with **AI-to-Production workflow**! Non-technical users can submit ideas that get automatically implemented by Claude Code and reviewed by experienced developers. [Learn more ↓](#-complete-ai-powered-development-workflow)
+
 ## 🎯 What is IlliniHunt?
 
 IlliniHunt is a **problem-solving discovery platform** designed specifically for the UIUC community. Instead of just showcasing technology, we help students, faculty, and staff discover projects that solve real-world problems.
@@ -198,21 +200,41 @@ supabase/
 3. **Try AI-Assisted Development** - Use @claude for help and learning
 4. **Connect Course Projects** - Integrate with CS/ECE/BADM coursework
 
-### 🤖 AI-Powered Development Workflow
+### 🤖 Complete AI-Powered Development Workflow
 
-IlliniHunt now includes **Claude Code automation** to help students learn and contribute more effectively:
+IlliniHunt features a **revolutionary automated development pipeline** that takes non-technical users from idea to working feature!
 
-**How It Works:**
-- Mention **@claude** in any issue or PR comment
-- Get automatic code suggestions, reviews, and implementations  
-- Learn best practices through AI explanations and guidance
+#### 🎯 **For Non-Technical Users** (Students, Faculty, Staff)
 
-**Example Commands:**
+**Have a great idea but can't code?** No problem! Our automated workflow handles everything:
+
+1. **💡 Submit Your Idea** - Use our GitHub issue templates to describe what you want
+2. **🤖 AI Clarification** - @claude asks questions to understand your needs perfectly
+3. **📋 Specification Creation** - @claude creates detailed technical plans for your review
+4. **✅ Your Approval** - Simple checkbox approval process
+5. **⚡ Automatic Implementation** - @claude writes production-ready code
+6. **👥 Expert Review** - Experienced developers ensure quality
+7. **🚀 Live Deployment** - Your feature goes live automatically!
+
+**Track Your Request:**
+- 🟡 `needs-clarification` - AI is asking questions
+- 🔵 `spec-in-progress` - Creating technical specification
+- 🟢 `spec-ready` - Ready for your approval
+- 🟣 `ready-for-implementation` - Approved, coding begins
+- 🟠 `claude-implementing` - Code being written
+- 🔴 `claude-pr-ready` - Ready for expert review
+
+**Perfect for:** Feature requests, bug reports, UI improvements, new functionality
+
+**🚀 Get Started:** [Submit a Feature Request](https://github.com/vishalsachdev/illinihunt/issues/new?template=feature_request.yml) or [Report a Bug](https://github.com/vishalsachdev/illinihunt/issues/new?template=bug_report.yml)
+
+#### 🛠️ **For Developers** (AI-Assisted Coding)
+
+Get AI help with your development work:
+
 ```markdown
 @claude implement user notification system with real-time updates
-
 @claude review this component for accessibility and performance
-
 @claude fix the TypeScript error in the ProjectCard component
 ```
 
