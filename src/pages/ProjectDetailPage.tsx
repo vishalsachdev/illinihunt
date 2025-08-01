@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { VoteButton } from '@/components/project/VoteButton'
 import { ArrowLeft, ExternalLink, Github, User } from 'lucide-react'
 import { CommentList } from '@/components/comment/CommentList'
+import { sanitizeContent, sanitizeUrl } from '@/lib/sanitize'
 
 type ProjectDetail = {
   id: string
@@ -133,10 +134,10 @@ export function ProjectDetailPage() {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                      {project.name}
+                      {sanitizeContent(project.name)}
                     </h1>
                     <p className="text-xl text-gray-700 leading-relaxed">
-                      {project.tagline}
+                      {sanitizeContent(project.tagline)}
                     </p>
                   </div>
                   <div className="ml-4 flex-shrink-0">
@@ -161,7 +162,7 @@ export function ProjectDetailPage() {
                     {project.categories.icon && (
                       <span className="mr-1">{project.categories.icon}</span>
                     )}
-                    {project.categories.name}
+                    {sanitizeContent(project.categories.name)}
                   </Badge>
                 )}
               </div>
@@ -170,23 +171,23 @@ export function ProjectDetailPage() {
               <div className="prose max-w-none">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">About this project</h2>
                 <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {project.description}
+                  {sanitizeContent(project.description)}
                 </div>
               </div>
 
               {/* Links */}
               <div className="flex flex-wrap gap-4">
-                {project.website_url && (
+                {project.website_url && sanitizeUrl(project.website_url) && (
                   <Button asChild variant="outline">
-                    <a href={project.website_url} target="_blank" rel="noopener noreferrer">
+                    <a href={sanitizeUrl(project.website_url)} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Visit Website
                     </a>
                   </Button>
                 )}
-                {project.github_url && (
+                {project.github_url && sanitizeUrl(project.github_url) && (
                   <Button asChild variant="outline">
-                    <a href={project.github_url} target="_blank" rel="noopener noreferrer">
+                    <a href={sanitizeUrl(project.github_url)} target="_blank" rel="noopener noreferrer">
                       <Github className="w-4 h-4 mr-2" />
                       View Source
                     </a>
@@ -223,10 +224,10 @@ export function ProjectDetailPage() {
                       </Avatar>
                       <div>
                         <p className="font-medium text-gray-900">
-                          {project.users.full_name || project.users.username || 'Anonymous'}
+                          {sanitizeContent(project.users.full_name || project.users.username || 'Anonymous')}
                         </p>
                         {project.users.username && project.users.full_name && (
-                          <p className="text-sm text-gray-600">@{project.users.username}</p>
+                          <p className="text-sm text-gray-600">@{sanitizeContent(project.users.username)}</p>
                         )}
                       </div>
                     </div>

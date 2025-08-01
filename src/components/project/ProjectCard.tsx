@@ -7,6 +7,7 @@ import { BookmarkButton } from './BookmarkButton'
 import { AddToCollectionButton } from './AddToCollectionButton'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { sanitizeContent, sanitizeUrl } from '@/lib/sanitize'
 
 interface ProjectData {
   id: string
@@ -89,39 +90,39 @@ export function ProjectCard({ project }: ProjectCardProps) {
         {/* Header */}
         <div className="mb-3">
           <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-uiuc-blue transition-colors">
-            {project.name}
+            {sanitizeContent(project.name)}
           </h3>
-          <p className="text-gray-600 text-sm line-clamp-1">{project.tagline}</p>
+          <p className="text-gray-600 text-sm line-clamp-1">{sanitizeContent(project.tagline)}</p>
         </div>
 
         {/* Description */}
         <p className="text-gray-700 text-sm mb-4 line-clamp-3 leading-relaxed">
-          {project.description}
+          {sanitizeContent(project.description)}
         </p>
 
         {/* Links */}
         <div className="flex items-center gap-2 mb-4">
-          {project.website_url && (
+          {project.website_url && sanitizeUrl(project.website_url) && (
             <Button
               variant="outline"
               size="sm"
               asChild
               className="h-7 px-2 text-xs flex-1"
             >
-              <a href={project.website_url} target="_blank" rel="noopener noreferrer">
+              <a href={sanitizeUrl(project.website_url)} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-3 h-3 mr-1" />
                 Website
               </a>
             </Button>
           )}
-          {project.github_url && (
+          {project.github_url && sanitizeUrl(project.github_url) && (
             <Button
               variant="outline"
               size="sm"
               asChild
               className="h-7 px-2 text-xs flex-1"
             >
-              <a href={project.github_url} target="_blank" rel="noopener noreferrer">
+              <a href={sanitizeUrl(project.github_url)} target="_blank" rel="noopener noreferrer">
                 <Github className="w-3 h-3 mr-1" />
                 GitHub
               </a>
@@ -144,7 +145,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-xs text-gray-600 truncate hover:text-uiuc-blue transition-colors">
-                  {user.full_name || user.username || 'Anonymous'}
+                  {sanitizeContent(user.full_name || user.username || 'Anonymous')}
                 </span>
               </Link>
             ) : (

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { CommentForm } from './CommentForm'
 import { Link } from 'react-router-dom'
+import { sanitizeContent } from '@/lib/sanitize'
 import { 
   MessageCircle, 
   Heart, 
@@ -199,7 +200,7 @@ export function CommentItem({
                   to={`/user/${comment.users.id}`}
                   className="font-medium text-gray-900 hover:text-uiuc-blue transition-colors"
                 >
-                  {comment.users.full_name || comment.users.username || 'Anonymous'}
+                  {sanitizeContent(comment.users.full_name || comment.users.username || 'Anonymous')}
                 </Link>
               ) : (
                 <span className="font-medium text-gray-900">Anonymous</span>
@@ -268,7 +269,7 @@ export function CommentItem({
             </div>
           ) : (
             <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {comment.content}
+              {sanitizeContent(comment.content)}
             </div>
           )}
 

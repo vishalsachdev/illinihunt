@@ -21,6 +21,8 @@ export function useAuth() {
     loading: true,
     error: null
   })
+  
+  const [authLock, setAuthLock] = useState(false)
 
   useEffect(() => {
     // Get initial session
@@ -58,6 +60,10 @@ export function useAuth() {
   }, [])
 
   const loadUserProfile = async (user: User, session: Session) => {
+    // Prevent concurrent auth operations to avoid race conditions
+    if (authLock) return
+    setAuthLock(true)
+    
     try {
       // Validate email domain
       if (!user.email?.endsWith('@illinois.edu')) {
@@ -67,6 +73,7 @@ export function useAuth() {
           error: 'Only @illinois.edu email addresses are allowed',
           loading: false
         }))
+        setAuthLock(false)
         return
       }
 
@@ -95,6 +102,7 @@ export function useAuth() {
 
         if (createError) {
           setState(prev => ({ ...prev, error: createError.message, loading: false }))
+          setAuthLock(false)
           return
         }
 
@@ -122,6 +130,8 @@ export function useAuth() {
         error: err instanceof Error ? err.message : 'Unknown error',
         loading: false
       }))
+    } finally {
+      setAuthLock(false)
     }
   }
 

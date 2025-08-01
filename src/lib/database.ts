@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import type { Database } from '@/types/database'
+import { ErrorHandler, type ServiceResult } from './errorHandler'
 
 type ProjectInsert = Database['public']['Tables']['projects']['Insert']
 type ProjectUpdate = Database['public']['Tables']['projects']['Update']
@@ -812,5 +813,93 @@ export class CollectionService {
       `)
       .eq('user_id', user.id)
       .eq('collection_projects.project_id', projectId)
+  }
+
+  // SAFER WRAPPER METHODS WITH PROPER ERROR HANDLING
+
+  /**
+   * Safely create a new project with proper error handling
+   */
+  static async createProjectSafe(project: ProjectInsert): Promise<ServiceResult<any>> {
+    return ErrorHandler.withErrorHandling(async () => {
+      const { data, error } = await this.createProject(project)
+      if (error) throw error
+      return data
+    }, 'ProjectsService.createProjectSafe')
+  }
+
+  /**
+   * Safely get project with proper error handling
+   */
+  static async getProjectSafe(id: string): Promise<ServiceResult<any>> {
+    return ErrorHandler.withErrorHandling(async () => {
+      const { data, error } = await this.getProject(id)
+      if (error) throw error
+      return data
+    }, 'ProjectsService.getProjectSafe')
+  }
+
+  /**
+   * Safely vote on project with proper error handling
+   */
+  static async voteProjectSafe(projectId: string): Promise<ServiceResult<any>> {
+    return ErrorHandler.withErrorHandling(async () => {
+      const { data, error } = await this.voteProject(projectId)
+      if (error) throw error
+      return data
+    }, 'ProjectsService.voteProjectSafe')
+  }
+
+  /**
+   * Safely remove vote with proper error handling
+   */
+  static async unvoteProjectSafe(projectId: string): Promise<ServiceResult<any>> {
+    return ErrorHandler.withErrorHandling(async () => {
+      const { data, error } = await this.unvoteProject(projectId)
+      if (error) throw error
+      return data
+    }, 'ProjectsService.unvoteProjectSafe')
+  }
+}
+
+/**
+ * Safer CommentsService methods with proper error handling
+ */
+export class SafeCommentsService {
+  /**
+   * Safely create a comment with proper error handling
+   */
+  static async createCommentSafe(data: {
+    content: string
+    project_id: string
+    parent_id?: string | null
+  }): Promise<ServiceResult<any>> {
+    return ErrorHandler.withErrorHandling(async () => {
+      const result = await CommentsService.createComment(data)
+      if (result.error) throw new Error(result.error.message)
+      return result.data
+    }, 'SafeCommentsService.createCommentSafe')
+  }
+
+  /**
+   * Safely update a comment with proper error handling
+   */
+  static async updateCommentSafe(commentId: string, content: string): Promise<ServiceResult<any>> {
+    return ErrorHandler.withErrorHandling(async () => {
+      const result = await CommentsService.updateComment(commentId, content)
+      if (result.error) throw new Error(result.error.message)
+      return result.data
+    }, 'SafeCommentsService.updateCommentSafe')
+  }
+
+  /**
+   * Safely delete a comment with proper error handling
+   */
+  static async deleteCommentSafe(commentId: string): Promise<ServiceResult<any>> {
+    return ErrorHandler.withErrorHandling(async () => {
+      const result = await CommentsService.deleteComment(commentId)
+      if (result.error) throw new Error(result.error.message)
+      return result.data
+    }, 'SafeCommentsService.deleteCommentSafe')
   }
 }
