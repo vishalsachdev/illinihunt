@@ -60,8 +60,8 @@ Our innovative categorization system helps users discover projects by the proble
 - **Google OAuth** with domain restrictions
 
 ### Deployment & DevOps
-- **Vercel** for frontend hosting
-- **GitHub Actions** for CI/CD
+- **Vercel** for frontend hosting with GitHub integration
+- **GitHub Actions** for AI-assisted development workflow
 - **TypeScript** strict mode for type safety
 - **ESLint** for code quality
 

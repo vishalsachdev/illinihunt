@@ -114,9 +114,11 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ### Deployment
-- **Vercel** with automatic deployments from GitHub main branch
+- **Vercel** with GitHub integration for automatic deployments
 - **Build command**: `npm run build` (includes TypeScript compilation)
 - **Environment variables** configured in Vercel dashboard
+- **Automatic deployment**: Every push to main branch triggers production deployment
+- **Preview deployments**: All pull requests get preview deployments automatically
 
 ## Important Files to Understand
 
