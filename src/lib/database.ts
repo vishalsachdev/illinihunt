@@ -822,7 +822,7 @@ export class CollectionService {
    */
   static async createProjectSafe(project: ProjectInsert): Promise<ServiceResult<any>> {
     return ErrorHandler.withErrorHandling(async () => {
-      const { data, error } = await this.createProject(project)
+      const { data, error } = await ProjectsService.createProject(project)
       if (error) throw error
       return data
     }, 'ProjectsService.createProjectSafe')
@@ -833,7 +833,7 @@ export class CollectionService {
    */
   static async getProjectSafe(id: string): Promise<ServiceResult<any>> {
     return ErrorHandler.withErrorHandling(async () => {
-      const { data, error } = await this.getProject(id)
+      const { data, error } = await ProjectsService.getProject(id)
       if (error) throw error
       return data
     }, 'ProjectsService.getProjectSafe')
@@ -844,7 +844,7 @@ export class CollectionService {
    */
   static async voteProjectSafe(projectId: string): Promise<ServiceResult<any>> {
     return ErrorHandler.withErrorHandling(async () => {
-      const { data, error } = await this.voteProject(projectId)
+      const { data, error } = await ProjectsService.voteProject(projectId)
       if (error) throw error
       return data
     }, 'ProjectsService.voteProjectSafe')
@@ -855,7 +855,7 @@ export class CollectionService {
    */
   static async unvoteProjectSafe(projectId: string): Promise<ServiceResult<any>> {
     return ErrorHandler.withErrorHandling(async () => {
-      const { data, error } = await this.unvoteProject(projectId)
+      const { data, error } = await ProjectsService.unvoteProject(projectId)
       if (error) throw error
       return data
     }, 'ProjectsService.unvoteProjectSafe')

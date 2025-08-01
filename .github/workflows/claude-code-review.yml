@@ -1,7 +1,8 @@
 name: Claude Auto Code Review
 
+# Separate concurrency group for PR reviews to avoid conflicts with issue workflows
 concurrency:
-  group: claude-review-${{ github.workflow }}-${{ github.ref }}
+  group: claude-pr-review-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 on:
@@ -47,14 +48,17 @@ jobs:
           
           # Direct prompt for automated review (no @claude mention needed)
           direct_prompt: |
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
+            Please review this IlliniHunt V2 pull request and provide feedback on:
+            - Code quality and TypeScript best practices
+            - React component patterns and performance
+            - Tailwind CSS and responsive design implementation
+            - Supabase integration and security
+            - Accessibility and UIUC brand compliance
+            - Potential bugs or edge cases
+            - Mobile responsiveness and user experience
             
-            Be constructive and helpful in your feedback.
+            Be constructive and educational, especially for student contributors.
+            Consider this is a learning platform for UIUC students.
 
           # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
           # use_sticky_comment: true
