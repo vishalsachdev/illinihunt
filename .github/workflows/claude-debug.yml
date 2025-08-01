@@ -6,7 +6,6 @@ on:
 
 jobs:
   debug:
-    if: contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
