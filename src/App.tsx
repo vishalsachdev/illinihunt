@@ -104,14 +104,14 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-background">
-        <header className="absolute top-0 left-0 right-0 z-50 bg-transparent text-white p-4">
+        <header className="absolute top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b text-gray-900 p-4 shadow-sm">
           <div className="container mx-auto flex items-center justify-between">
             <div className="flex-shrink-0">
               <Link to="/" className="block">
-                <h1 className="text-xl sm:text-2xl font-bold hover:text-uiuc-light-orange transition-colors">
+                <h1 className="text-xl sm:text-2xl font-bold text-uiuc-blue hover:text-uiuc-orange transition-colors">
                   IlliniHunt
                 </h1>
-                <p className="text-gray-300 text-xs sm:text-sm hidden sm:block">Discover UIUC Innovation</p>
+                <p className="text-gray-600 text-xs sm:text-sm hidden sm:block">Discover UIUC Innovation</p>
               </Link>
             </div>
             
@@ -121,7 +121,7 @@ function AppContent() {
                   asChild
                   variant="ghost" 
                   size="sm"
-                  className="bg-transparent text-white hover:bg-white/10 text-xs sm:text-sm hidden sm:inline-flex"
+                  className="bg-transparent text-gray-700 hover:bg-gray-100 text-xs sm:text-sm hidden sm:inline-flex"
                 >
                   <Link to="/dashboard">
                     Dashboard
@@ -132,7 +132,7 @@ function AppContent() {
                 asChild
                 variant="outline" 
                 size="sm"
-                className="bg-transparent border-white text-white hover:bg-white hover:text-uiuc-blue text-xs sm:text-sm"
+                className="bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100 text-xs sm:text-sm"
               >
                 <Link to="/submit">
                   <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
