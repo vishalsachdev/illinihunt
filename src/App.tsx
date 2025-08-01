@@ -8,6 +8,7 @@ import { UserMenu } from '@/components/auth/UserMenu'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { AuthPromptProvider, useAuthPrompt } from '@/contexts/AuthPromptContext'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 // Lazy load all pages for code splitting
 const HomePage = lazy(() => import('@/pages/HomePage').then(module => ({ default: module.HomePage })))
@@ -202,12 +203,14 @@ function AppContent() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthPromptProvider>
-        <AppContent />
-        <SpeedInsights />
-      </AuthPromptProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthPromptProvider>
+          <AppContent />
+          <SpeedInsights />
+        </AuthPromptProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
 
