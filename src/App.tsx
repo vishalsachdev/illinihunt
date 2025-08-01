@@ -111,7 +111,7 @@ function AppContent() {
                 <h1 className="text-xl sm:text-2xl font-bold text-uiuc-blue hover:text-uiuc-orange transition-colors">
                   IlliniHunt
                 </h1>
-                <p className="text-gray-600 text-xs sm:text-sm hidden sm:block">Discover UIUC Innovation</p>
+                <p className="text-gray-600 text-xs sm:text-sm hidden sm:block">Discover innovation at Illinois</p>
               </Link>
             </div>
             

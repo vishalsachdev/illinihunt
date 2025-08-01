@@ -113,7 +113,7 @@ export function ProjectGrid() {
           Discover Amazing Projects
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Explore innovative projects from the UIUC community. Vote for your favorites, discover new ideas, and connect with brilliant minds.
+          Explore innovative projects from the Illinois community. Vote for your favorites, discover new ideas, and connect with brilliant minds.
         </p>
       </div>
 

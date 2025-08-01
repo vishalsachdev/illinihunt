@@ -84,7 +84,7 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
           <h2 className="text-2xl font-bold text-gray-900 mb-3">@illinois.edu Authentication Required</h2>
           
           <p className="text-gray-600 mb-8">
-            Sign in with your UIUC account to {actionRequired}.
+            Sign in with your Illinois account to {actionRequired}.
           </p>
           
           <div className="space-y-4">
@@ -110,7 +110,7 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
           </div>
           
           <p className="mt-6 text-sm text-gray-500">
-            Your information will only be used to verify your UIUC affiliation.
+            Your information will only be used to verify your Illinois affiliation.
           </p>
         </div>
       </div>

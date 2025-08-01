@@ -90,7 +90,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
     <div className="max-w-2xl mx-auto p-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-uiuc-blue mb-2">Submit Your Project</h1>
-        <p className="text-gray-600">Share your amazing work with the UIUC community!</p>
+        <p className="text-gray-600">Share your amazing work with the Illinois community!</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

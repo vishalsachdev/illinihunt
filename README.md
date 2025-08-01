@@ -9,7 +9,7 @@
 
 ## 🎯 What is IlliniHunt?
 
-IlliniHunt is a **problem-solving discovery platform** designed specifically for the UIUC community. Instead of just showcasing technology, we help students, faculty, and staff discover projects that solve real-world problems.
+IlliniHunt is a **problem-solving discovery platform** designed specifically for the Illinois community. Instead of just showcasing technology, we help students, faculty, and staff discover projects that solve real-world problems.
 
 ### 🌟 Key Features
 
@@ -192,10 +192,10 @@ supabase/
 
 ## 🤝 Contributing to IlliniHunt
 
-**Welcome UIUC Students!** 🎓 IlliniHunt is built by students, for students. Contributing offers unique opportunities for portfolio building, academic credit, and real-world experience with modern web development.
+**Welcome Illinois Students!** 🎓 IlliniHunt is built by students, for students. Contributing offers unique opportunities for portfolio building, academic credit, and real-world experience with modern web development.
 
 ### 🚀 Quick Start for Students
-1. **Read our [Contributing Guide](CONTRIBUTING.md)** - Comprehensive guide for UIUC contributors
+1. **Read our [Contributing Guide](CONTRIBUTING.md)** - Comprehensive guide for Illinois contributors
 2. **Browse [Student-Friendly Issues](https://github.com/vishalsachdev/illinihunt/labels/student-friendly)** - Perfect starting points
 3. **Try AI-Assisted Development** - Use @claude for help and learning
 4. **Connect Course Projects** - Integrate with CS/ECE/BADM coursework
@@ -318,7 +318,7 @@ git checkout -b feature/your-feature-name
 
 ### 🌟 Student Success Stories
 
-*Coming soon: Showcase of UIUC students who have:*
+*Coming soon: Showcase of Illinois students who have:*
 - Landed tech internships through IlliniHunt contributions
 - Published research papers based on their work
 - Received academic credit for open source contributions
@@ -342,7 +342,7 @@ Contributors receive:
 
 ## 📊 Platform Analytics
 
-- **Target Users**: UIUC students, faculty, and staff
+- **Target Users**: Illinois students, faculty, and staff
 - **Authentication**: Google OAuth with @illinois.edu domain restriction
 - **Categories**: 8 problem-focused categories
 - **Features**: 15+ major features implemented
