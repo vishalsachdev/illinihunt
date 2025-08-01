@@ -1,0 +1,37 @@
+name: Claude Debug Test
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  debug:
+    if: contains(github.event.comment.body, '@claude')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    
+    steps:
+      - name: Debug workflow trigger
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log('Event name:', context.eventName);
+            console.log('Comment body:', context.payload.comment.body);
+            console.log('Contains @claude:', context.payload.comment.body.includes('@claude'));
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🤖 **Debug Test Successful!**
+              
+              The workflow triggered correctly on @claude mention.
+              
+              Event: ${context.eventName}
+              Comment contains @claude: ${context.payload.comment.body.includes('@claude')}
+              
+              This confirms the basic workflow automation is working.`
+            });
