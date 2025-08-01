@@ -22,11 +22,11 @@ jobs:
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude'))) ||
-      (github.event_name == 'issues' && github.event.action == 'labeled' && 
-       (github.event.label.name == 'needs-clarification' || 
-        github.event.label.name == 'spec-in-progress' || 
-        github.event.label.name == 'ready-for-implementation'))
+      (github.event_name == 'issues' && contains(github.event.issue.body, '@claude')) ||
+      (github.event_name == 'issues' && contains(github.event.issue.title, '@claude')) ||
+      (github.event_name == 'issues' && github.event.action == 'labeled' && contains(join(github.event.issue.labels.*.name, ' '), 'needs-clarification')) ||
+      (github.event_name == 'issues' && github.event.action == 'labeled' && contains(join(github.event.issue.labels.*.name, ' '), 'spec-in-progress')) ||
+      (github.event_name == 'issues' && github.event.action == 'labeled' && contains(join(github.event.issue.labels.*.name, ' '), 'ready-for-implementation'))
     
     runs-on: ubuntu-latest
     timeout-minutes: 5
