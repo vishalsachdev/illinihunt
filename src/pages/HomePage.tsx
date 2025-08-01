@@ -126,7 +126,7 @@ export function HomePage() {
               Discover cutting-edge research projects, innovative apps, and transformative solutions from students, faculty, and staff across the University of Illinois.
             </p>
             <p className="text-base sm:text-lg lg:text-xl text-gray-400 mb-12 max-w-3xl mx-auto px-4">
-              Connect with the campus community, find collaborators across disciplines, and gain visibility for your work.
+              Connect with our vibrant campus community, find collaborators across disciplines, and gain visibility for your work.
             </p>
             
             {/* CTA Buttons */}
