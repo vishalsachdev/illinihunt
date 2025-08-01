@@ -41,6 +41,7 @@ export function ProjectDetailPage() {
   const [project, setProject] = useState<ProjectDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [imageError, setImageError] = useState(false)
 
   useEffect(() => {
     const loadProject = async () => {
@@ -118,12 +119,13 @@ export function ProjectDetailPage() {
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Project Image */}
-            {project.image_url && (
+            {project.image_url && !imageError && (
               <div className="mb-8">
                 <img
                   src={project.image_url}
                   alt={project.name}
                   className="w-full h-64 md:h-80 object-cover rounded-lg border"
+                  onError={() => setImageError(true)}
                 />
               </div>
             )}

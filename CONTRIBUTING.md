@@ -51,7 +51,7 @@ IlliniHunt is built **by students, for students**. Contributing to this project 
 
 ## 🤖 AI-Powered Development Workflow
 
-IlliniHunt features a **complete automated development workflow** that takes non-technical users from feature request to working implementation!
+IlliniHunt features a **complete automated development workflow** that takes non-technical users from feature request to working implementation! Our streamlined automation system provides reliable, predictable responses with enhanced error handling and fallback capabilities.
 
 ### 🔄 Full Automation Workflow (Recommended for Non-Technical Users)
 
@@ -129,6 +129,14 @@ For developers who want AI help with their own coding:
 - **Learn Best Practices**: @claude explains architectural decisions and patterns
 - **Understand Code Reviews**: Learn what experienced developers look for
 - **Modern Tech Stack**: Experience with React, TypeScript, Supabase, and modern tooling
+
+### 🔧 System Reliability (Technical Note)
+Our automation system uses a **smart router architecture** that eliminates workflow conflicts and provides:
+- **Single Entry Point**: One workflow handles all @claude requests with intelligent routing
+- **Conflict Prevention**: Proper concurrency controls prevent competing workflow cancellations
+- **Emergency Fallback**: Backup system ensures continuous service if main automation fails
+- **Enhanced Error Handling**: Graceful degradation and clear error communication
+- **Optimized Performance**: Reduced CI costs and faster response times
 
 ## 🎯 Development Workflow
 

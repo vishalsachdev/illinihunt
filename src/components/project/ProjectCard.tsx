@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { formatDistance } from 'date-fns'
 import { ExternalLink, Github, MessageCircle } from 'lucide-react'
 import { CategoryIcon } from '@/lib/categoryIcons'
@@ -39,6 +40,7 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
+  const [imageError, setImageError] = useState(false)
   const user = project.users
   const category = project.categories
 
@@ -46,11 +48,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-uiuc-orange/30 group">
       {/* Project Image Header */}
       <div className="relative h-48 bg-gray-100">
-        {project.image_url ? (
+        {project.image_url && !imageError ? (
           <img
             src={project.image_url}
             alt={project.name}
             className="w-full h-full object-cover"
+            onError={() => setImageError(true)}
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
