@@ -118,15 +118,15 @@ export function HomePage() {
               Connect with{' '}
               <span className="text-uiuc-orange">Groundbreaking</span>
               <br />
-              Student Innovation
+              Campus Innovation
             </h1>
             
             {/* Subtitle */}
             <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 mb-4 max-w-4xl mx-auto leading-relaxed px-4">
-              Discover cutting-edge research projects, innovative apps, and startup ventures from Illinois' brightest minds.
+              Discover cutting-edge research projects, innovative apps, and transformative solutions from students, faculty, and staff across the University of Illinois.
             </p>
             <p className="text-base sm:text-lg lg:text-xl text-gray-400 mb-12 max-w-3xl mx-auto px-4">
-              Get feedback from peers, find collaborators, and gain visibility for your work.
+              Connect with the campus community, find collaborators across disciplines, and gain visibility for your work.
             </p>
             
             {/* CTA Buttons */}
@@ -293,7 +293,7 @@ export function HomePage() {
                       `${stats.usersCount}+`
                     )}
                   </div>
-                  <div className="text-gray-400 text-sm sm:text-base lg:text-lg">Active Builders</div>
+                  <div className="text-gray-400 text-sm sm:text-base lg:text-lg">Community Innovators</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white mb-1 sm:mb-2">
@@ -315,23 +315,23 @@ export function HomePage() {
                       🏆 Award Winning
                     </div>
                     <div className="text-white text-xs">
-                      Projects featured in competitions
+                      Student projects & faculty research recognition
                     </div>
                   </div>
                   <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4">
                     <div className="text-uiuc-light-orange font-semibold text-sm mb-1">
-                      🚀 Startup Success
+                      🚀 Campus Innovation
                     </div>
                     <div className="text-white text-xs">
-                      Multiple ventures funded
+                      Startups, research breakthroughs & operational improvements
                     </div>
                   </div>
                   <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4">
                     <div className="text-uiuc-light-orange font-semibold text-sm mb-1">
-                      🔬 Research Impact
+                      🤝 Cross-Disciplinary
                     </div>
                     <div className="text-white text-xs">
-                      Published in leading journals
+                      Faculty-student partnerships & staff innovations
                     </div>
                   </div>
                 </div>
@@ -341,10 +341,10 @@ export function HomePage() {
               <div className="max-w-2xl mx-auto px-4 text-center">
                 <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
                   <div className="text-white/90 text-sm italic mb-3">
-                    "IlliniHunt showcases the incredible innovation happening across our campus, connecting students, faculty, and researchers in meaningful ways."
+                    "IlliniHunt showcases the incredible innovation happening across our entire campus community, fostering collaboration between students, faculty, staff, and researchers in meaningful ways."
                   </div>
                   <div className="text-uiuc-light-orange text-xs font-semibold">
-                    — University of Illinois Innovation Community
+                    — University of Illinois Campus Innovation Initiative
                   </div>
                 </div>
               </div>
