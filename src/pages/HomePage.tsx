@@ -164,7 +164,7 @@ export function HomePage() {
                     🔥 Trending Projects
                   </h3>
                   <p className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto">
-                    Discover the most popular innovations from the UIUC community
+                    Discover innovation at Illinois
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
@@ -207,7 +207,7 @@ export function HomePage() {
                             {project.name}
                           </h4>
                           <p className="text-gray-300 text-sm leading-relaxed line-clamp-2">
-                            {project.tagline || 'An innovative project from the UIUC community.'}
+                            {project.tagline || 'An innovative project from the Illinois community.'}
                           </p>
                         </div>
                         
