@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/types/database'
+import { isAuthInitialized, setAuthInitialized, resetAuthCache } from '@/lib/authStore'
 
 type UserProfile = Database['public']['Tables']['users']['Row']
 
@@ -14,11 +15,12 @@ interface AuthState {
 }
 
 export function useAuth() {
+  // Check if auth was recently initialized to avoid showing loading in new tabs
   const [state, setState] = useState<AuthState>({
     user: null,
     profile: null,
     session: null,
-    loading: true,
+    loading: !isAuthInitialized(), // Don't show loading if recently initialized
     error: null
   })
   
@@ -36,6 +38,7 @@ export function useAuth() {
         loadUserProfile(session.user, session)
       } else {
         setState(prev => ({ ...prev, loading: false }))
+        setAuthInitialized() // Mark as initialized even when not logged in
       }
     })
 
@@ -53,6 +56,7 @@ export function useAuth() {
           loading: false,
           error: null
         })
+        resetAuthCache() // Reset cache on sign out
       }
     })
 
@@ -113,6 +117,7 @@ export function useAuth() {
           loading: false,
           error: null
         })
+        setAuthInitialized() // Mark as initialized after creating profile
       } else if (error) {
         setState(prev => ({ ...prev, error: error.message, loading: false }))
       } else {
@@ -123,6 +128,7 @@ export function useAuth() {
           loading: false,
           error: null
         })
+        setAuthInitialized() // Mark as initialized after loading profile
       }
     } catch (err) {
       setState(prev => ({
