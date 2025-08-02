@@ -26,29 +26,44 @@ export function ImageUpload({
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = async (file: File) => {
+    console.log('[ImageUpload] Starting file selection:', file.name, file.type, file.size)
+    
     if (!user) {
+      console.log('[ImageUpload] No user found')
       setError('You must be logged in to upload images')
       return
     }
 
+    console.log('[ImageUpload] User found, starting upload process')
     setUploading(true)
     setError(null)
 
     try {
+      console.log('[ImageUpload] Starting image compression...')
       // Compress large images
       const compressedFile = await compressImage(file)
+      console.log('[ImageUpload] Compression complete:', compressedFile.size)
       
+      console.log('[ImageUpload] Starting Supabase upload...')
       // Upload to Supabase
       const result: ImageUploadResult = await uploadProjectImage(compressedFile, user.id)
+      console.log('[ImageUpload] Upload result:', result)
       
       if (result.error) {
+        console.error('[ImageUpload] Upload error:', result.error)
         setError(result.error)
       } else if (result.url) {
+        console.log('[ImageUpload] Upload successful:', result.url)
         onImageUploaded(result.url)
+      } else {
+        console.error('[ImageUpload] No URL or error returned')
+        setError('Upload completed but no URL returned')
       }
     } catch (err) {
-      setError('Failed to upload image. Please try again.')
+      console.error('[ImageUpload] Unexpected error:', err)
+      setError(`Upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
+      console.log('[ImageUpload] Setting uploading to false')
       setUploading(false)
     }
   }

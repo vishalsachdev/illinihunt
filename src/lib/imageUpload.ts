@@ -46,10 +46,14 @@ async function ensureBucketExists(): Promise<boolean> {
  * Upload an image file to Supabase Storage
  */
 export async function uploadProjectImage(file: File, userId: string): Promise<ImageUploadResult> {
+  console.log('[uploadProjectImage] Starting upload for:', file.name, 'User:', userId)
+  
   try {
     // Validate file type
+    console.log('[uploadProjectImage] Validating file type:', file.type)
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
     if (!allowedTypes.includes(file.type)) {
+      console.log('[uploadProjectImage] Invalid file type')
       return {
         url: null,
         error: 'Please upload a valid image file (JPG, PNG, WebP, or GIF)'
@@ -57,8 +61,10 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
     }
 
     // Validate file size (5MB max)
+    console.log('[uploadProjectImage] Validating file size:', file.size)
     const maxSize = 5 * 1024 * 1024 // 5MB in bytes
     if (file.size > maxSize) {
+      console.log('[uploadProjectImage] File too large')
       return {
         url: null,
         error: 'Image must be smaller than 5MB'
@@ -66,8 +72,10 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
     }
 
     // Ensure bucket exists
+    console.log('[uploadProjectImage] Checking bucket exists...')
     const bucketExists = await ensureBucketExists()
     if (!bucketExists) {
+      console.log('[uploadProjectImage] Bucket does not exist')
       return {
         url: null,
         error: 'Image upload is not available. Please contact support to configure storage.'
@@ -156,37 +164,79 @@ export async function deleteProjectImage(imageUrl: string): Promise<{ error: str
  */
 export function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
   return new Promise((resolve) => {
+    console.log('[compressImage] Starting compression for:', file.name, file.size)
+    
+    // Add timeout to prevent hanging
+    const timeout = setTimeout(() => {
+      console.error('[compressImage] Compression timed out after 30 seconds')
+      resolve(file) // Return original file as fallback
+    }, 30000)
+
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
+    
+    if (!ctx) {
+      console.error('[compressImage] Could not get canvas context')
+      clearTimeout(timeout)
+      resolve(file)
+      return
+    }
+    
     const img = new Image()
 
     img.onload = () => {
-      // Calculate new dimensions
-      const ratio = Math.min(maxWidth / img.width, maxWidth / img.height)
-      canvas.width = img.width * ratio
-      canvas.height = img.height * ratio
+      console.log('[compressImage] Image loaded:', img.width, 'x', img.height)
+      
+      try {
+        // Calculate new dimensions
+        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height)
+        canvas.width = img.width * ratio
+        canvas.height = img.height * ratio
 
-      // Draw compressed image
-      ctx?.drawImage(img, 0, 0, canvas.width, canvas.height)
+        console.log('[compressImage] New dimensions:', canvas.width, 'x', canvas.height)
 
-      // Convert to blob and create new file
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            const compressedFile = new File([blob], file.name, {
-              type: file.type,
-              lastModified: Date.now()
-            })
-            resolve(compressedFile)
-          } else {
-            resolve(file) // Fallback to original file
-          }
-        },
-        file.type,
-        quality
-      )
+        // Draw compressed image
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+
+        // Convert to blob and create new file
+        canvas.toBlob(
+          (blob) => {
+            clearTimeout(timeout)
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: file.type,
+                lastModified: Date.now()
+              })
+              console.log('[compressImage] Compression successful:', blob.size)
+              resolve(compressedFile)
+            } else {
+              console.warn('[compressImage] No blob created, using original file')
+              resolve(file) // Fallback to original file
+            }
+          },
+          file.type,
+          quality
+        )
+      } catch (err) {
+        console.error('[compressImage] Error during compression:', err)
+        clearTimeout(timeout)
+        resolve(file)
+      }
     }
 
-    img.src = URL.createObjectURL(file)
+    img.onerror = (err) => {
+      console.error('[compressImage] Image load error:', err)
+      clearTimeout(timeout)
+      resolve(file) // Use original file if compression fails
+    }
+
+    try {
+      img.src = URL.createObjectURL(file)
+      console.log('[compressImage] Set image source')
+    } catch (err) {
+      console.error('[compressImage] Error creating object URL:', err)
+      clearTimeout(timeout)
+      resolve(file)
+    }
   })
 }
