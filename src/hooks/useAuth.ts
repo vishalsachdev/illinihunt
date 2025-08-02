@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/types/database'
-import { isAuthInitialized, setAuthInitialized, resetAuthCache } from '@/lib/authStore'
 
 type UserProfile = Database['public']['Tables']['users']['Row']
 
@@ -15,7 +14,6 @@ interface AuthState {
 }
 
 export function useAuth() {
-  // Always start with loading true to prevent race conditions
   const [state, setState] = useState<AuthState>({
     user: null,
     profile: null,
@@ -23,34 +21,45 @@ export function useAuth() {
     loading: true,
     error: null
   })
-  
-  // Track if we should skip showing loading UI (but still need to check auth)
-  const [skipLoadingUI, setSkipLoadingUI] = useState(isAuthInitialized())
-  
-  const [authLock, setAuthLock] = useState(false)
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        setState(prev => ({ ...prev, error: error.message, loading: false }))
-        setSkipLoadingUI(true)
-        return
-      }
+    let mounted = true
 
-      if (session?.user) {
-        loadUserProfile(session.user, session)
-      } else {
-        setState(prev => ({ ...prev, loading: false }))
-        setAuthInitialized() // Mark as initialized even when not logged in
-        setSkipLoadingUI(true)
+    // Get initial session
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (!mounted) return
+        
+        if (error) {
+          setState(prev => ({ ...prev, error: error.message, loading: false }))
+          return
+        }
+
+        if (session?.user) {
+          await loadUserProfile(session.user, session)
+        } else {
+          setState(prev => ({ ...prev, loading: false }))
+        }
+      } catch (err) {
+        if (!mounted) return
+        setState(prev => ({ 
+          ...prev, 
+          error: err instanceof Error ? err.message : 'Failed to initialize auth',
+          loading: false 
+        }))
       }
-    })
+    }
+
+    initializeAuth()
 
     // Listen for auth changes
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return
+
       if (event === 'SIGNED_IN' && session?.user) {
         await loadUserProfile(session.user, session)
       } else if (event === 'SIGNED_OUT') {
@@ -61,28 +70,30 @@ export function useAuth() {
           loading: false,
           error: null
         })
-        resetAuthCache() // Reset cache on sign out
+      } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+        // Update session without reloading profile
+        setState(prev => ({ ...prev, session }))
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const loadUserProfile = async (user: User, session: Session) => {
-    // Prevent concurrent auth operations to avoid race conditions
-    if (authLock) return
-    setAuthLock(true)
-    
     try {
       // Validate email domain
       if (!user.email?.endsWith('@illinois.edu')) {
         await supabase.auth.signOut()
-        setState(prev => ({
-          ...prev,
-          error: 'Only @illinois.edu email addresses are allowed',
-          loading: false
-        }))
-        setAuthLock(false)
+        setState({
+          user: null,
+          profile: null,
+          session: null,
+          loading: false,
+          error: 'Only @illinois.edu email addresses are allowed'
+        })
         return
       }
 
@@ -110,8 +121,13 @@ export function useAuth() {
           .single()
 
         if (createError) {
-          setState(prev => ({ ...prev, error: createError.message, loading: false }))
-          setAuthLock(false)
+          setState({
+            user: null,
+            profile: null,
+            session: null,
+            loading: false,
+            error: `Failed to create profile: ${createError.message}`
+          })
           return
         }
 
@@ -122,10 +138,14 @@ export function useAuth() {
           loading: false,
           error: null
         })
-        setAuthInitialized() // Mark as initialized after creating profile
-        setSkipLoadingUI(true)
       } else if (error) {
-        setState(prev => ({ ...prev, error: error.message, loading: false }))
+        setState({
+          user: null,
+          profile: null,
+          session: null,
+          loading: false,
+          error: `Failed to load profile: ${error.message}`
+        })
       } else {
         setState({
           user,
@@ -134,17 +154,15 @@ export function useAuth() {
           loading: false,
           error: null
         })
-        setAuthInitialized() // Mark as initialized after loading profile
-        setSkipLoadingUI(true)
       }
     } catch (err) {
-      setState(prev => ({
-        ...prev,
-        error: err instanceof Error ? err.message : 'Unknown error',
-        loading: false
-      }))
-    } finally {
-      setAuthLock(false)
+      setState({
+        user: null,
+        profile: null,
+        session: null,
+        loading: false,
+        error: err instanceof Error ? err.message : 'Unknown error'
+      })
     }
   }
 
@@ -155,7 +173,7 @@ export function useAuth() {
         queryParams: {
           hd: 'illinois.edu' // Restrict to Illinois domain
         },
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo: window.location.origin // Let Supabase handle the callback
       }
     })
 
@@ -163,14 +181,16 @@ export function useAuth() {
   }
 
   const signOut = async () => {
+    setState(prev => ({ ...prev, loading: true }))
     const { error } = await supabase.auth.signOut()
-    if (error) throw error
+    if (error) {
+      setState(prev => ({ ...prev, loading: false, error: error.message }))
+      throw error
+    }
   }
 
   return {
     ...state,
-    // Override loading state for UI purposes while keeping auth logic intact
-    loading: state.loading && !skipLoadingUI,
     signInWithGoogle,
     signOut
   }
