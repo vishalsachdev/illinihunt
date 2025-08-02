@@ -1,6 +1,6 @@
 import './App.css'
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
-import { Suspense, lazy, useState, useEffect } from 'react'
+import { Suspense, lazy } from 'react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { useAuth } from '@/hooks/useAuth'
 import { LoginButton } from '@/components/auth/LoginButton'
@@ -57,17 +57,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth()
   const location = useLocation()
   const { showAuthPrompt } = useAuthPrompt()
-  const [initialLoad, setInitialLoad] = useState(true)
 
-  // Track initial auth state load to prevent race conditions
-  useEffect(() => {
-    if (!loading) {
-      setInitialLoad(false)
-    }
-  }, [loading])
-
-  // Show loading only during initial auth check, not during navigation
-  if (initialLoad && loading) {
+  // Show loading during auth check
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -78,8 +70,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     )
   }
 
+  // Redirect to home if not authenticated
   if (!user) {
-    // Store the intended location to redirect after login
+    // Show auth prompt for non-home routes
     if (location.pathname !== '/') {
       showAuthPrompt('access this page')
     }
