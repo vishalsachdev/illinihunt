@@ -1,19 +1,14 @@
-name: Claude Auto Code Review
-
-# Separate concurrency group for PR reviews to avoid conflicts with issue workflows
-concurrency:
-  group: claude-pr-review-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+name: Claude Code Review
 
 on:
   pull_request:
     types: [opened, synchronize]
-    # Enable path filters for performance optimization
-    paths:
-      - "src/**/*.{ts,tsx,js,jsx}"
-      - "package.json"
-      - "tsconfig.json"
-      - "*.config.{js,ts}"
+    # Optional: Only run on specific file changes
+    # paths:
+    #   - "src/**/*.ts"
+    #   - "src/**/*.tsx"
+    #   - "src/**/*.js"
+    #   - "src/**/*.jsx"
 
 jobs:
   claude-review:
@@ -24,7 +19,6 @@ jobs:
     #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
     
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     permissions:
       contents: read
       pull-requests: read
@@ -48,17 +42,14 @@ jobs:
           
           # Direct prompt for automated review (no @claude mention needed)
           direct_prompt: |
-            Please review this IlliniHunt V2 pull request and provide feedback on:
-            - Code quality and TypeScript best practices
-            - React component patterns and performance
-            - Tailwind CSS and responsive design implementation
-            - Supabase integration and security
-            - Accessibility and UIUC brand compliance
-            - Potential bugs or edge cases
-            - Mobile responsiveness and user experience
+            Please review this pull request and provide feedback on:
+            - Code quality and best practices
+            - Potential bugs or issues
+            - Performance considerations
+            - Security concerns
+            - Test coverage
             
-            Be constructive and educational, especially for student contributors.
-            Consider this is a learning platform for UIUC students.
+            Be constructive and helpful in your feedback.
 
           # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
           # use_sticky_comment: true
