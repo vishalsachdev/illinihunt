@@ -38,7 +38,8 @@ export function useAuth() {
         }
 
         if (session?.user) {
-          await loadUserProfile(session.user, session)
+          // Load profile but don't wait for it to complete
+          loadUserProfile(session.user, session)
         } else {
           setState(prev => ({ ...prev, loading: false }))
         }
@@ -49,6 +50,97 @@ export function useAuth() {
           error: err instanceof Error ? err.message : 'Failed to initialize auth',
           loading: false 
         }))
+      }
+    }
+
+    const loadUserProfile = async (user: User, session: Session) => {
+      try {
+        // Validate email domain
+        if (!user.email?.endsWith('@illinois.edu')) {
+          await supabase.auth.signOut()
+          if (mounted) {
+            setState({
+              user: null,
+              profile: null,
+              session: null,
+              loading: false,
+              error: 'Only @illinois.edu email addresses are allowed'
+            })
+          }
+          return
+        }
+
+        // Get or create user profile
+        const { data: profile, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+
+        if (!mounted) return
+
+        if (error && error.code === 'PGRST116') {
+          // Profile doesn't exist, create it
+          const newProfile = {
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata.full_name || '',
+            avatar_url: user.user_metadata.avatar_url || '',
+            username: user.email.split('@')[0] // Default username from email
+          }
+
+          const { data: createdProfile, error: createError } = await supabase
+            .from('users')
+            .insert(newProfile)
+            .select()
+            .single()
+
+          if (!mounted) return
+
+          if (createError) {
+            setState({
+              user: null,
+              profile: null,
+              session: null,
+              loading: false,
+              error: `Failed to create profile: ${createError.message}`
+            })
+            return
+          }
+
+          setState({
+            user,
+            profile: createdProfile,
+            session,
+            loading: false,
+            error: null
+          })
+        } else if (error) {
+          setState({
+            user: null,
+            profile: null,
+            session: null,
+            loading: false,
+            error: `Failed to load profile: ${error.message}`
+          })
+        } else {
+          setState({
+            user,
+            profile,
+            session,
+            loading: false,
+            error: null
+          })
+        }
+      } catch (err) {
+        if (!mounted) return
+        setState({
+          user: null,
+          profile: null,
+          session: null,
+          loading: false,
+          error: err instanceof Error ? err.message : 'Unknown error'
+        })
       }
     }
 
@@ -81,90 +173,6 @@ export function useAuth() {
       subscription.unsubscribe()
     }
   }, [])
-
-  const loadUserProfile = async (user: User, session: Session) => {
-    try {
-      // Validate email domain
-      if (!user.email?.endsWith('@illinois.edu')) {
-        await supabase.auth.signOut()
-        setState({
-          user: null,
-          profile: null,
-          session: null,
-          loading: false,
-          error: 'Only @illinois.edu email addresses are allowed'
-        })
-        return
-      }
-
-      // Get or create user profile
-      const { data: profile, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-
-      if (error && error.code === 'PGRST116') {
-        // Profile doesn't exist, create it
-        const newProfile = {
-          id: user.id,
-          email: user.email,
-          full_name: user.user_metadata.full_name || '',
-          avatar_url: user.user_metadata.avatar_url || '',
-          username: user.email.split('@')[0] // Default username from email
-        }
-
-        const { data: createdProfile, error: createError } = await supabase
-          .from('users')
-          .insert(newProfile)
-          .select()
-          .single()
-
-        if (createError) {
-          setState({
-            user: null,
-            profile: null,
-            session: null,
-            loading: false,
-            error: `Failed to create profile: ${createError.message}`
-          })
-          return
-        }
-
-        setState({
-          user,
-          profile: createdProfile,
-          session,
-          loading: false,
-          error: null
-        })
-      } else if (error) {
-        setState({
-          user: null,
-          profile: null,
-          session: null,
-          loading: false,
-          error: `Failed to load profile: ${error.message}`
-        })
-      } else {
-        setState({
-          user,
-          profile,
-          session,
-          loading: false,
-          error: null
-        })
-      }
-    } catch (err) {
-      setState({
-        user: null,
-        profile: null,
-        session: null,
-        loading: false,
-        error: err instanceof Error ? err.message : 'Unknown error'
-      })
-    }
-  }
 
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
