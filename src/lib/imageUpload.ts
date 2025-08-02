@@ -6,38 +6,20 @@ export interface ImageUploadResult {
 }
 
 /**
- * Ensure the project-images bucket exists
+ * Check if the project-images bucket exists
  */
-async function ensureBucketExists(): Promise<boolean> {
+async function checkBucketExists(): Promise<boolean> {
   try {
-    // Check if bucket exists
     const { data: buckets, error: listError } = await supabase.storage.listBuckets()
     if (listError) {
       console.error('Failed to list buckets:', listError)
       return false
     }
 
-    const hasProjectImagesBucket = buckets.some(b => b.name === 'project-images')
-    if (hasProjectImagesBucket) {
-      return true
-    }
-
-    // Try to create the bucket
-    const { error: createError } = await supabase.storage.createBucket('project-images', {
-      public: true,
-      fileSizeLimit: 5242880, // 5MB
-      allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
-    })
-
-    if (createError) {
-      console.error('Failed to create bucket:', createError)
-      return false
-    }
-
-    console.log('Successfully created project-images bucket')
-    return true
+    console.log('Available buckets:', buckets.map(b => b.name))
+    return buckets.some(b => b.name === 'project-images')
   } catch (err) {
-    console.error('Error ensuring bucket exists:', err)
+    console.error('Error checking bucket exists:', err)
     return false
   }
 }
@@ -71,14 +53,14 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
       }
     }
 
-    // Ensure bucket exists
+    // Check if bucket exists
     console.log('[uploadProjectImage] Checking bucket exists...')
-    const bucketExists = await ensureBucketExists()
+    const bucketExists = await checkBucketExists()
     if (!bucketExists) {
       console.log('[uploadProjectImage] Bucket does not exist')
       return {
         url: null,
-        error: 'Image upload is not available. Please contact support to configure storage.'
+        error: 'Storage bucket "project-images" not found. Please create it in Supabase Dashboard → Storage → New Bucket → Name: "project-images" → Public: Yes → File size limit: 5MB → Allowed MIME types: image/jpeg, image/png, image/webp, image/gif'
       }
     }
 
