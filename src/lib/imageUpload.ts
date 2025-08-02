@@ -6,6 +6,43 @@ export interface ImageUploadResult {
 }
 
 /**
+ * Ensure the project-images bucket exists
+ */
+async function ensureBucketExists(): Promise<boolean> {
+  try {
+    // Check if bucket exists
+    const { data: buckets, error: listError } = await supabase.storage.listBuckets()
+    if (listError) {
+      console.error('Failed to list buckets:', listError)
+      return false
+    }
+
+    const hasProjectImagesBucket = buckets.some(b => b.name === 'project-images')
+    if (hasProjectImagesBucket) {
+      return true
+    }
+
+    // Try to create the bucket
+    const { error: createError } = await supabase.storage.createBucket('project-images', {
+      public: true,
+      fileSizeLimit: 5242880, // 5MB
+      allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
+    })
+
+    if (createError) {
+      console.error('Failed to create bucket:', createError)
+      return false
+    }
+
+    console.log('Successfully created project-images bucket')
+    return true
+  } catch (err) {
+    console.error('Error ensuring bucket exists:', err)
+    return false
+  }
+}
+
+/**
  * Upload an image file to Supabase Storage
  */
 export async function uploadProjectImage(file: File, userId: string): Promise<ImageUploadResult> {
@@ -28,11 +65,21 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
       }
     }
 
+    // Ensure bucket exists
+    const bucketExists = await ensureBucketExists()
+    if (!bucketExists) {
+      return {
+        url: null,
+        error: 'Image upload is not available. Please contact support to configure storage.'
+      }
+    }
+
     // Create unique filename
     const fileExt = file.name.split('.').pop()?.toLowerCase()
     const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
 
     // Upload to Supabase Storage
+    console.log('Attempting to upload file:', fileName)
     const { data, error } = await supabase.storage
       .from('project-images')
       .upload(fileName, file, {
@@ -42,9 +89,16 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
 
     if (error) {
       console.error('Storage upload error:', error)
+      // More specific error handling
+      if (error.message.includes('not found') || error.message.includes('bucket')) {
+        return {
+          url: null,
+          error: 'Storage bucket not configured. Please contact support.'
+        }
+      }
       return {
         url: null,
-        error: 'Failed to upload image. Please try again.'
+        error: `Upload failed: ${error.message}`
       }
     }
 
