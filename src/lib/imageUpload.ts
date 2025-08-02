@@ -5,37 +5,6 @@ export interface ImageUploadResult {
   error: string | null
 }
 
-/**
- * Check if the project-images bucket exists
- */
-async function checkBucketExists(): Promise<boolean> {
-  console.log('[checkBucketExists] Starting bucket check...')
-  try {
-    console.log('[checkBucketExists] Calling supabase.storage.listBuckets()...')
-    const { data: buckets, error: listError } = await supabase.storage.listBuckets()
-    
-    console.log('[checkBucketExists] Response received. Error:', listError)
-    console.log('[checkBucketExists] Buckets data:', buckets)
-    
-    if (listError) {
-      console.error('[checkBucketExists] Failed to list buckets:', listError)
-      return false
-    }
-
-    if (!buckets) {
-      console.error('[checkBucketExists] No buckets data returned (null/undefined)')
-      return false
-    }
-
-    console.log('[checkBucketExists] Available buckets:', buckets.map(b => ({ name: b.name, id: b.id, public: b.public })))
-    const hasProjectImages = buckets.some(b => b.name === 'project-images')
-    console.log('[checkBucketExists] Has project-images bucket:', hasProjectImages)
-    return hasProjectImages
-  } catch (err) {
-    console.error('[checkBucketExists] Exception caught:', err)
-    return false
-  }
-}
 
 /**
  * Upload an image file to Supabase Storage
