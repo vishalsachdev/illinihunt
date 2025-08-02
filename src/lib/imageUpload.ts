@@ -9,17 +9,30 @@ export interface ImageUploadResult {
  * Check if the project-images bucket exists
  */
 async function checkBucketExists(): Promise<boolean> {
+  console.log('[checkBucketExists] Starting bucket check...')
   try {
+    console.log('[checkBucketExists] Calling supabase.storage.listBuckets()...')
     const { data: buckets, error: listError } = await supabase.storage.listBuckets()
+    
+    console.log('[checkBucketExists] Response received. Error:', listError)
+    console.log('[checkBucketExists] Buckets data:', buckets)
+    
     if (listError) {
-      console.error('Failed to list buckets:', listError)
+      console.error('[checkBucketExists] Failed to list buckets:', listError)
       return false
     }
 
-    console.log('Available buckets:', buckets.map(b => b.name))
-    return buckets.some(b => b.name === 'project-images')
+    if (!buckets) {
+      console.error('[checkBucketExists] No buckets data returned (null/undefined)')
+      return false
+    }
+
+    console.log('[checkBucketExists] Available buckets:', buckets.map(b => ({ name: b.name, id: b.id, public: b.public })))
+    const hasProjectImages = buckets.some(b => b.name === 'project-images')
+    console.log('[checkBucketExists] Has project-images bucket:', hasProjectImages)
+    return hasProjectImages
   } catch (err) {
-    console.error('Error checking bucket exists:', err)
+    console.error('[checkBucketExists] Exception caught:', err)
     return false
   }
 }
@@ -53,16 +66,8 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
       }
     }
 
-    // Check if bucket exists
-    console.log('[uploadProjectImage] Checking bucket exists...')
-    const bucketExists = await checkBucketExists()
-    if (!bucketExists) {
-      console.log('[uploadProjectImage] Bucket does not exist')
-      return {
-        url: null,
-        error: 'Storage bucket "project-images" not found. Please create it in Supabase Dashboard → Storage → New Bucket → Name: "project-images" → Public: Yes → File size limit: 5MB → Allowed MIME types: image/jpeg, image/png, image/webp, image/gif'
-      }
-    }
+    // Skip bucket check and try direct upload
+    console.log('[uploadProjectImage] Skipping bucket check, attempting direct upload...')
 
     // Create unique filename
     const fileExt = file.name.split('.').pop()?.toLowerCase()
