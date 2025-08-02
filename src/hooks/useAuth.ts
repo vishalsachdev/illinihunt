@@ -15,14 +15,17 @@ interface AuthState {
 }
 
 export function useAuth() {
-  // Check if auth was recently initialized to avoid showing loading in new tabs
+  // Always start with loading true to prevent race conditions
   const [state, setState] = useState<AuthState>({
     user: null,
     profile: null,
     session: null,
-    loading: !isAuthInitialized(), // Don't show loading if recently initialized
+    loading: true,
     error: null
   })
+  
+  // Track if we should skip showing loading UI (but still need to check auth)
+  const [skipLoadingUI, setSkipLoadingUI] = useState(isAuthInitialized())
   
   const [authLock, setAuthLock] = useState(false)
 
@@ -31,6 +34,7 @@ export function useAuth() {
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
         setState(prev => ({ ...prev, error: error.message, loading: false }))
+        setSkipLoadingUI(true)
         return
       }
 
@@ -39,6 +43,7 @@ export function useAuth() {
       } else {
         setState(prev => ({ ...prev, loading: false }))
         setAuthInitialized() // Mark as initialized even when not logged in
+        setSkipLoadingUI(true)
       }
     })
 
@@ -118,6 +123,7 @@ export function useAuth() {
           error: null
         })
         setAuthInitialized() // Mark as initialized after creating profile
+        setSkipLoadingUI(true)
       } else if (error) {
         setState(prev => ({ ...prev, error: error.message, loading: false }))
       } else {
@@ -129,6 +135,7 @@ export function useAuth() {
           error: null
         })
         setAuthInitialized() // Mark as initialized after loading profile
+        setSkipLoadingUI(true)
       }
     } catch (err) {
       setState(prev => ({
@@ -162,6 +169,8 @@ export function useAuth() {
 
   return {
     ...state,
+    // Override loading state for UI purposes while keeping auth logic intact
+    loading: state.loading && !skipLoadingUI,
     signInWithGoogle,
     signOut
   }
