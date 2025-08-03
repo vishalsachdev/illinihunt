@@ -107,10 +107,12 @@ export function HomePage() {
         <div className="relative z-10 container mx-auto px-4 min-h-screen flex items-center">
           <div className="text-center w-full py-20">
             
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-uiuc-orange/20 border border-uiuc-orange/30 rounded-full px-4 py-2 mb-6 sm:mb-8">
-              <Zap className="w-4 h-4 text-uiuc-orange" />
-              <span className="text-white font-medium text-sm sm:text-base">Where Illini Ideas Come to Life</span>
+            {/* Integrated Tagline */}
+            <div className="mb-4 sm:mb-6">
+              <div className="inline-flex items-center gap-2 text-uiuc-orange mb-3 sm:mb-4">
+                <Zap className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="text-lg sm:text-xl lg:text-2xl font-semibold tracking-wide">Where Illini Ideas Come to Life</span>
+              </div>
             </div>
             
             {/* Main Heading */}
