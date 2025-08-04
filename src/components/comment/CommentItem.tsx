@@ -61,6 +61,11 @@ export function CommentItem({
   const [editContent, setEditContent] = useState(comment.content)
   const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(comment.likes_count)
+  
+  // Update like count if comment.likes_count changes
+  useEffect(() => {
+    setLikeCount(comment.likes_count)
+  }, [comment.likes_count])
   const [isUpdating, setIsUpdating] = useState(false)
   const [error, setError] = useState('')
 
