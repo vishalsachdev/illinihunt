@@ -42,6 +42,7 @@ export function ProjectDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [imageError, setImageError] = useState(false)
+  const [currentVoteCount, setCurrentVoteCount] = useState(0)
 
   useEffect(() => {
     const loadProject = async () => {
@@ -63,6 +64,7 @@ export function ProjectDetailPage() {
       }
       
       setProject(data)
+      setCurrentVoteCount(data.upvotes_count)
       setLoading(false)
     }
 
@@ -146,6 +148,7 @@ export function ProjectDetailPage() {
                     <VoteButton 
                       projectId={project.id} 
                       initialVoteCount={project.upvotes_count}
+                      onVoteChange={setCurrentVoteCount}
                     />
                   </div>
                 </div>
@@ -252,7 +255,7 @@ export function ProjectDetailPage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Upvotes</span>
-                    <span className="font-medium">{project.upvotes_count}</span>
+                    <span className="font-medium">{currentVoteCount}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Comments</span>
