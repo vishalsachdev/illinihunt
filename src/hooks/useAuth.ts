@@ -22,7 +22,7 @@ export function useAuth() {
     user: null,
     profile: null,
     session: null,
-    loading: !hasStoredSession, // If no stored session, we know we need to show loading
+    loading: true, // Always start with loading to ensure proper auth check
     error: null
   })
 
