@@ -58,20 +58,25 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation()
   const { showAuthPrompt } = useAuthPrompt()
 
-  // Show loading during auth check
-  if (loading) {
+  // For protected routes, we need to wait for auth to complete
+  // But check if there's a stored session to minimize loading time
+  const hasStoredAuth = typeof window !== 'undefined' && 
+    window.localStorage.getItem('illinihunt-auth') !== null
+
+  // Only show loading for protected routes if no stored auth
+  if (loading && !hasStoredAuth) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">Checking authentication...</p>
         </div>
       </div>
     )
   }
 
-  // Redirect to home if not authenticated
-  if (!user) {
+  // Redirect to home if not authenticated after loading completes
+  if (!user && !loading) {
     // Show auth prompt for non-home routes
     if (location.pathname !== '/') {
       showAuthPrompt('access this page')
@@ -83,18 +88,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 }
 
 function AppContent() {
-  const { user, loading, error } = useAuth()
+  const { user, error } = useAuth()
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
-  }
+  // Don't block rendering for auth loading
+  // The page should render immediately with or without auth
 
   return (
     <div className="min-h-screen bg-background">

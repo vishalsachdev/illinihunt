@@ -18,6 +18,8 @@ export class ProjectsService {
     limit?: number
     offset?: number
   }) {
+    // Ensure session is initialized before making queries
+    
     let query = supabase
       .from('projects')
       .select(`
