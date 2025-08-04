@@ -10,9 +10,10 @@ interface VoteButtonProps {
   projectId: string
   initialVoteCount: number
   className?: string
+  onVoteChange?: (newCount: number) => void
 }
 
-export function VoteButton({ projectId, initialVoteCount, className }: VoteButtonProps) {
+export function VoteButton({ projectId, initialVoteCount, className, onVoteChange }: VoteButtonProps) {
   const { user } = useAuth()
   const { showAuthPrompt } = useAuthPrompt()
   const [voteCount, setVoteCount] = useState(initialVoteCount)
@@ -45,13 +46,17 @@ export function VoteButton({ projectId, initialVoteCount, className }: VoteButto
       if (hasVoted) {
         // Remove vote
         await ProjectsService.unvoteProject(projectId)
-        setVoteCount(prev => prev - 1)
+        const newCount = voteCount - 1
+        setVoteCount(newCount)
         setHasVoted(false)
+        onVoteChange?.(newCount)
       } else {
         // Add vote
         await ProjectsService.voteProject(projectId)
-        setVoteCount(prev => prev + 1)
+        const newCount = voteCount + 1
+        setVoteCount(newCount)
         setHasVoted(true)
+        onVoteChange?.(newCount)
       }
     } catch (error) {
       alert('Failed to vote. Please try again.')
