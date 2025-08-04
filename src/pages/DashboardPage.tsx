@@ -293,9 +293,11 @@ export function DashboardPage() {
                             </Link>
                           </Button>
                           
-                          <Button variant="outline" size="sm">
-                            <Edit3 className="w-4 h-4 mr-1" />
-                            Edit
+                          <Button asChild variant="outline" size="sm">
+                            <Link to={`/edit-project/${project.id}`}>
+                              <Edit3 className="w-4 h-4 mr-1" />
+                              Edit
+                            </Link>
                           </Button>
                           
                           {project.website_url && (
