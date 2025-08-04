@@ -58,13 +58,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation()
   const { showAuthPrompt } = useAuthPrompt()
 
-  // For protected routes, we need to wait for auth to complete
-  // But check if there's a stored session to minimize loading time
-  const hasStoredAuth = typeof window !== 'undefined' && 
-    window.localStorage.getItem('illinihunt-auth') !== null
-
-  // Only show loading for protected routes if no stored auth
-  if (loading && !hasStoredAuth) {
+  // Always wait for authentication to complete, regardless of localStorage
+  // This prevents race conditions during OAuth callbacks and session establishment
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -76,7 +72,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Redirect to home if not authenticated after loading completes
-  if (!user && !loading) {
+  if (!user) {
     // Show auth prompt for non-home routes
     if (location.pathname !== '/') {
       showAuthPrompt('access this page')
