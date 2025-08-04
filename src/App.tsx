@@ -17,6 +17,7 @@ const ProjectDetailPage = lazy(() => import('@/pages/ProjectDetailPage').then(mo
 const UserProfilePage = lazy(() => import('@/pages/UserProfilePage').then(module => ({ default: module.UserProfilePage })))
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then(module => ({ default: module.DashboardPage })))
 const EditProfilePage = lazy(() => import('@/pages/EditProfilePage').then(module => ({ default: module.EditProfilePage })))
+const EditProjectPage = lazy(() => import('@/pages/EditProjectPage').then(module => ({ default: module.EditProjectPage })))
 const CollectionsPage = lazy(() => import('@/pages/CollectionsPage').then(module => ({ default: module.CollectionsPage })))
 const CollectionViewPage = lazy(() => import('@/pages/CollectionViewPage').then(module => ({ default: module.CollectionViewPage })))
 
@@ -168,6 +169,14 @@ function AppContent() {
                 element={
                   <ProtectedRoute>
                     <EditProfilePage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/edit-project/:id" 
+                element={
+                  <ProtectedRoute>
+                    <EditProjectPage />
                   </ProtectedRoute>
                 } 
               />

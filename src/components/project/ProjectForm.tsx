@@ -22,11 +22,14 @@ import type { Database } from '@/types/database'
 type Category = Database['public']['Tables']['categories']['Row']
 
 interface ProjectFormProps {
+  mode?: 'create' | 'edit'
+  projectId?: string
+  initialData?: any
   onSuccess?: () => void
   onCancel?: () => void
 }
 
-export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
+export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess, onCancel }: ProjectFormProps) {
   const { user } = useAuth()
   const [categories, setCategories] = useState<Category[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -36,6 +39,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors }
   } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema)
@@ -45,6 +49,21 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
   useEffect(() => {
     loadCategories()
   }, [])
+
+  // Populate form with initial data for edit mode
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      reset({
+        name: initialData.name,
+        tagline: initialData.tagline,
+        description: initialData.description,
+        category_id: initialData.category_id,
+        website_url: initialData.website_url || '',
+        github_url: initialData.github_url || ''
+      })
+      setImageUrl(initialData.image_url || '')
+    }
+  }, [mode, initialData, reset])
 
   const loadCategories = async () => {
     try {
@@ -74,13 +93,19 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
         image_url: imageUrl || null,
       }
 
-      const { error } = await ProjectsService.createProject(projectData)
-      if (error) throw error
+      if (mode === 'edit' && projectId) {
+        const { error } = await ProjectsService.updateProject(projectId, projectData)
+        if (error) throw error
+        alert('Project updated successfully!')
+      } else {
+        const { error } = await ProjectsService.createProject(projectData)
+        if (error) throw error
+        alert('Project submitted successfully!')
+      }
 
-      alert('Project submitted successfully!')
       onSuccess?.()
     } catch (error) {
-      alert('Failed to submit project. Please try again.')
+      alert(`Failed to ${mode === 'edit' ? 'update' : 'submit'} project. Please try again.`)
     } finally {
       setIsSubmitting(false)
     }
@@ -89,8 +114,15 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
   return (
     <div className="max-w-2xl mx-auto p-6 pt-24 sm:pt-28">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-uiuc-blue mb-2">Submit Your Project</h1>
-        <p className="text-gray-600">Share your amazing work with the Illinois community!</p>
+        <h1 className="text-3xl font-bold text-uiuc-blue mb-2">
+          {mode === 'edit' ? 'Edit Your Project' : 'Submit Your Project'}
+        </h1>
+        <p className="text-gray-600">
+          {mode === 'edit' 
+            ? 'Update your project details and share your latest improvements with the community!' 
+            : 'Share your amazing work with the Illinois community!'
+          }
+        </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -214,7 +246,10 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             disabled={isSubmitting}
             className="bg-uiuc-orange hover:bg-uiuc-orange/90"
           >
-            {isSubmitting ? 'Submitting...' : 'Submit Project'}
+            {isSubmitting 
+              ? (mode === 'edit' ? 'Updating...' : 'Submitting...') 
+              : (mode === 'edit' ? 'Update Project' : 'Submit Project')
+            }
           </Button>
           {onCancel && (
             <Button 
