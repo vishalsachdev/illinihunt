@@ -14,10 +14,6 @@ interface AuthState {
 }
 
 export function useAuth() {
-  // Check if we potentially have a session to minimize loading flash
-  const hasStoredSession = typeof window !== 'undefined' && 
-    window.localStorage.getItem('illinihunt-auth') !== null
-
   const [state, setState] = useState<AuthState>({
     user: null,
     profile: null,
