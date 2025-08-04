@@ -40,7 +40,7 @@ type DashboardProject = {
 }
 
 export function DashboardPage() {
-  const { user, profile } = useAuth()
+  const { user, profile, loading: authLoading } = useAuth()
   const [projects, setProjects] = useState<DashboardProject[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
@@ -78,6 +78,19 @@ export function DashboardPage() {
     loadUserProjects()
   }, [user?.id])
 
+  // Show loading while auth is being determined
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Only show access denied if auth is complete and user is null
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
