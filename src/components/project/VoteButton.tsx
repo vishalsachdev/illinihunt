@@ -20,9 +20,17 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
   const [hasVoted, setHasVoted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
+  // Update vote count when initial count changes (e.g., when parent refreshes data)
+  useEffect(() => {
+    setVoteCount(initialVoteCount)
+  }, [initialVoteCount])
+
   useEffect(() => {
     if (user) {
       checkVoteStatus()
+    } else {
+      // Reset vote state when user logs out
+      setHasVoted(false)
     }
   }, [user, projectId])
 

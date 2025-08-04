@@ -67,9 +67,17 @@ export function CommentItem({
   const isOwner = user && comment.users && user.id === comment.users.id
   const canReply = comment.thread_depth < 3 // Max 3 levels deep
   
+  // Update like count when comment likes count changes (e.g., when parent refreshes data)
+  useEffect(() => {
+    setLikeCount(comment.likes_count)
+  }, [comment.likes_count])
+  
   useEffect(() => {
     if (user) {
       checkLikeStatus()
+    } else {
+      // Reset like state when user logs out
+      setIsLiked(false)
     }
   }, [user, comment.id])
 

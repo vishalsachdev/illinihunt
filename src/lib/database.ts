@@ -487,14 +487,25 @@ export class CommentsService {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return false
 
-    const { data, error } = await supabase
-      .from('comment_likes')
-      .select('id')
-      .eq('comment_id', commentId)
-      .eq('user_id', user.id)
-      .single()
+    try {
+      const { data, error } = await supabase
+        .from('comment_likes')
+        .select('id')
+        .eq('comment_id', commentId)
+        .eq('user_id', user.id)
+        .maybeSingle()
 
-    return !error && !!data
+      // Handle case where comment_likes table doesn't exist (406 error)
+      if (error && (error.code === 'PGRST202' || error.code === '406' || error.message.includes('406'))) {
+        console.warn('Comment_likes table not found - comment liking feature not available')
+        return false
+      }
+
+      return !error && !!data
+    } catch (err) {
+      console.warn('Error checking comment like status:', err)
+      return false
+    }
   }
 }
 
