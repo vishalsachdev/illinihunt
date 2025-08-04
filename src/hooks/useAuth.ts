@@ -14,21 +14,42 @@ interface AuthState {
 }
 
 export function useAuth() {
+  // Check if we potentially have a session to minimize loading flash
+  const hasStoredSession = typeof window !== 'undefined' && 
+    window.localStorage.getItem('illinihunt-auth') !== null
+
   const [state, setState] = useState<AuthState>({
     user: null,
     profile: null,
     session: null,
-    loading: true,
+    loading: !hasStoredSession, // If no stored session, we know we need to show loading
     error: null
   })
 
   useEffect(() => {
     let mounted = true
+    let timeoutId: NodeJS.Timeout | null = null
 
     // Get initial session
     const initializeAuth = async () => {
+      // Set a timeout to prevent indefinite loading
+      timeoutId = setTimeout(() => {
+        if (mounted && state.loading) {
+          setState(prev => ({ 
+            ...prev, 
+            loading: false, 
+            error: 'Authentication check timed out. Please refresh the page.' 
+          }))
+        }
+      }, 5000) // 5 second timeout
+
       try {
         const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (timeoutId) {
+          clearTimeout(timeoutId)
+          timeoutId = null
+        }
         
         if (!mounted) return
         
@@ -38,12 +59,27 @@ export function useAuth() {
         }
 
         if (session?.user) {
-          // Load profile but don't wait for it to complete
-          loadUserProfile(session.user, session)
+          // Set session state
+          setState(prev => ({ 
+            ...prev, 
+            user: session.user, 
+            session, 
+            loading: false
+          }))
+          
+          // Load profile asynchronously without blocking UI
+          loadUserProfile(session.user, session).catch(err => {
+            console.error('Failed to load user profile:', err)
+            // Don't reset loading state - user is still authenticated
+          })
         } else {
-          setState(prev => ({ ...prev, loading: false }))
+          setState(prev => ({ ...prev, loading: false, user: null, session: null }))
         }
       } catch (err) {
+        if (timeoutId) {
+          clearTimeout(timeoutId)
+          timeoutId = null
+        }
         if (!mounted) return
         setState(prev => ({ 
           ...prev, 
@@ -53,7 +89,7 @@ export function useAuth() {
       }
     }
 
-    const loadUserProfile = async (user: User, session: Session) => {
+    const loadUserProfile = async (user: User, _session: Session) => {
       try {
         // Validate email domain
         if (!user.email?.endsWith('@illinois.edu')) {
@@ -70,16 +106,37 @@ export function useAuth() {
           return
         }
 
-        // Get or create user profile
-        const { data: profile, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', user.id)
-          .single()
+        // Profile loading with retry logic for network errors
+        let retries = 0
+        let profile = null
+        let lastError = null
+
+        while (retries < 3) {
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .single()
+
+          if (!error || (error.code !== 'ECONNRESET' && error.code !== 'ETIMEDOUT')) {
+            // Success or non-network error
+            profile = data
+            lastError = error
+            break
+          }
+          
+          lastError = error
+          retries++
+          if (retries < 3) {
+            // Wait before retry with exponential backoff
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries) * 500))
+          }
+        }
 
         if (!mounted) return
 
-        if (error && error.code === 'PGRST116') {
+        // Handle the result after retries
+        if (lastError && lastError.code === 'PGRST116') {
           // Profile doesn't exist, create it
           const newProfile = {
             id: user.id,
@@ -98,49 +155,44 @@ export function useAuth() {
           if (!mounted) return
 
           if (createError) {
-            setState({
-              user: null,
+            // Keep user authenticated but show profile error
+            setState(prev => ({
+              ...prev,
               profile: null,
-              session: null,
-              loading: false,
               error: `Failed to create profile: ${createError.message}`
-            })
+            }))
             return
           }
 
-          setState({
-            user,
+          setState(prev => ({
+            ...prev,
             profile: createdProfile,
-            session,
-            loading: false,
             error: null
-          })
-        } else if (error) {
-          setState({
-            user: null,
+          }))
+        } else if (lastError) {
+          // Keep user authenticated but show profile error
+          console.error('Failed to load profile after retries:', lastError)
+          setState(prev => ({
+            ...prev,
             profile: null,
-            session: null,
-            loading: false,
-            error: `Failed to load profile: ${error.message}`
-          })
-        } else {
-          setState({
-            user,
+            error: `Failed to load profile: ${lastError.message}`
+          }))
+        } else if (profile) {
+          setState(prev => ({
+            ...prev,
             profile,
-            session,
-            loading: false,
             error: null
-          })
+          }))
         }
       } catch (err) {
         if (!mounted) return
-        setState({
-          user: null,
+        console.error('Profile loading error:', err)
+        // Keep user authenticated even if profile fails
+        setState(prev => ({
+          ...prev,
           profile: null,
-          session: null,
-          loading: false,
           error: err instanceof Error ? err.message : 'Unknown error'
-        })
+        }))
       }
     }
 
@@ -170,9 +222,12 @@ export function useAuth() {
 
     return () => {
       mounted = false
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
       subscription.unsubscribe()
     }
-  }, [])
+  }, []) // Empty deps is ok since we only need to run once on mount
 
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({

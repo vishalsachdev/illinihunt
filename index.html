@@ -22,7 +22,20 @@
     <meta property="twitter:image" content="https://illinihunt.org/homepage.png" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Initial loading indicator while Supabase initializes -->
+      <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background-color: #f9fafb;">
+        <div style="text-align: center;">
+          <div style="width: 32px; height: 32px; border: 2px solid #FF6B35; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite;"></div>
+          <style>
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          </style>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
