@@ -201,6 +201,13 @@ export function useAuth() {
       if (!mounted) return
 
       if (event === 'SIGNED_IN' && session?.user) {
+        // Update user immediately so components can react
+        setState(prev => ({ 
+          ...prev, 
+          user: session.user, 
+          session,
+          loading: false 
+        }))
         await loadUserProfile(session.user, session)
       } else if (event === 'SIGNED_OUT') {
         setState({
@@ -211,8 +218,8 @@ export function useAuth() {
           error: null
         })
       } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-        // Update session without reloading profile
-        setState(prev => ({ ...prev, session }))
+        // Update session and user without reloading profile
+        setState(prev => ({ ...prev, session, user: session.user }))
       }
     })
 

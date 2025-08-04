@@ -492,7 +492,7 @@ export class CommentsService {
       .select('id')
       .eq('comment_id', commentId)
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
     return !error && !!data
   }

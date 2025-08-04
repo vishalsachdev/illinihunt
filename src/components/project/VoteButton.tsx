@@ -17,6 +17,11 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
   const { user } = useAuth()
   const { showAuthPrompt } = useAuthPrompt()
   const [voteCount, setVoteCount] = useState(initialVoteCount)
+  
+  // Update vote count if initialVoteCount changes
+  useEffect(() => {
+    setVoteCount(initialVoteCount)
+  }, [initialVoteCount])
   const [hasVoted, setHasVoted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -42,23 +47,40 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     }
 
     setIsLoading(true)
+    
+    // Store current state for rollback
+    const previousVoteCount = voteCount
+    const previousHasVoted = hasVoted
+    
     try {
       if (hasVoted) {
-        // Remove vote
-        await ProjectsService.unvoteProject(projectId)
-        const newCount = voteCount - 1
-        setVoteCount(newCount)
+        // Optimistically update UI
+        setVoteCount(prev => prev - 1)
         setHasVoted(false)
-        onVoteChange?.(newCount)
+        
+        // Remove vote
+        const { error } = await ProjectsService.unvoteProject(projectId)
+        if (error) throw error
+        
+        // Update parent component
+        onVoteChange?.(voteCount - 1)
       } else {
-        // Add vote
-        await ProjectsService.voteProject(projectId)
-        const newCount = voteCount + 1
-        setVoteCount(newCount)
+        // Optimistically update UI
+        setVoteCount(prev => prev + 1)
         setHasVoted(true)
-        onVoteChange?.(newCount)
+        
+        // Add vote
+        const { error } = await ProjectsService.voteProject(projectId)
+        if (error) throw error
+        
+        // Update parent component  
+        onVoteChange?.(voteCount + 1)
       }
     } catch (error) {
+      // Rollback on error
+      setVoteCount(previousVoteCount)
+      setHasVoted(previousHasVoted)
+      console.error('Vote error:', error)
       alert('Failed to vote. Please try again.')
     } finally {
       setIsLoading(false)
