@@ -160,6 +160,7 @@ export function CommentItem({
       return
     }
 
+    setError('') // Clear any previous errors
     console.log('CommentItem: Starting delete for comment:', comment.id)
     console.log('CommentItem: Current user:', user?.id)
     console.log('CommentItem: Comment owner:', comment.users?.id)
@@ -170,7 +171,18 @@ export function CommentItem({
       
       if (result.error) {
         console.error('CommentItem: Delete error:', result.error)
-        setError('Failed to delete comment: ' + result.error.message)
+        
+        // Provide more specific error messages based on the error type
+        if (result.error.code === 'RLS_POLICY_VIOLATION' || 
+            (result.error.message && result.error.message.includes('row-level security'))) {
+          setError('Permission denied. Please refresh the page and try again.')
+        } else if (result.error.message && result.error.message.includes('Comment not found')) {
+          setError('This comment has already been deleted.')
+          // Still call onDelete to refresh the UI
+          onDelete?.(comment.id)
+        } else {
+          setError('Failed to delete comment. Please try again.')
+        }
         return
       }
 
@@ -178,7 +190,7 @@ export function CommentItem({
       onDelete?.(comment.id)
     } catch (err) {
       console.error('CommentItem: Delete exception:', err)
-      setError('An unexpected error occurred: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      setError('An unexpected error occurred. Please refresh the page and try again.')
     }
   }
 
