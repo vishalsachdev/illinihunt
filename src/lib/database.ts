@@ -138,6 +138,40 @@ export class ProjectsService {
       .eq('id', id)
   }
 
+  // Delete project with ownership validation
+  static async deleteProjectSafe(id: string) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Must be authenticated to delete projects')
+
+    // First, verify the user owns the project
+    const { data: project, error: fetchError } = await supabase
+      .from('projects')
+      .select('user_id, name')
+      .eq('id', id)
+      .single()
+
+    if (fetchError) {
+      throw new Error('Project not found')
+    }
+
+    if (project.user_id !== user.id) {
+      throw new Error('You can only delete your own projects')
+    }
+
+    // Delete the project (cascade will handle related data)
+    const { error: deleteError } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id) // Extra safety check
+
+    if (deleteError) {
+      throw new Error('Failed to delete project')
+    }
+
+    return project.name
+  }
+
   // Vote on project
   static async voteProject(projectId: string) {
     const { data: { user } } = await supabase.auth.getUser()

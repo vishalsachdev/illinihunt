@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ToastContainer, useToast } from '@/components/ui/toast'
+import { DeleteProjectModal } from '@/components/project/DeleteProjectModal'
 import { 
   Plus, 
   BarChart3, 
@@ -16,7 +18,8 @@ import {
   Edit3,
   Eye,
   Calendar,
-  TrendingUp
+  TrendingUp,
+  Trash2
 } from 'lucide-react'
 
 type DashboardProject = {
@@ -41,6 +44,7 @@ type DashboardProject = {
 
 export function DashboardPage() {
   const { user, profile, loading: authLoading } = useAuth()
+  const { toasts, toast, removeToast } = useToast()
   const [projects, setProjects] = useState<DashboardProject[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
@@ -48,6 +52,17 @@ export function DashboardPage() {
     totalUpvotes: 0,
     totalComments: 0,
     totalViews: 0 // Placeholder for future views tracking
+  })
+  
+  // Delete modal state
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean
+    project: { id: string; name: string } | null
+    isDeleting: boolean
+  }>({
+    isOpen: false,
+    project: null,
+    isDeleting: false
   })
 
   useEffect(() => {
@@ -77,6 +92,62 @@ export function DashboardPage() {
 
     loadUserProjects()
   }, [user?.id])
+
+  // Delete project handlers
+  const handleDeleteClick = (project: { id: string; name: string }) => {
+    setDeleteModal({
+      isOpen: true,
+      project,
+      isDeleting: false
+    })
+  }
+
+  const handleDeleteCancel = () => {
+    if (deleteModal.isDeleting) return // Prevent closing during deletion
+    
+    setDeleteModal({
+      isOpen: false,
+      project: null,
+      isDeleting: false
+    })
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.project) return
+
+    setDeleteModal(prev => ({ ...prev, isDeleting: true }))
+
+    try {
+      const deletedProjectName = await ProjectsService.deleteProjectSafe(deleteModal.project.id)
+      
+      // Remove project from local state
+      setProjects(prev => prev.filter(p => p.id !== deleteModal.project!.id))
+      
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        totalProjects: prev.totalProjects - 1
+      }))
+      
+      // Close modal
+      setDeleteModal({
+        isOpen: false,
+        project: null,
+        isDeleting: false
+      })
+      
+      // Show success toast
+      toast.success(
+        'Project deleted successfully',
+        `"${deletedProjectName}" has been permanently removed.`
+      )
+    } catch (error) {
+      setDeleteModal(prev => ({ ...prev, isDeleting: false }))
+      
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete project'
+      toast.error('Delete failed', errorMessage)
+    }
+  }
 
   // Show loading while auth is being determined
   if (authLoading) {
@@ -317,6 +388,16 @@ export function DashboardPage() {
                               </a>
                             </Button>
                           )}
+                          
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleDeleteClick({ id: project.id, name: project.name })}
+                            className="text-red-600 hover:text-red-700 hover:border-red-300"
+                          >
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Delete
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -345,6 +426,18 @@ export function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Project Modal */}
+      <DeleteProjectModal
+        projectName={deleteModal.project?.name || ''}
+        isOpen={deleteModal.isOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={deleteModal.isDeleting}
+      />
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   )
 }
