@@ -125,7 +125,7 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
       className={cn(
         'flex flex-col items-center gap-1 h-auto p-2 min-w-[60px]',
         hasVoted 
-          ? 'bg-uiuc-orange text-white border-uiuc-orange hover:bg-uiuc-orange/90'
+          ? '!bg-uiuc-blue !text-white !border-uiuc-blue hover:!bg-uiuc-blue/90'
           : 'text-black hover:text-gray-700',
         className
       )}
