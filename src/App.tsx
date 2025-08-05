@@ -1,6 +1,6 @@
 import './App.css'
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { useAuth } from '@/hooks/useAuth'
 import { LoginButton } from '@/components/auth/LoginButton'
@@ -59,6 +59,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation()
   const { showAuthPrompt } = useAuthPrompt()
 
+  // Show auth prompt after render completes, not during render
+  useEffect(() => {
+    if (!loading && !user && location.pathname !== '/') {
+      showAuthPrompt('access this page')
+    }
+  }, [user, loading, location.pathname, showAuthPrompt])
+
   // Always wait for authentication to complete, regardless of localStorage
   // This prevents race conditions during OAuth callbacks and session establishment
   if (loading) {
@@ -74,10 +81,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   // Redirect to home if not authenticated after loading completes
   if (!user) {
-    // Show auth prompt for non-home routes
-    if (location.pathname !== '/') {
-      showAuthPrompt('access this page')
-    }
     return <Navigate to="/" replace state={{ from: location }} />
   }
 
