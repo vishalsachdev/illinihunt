@@ -44,6 +44,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const user = project.users
   const category = project.categories
 
+  const handleVoteChange = (_newCount: number) => {
+    // VoteButton manages its own state, this is just for potential future use
+    // Could be used to update parent component or analytics
+  }
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-uiuc-orange/30 group">
       {/* Project Image Header */}
@@ -66,6 +71,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <VoteButton 
             projectId={project.id}
             initialVoteCount={project.upvotes_count}
+            onVoteChange={handleVoteChange}
             className="bg-white/95 backdrop-blur-sm hover:bg-white shadow-md"
           />
         </div>
@@ -99,7 +105,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </div>
 
         {/* Description */}
-        <p className="text-gray-700 text-sm mb-4 line-clamp-3 leading-relaxed">
+        <p className="text-gray-800 text-sm mb-4 line-clamp-3 leading-relaxed">
           {sanitizeContent(project.description)}
         </p>
 
@@ -110,7 +116,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
               variant="outline"
               size="sm"
               asChild
-              className="h-7 px-2 text-xs flex-1"
+              className="h-7 px-2 text-xs flex-1 text-gray-700 hover:text-gray-900"
             >
               <a href={sanitizeUrl(project.website_url)} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-3 h-3 mr-1" />
@@ -123,7 +129,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
               variant="outline"
               size="sm"
               asChild
-              className="h-7 px-2 text-xs flex-1"
+              className="h-7 px-2 text-xs flex-1 text-gray-700 hover:text-gray-900"
             >
               <a href={sanitizeUrl(project.github_url)} target="_blank" rel="noopener noreferrer">
                 <Github className="w-3 h-3 mr-1" />
@@ -139,24 +145,24 @@ export function ProjectCard({ project }: ProjectCardProps) {
             {user ? (
               <Link 
                 to={`/user/${user.id}`} 
-                className="flex items-center gap-2 hover:text-uiuc-blue transition-colors"
+                className="flex items-center gap-2 text-gray-700 hover:text-uiuc-blue transition-colors"
               >
                 <Avatar className="w-6 h-6">
                   <AvatarImage src={user.avatar_url || ''} />
-                  <AvatarFallback className="text-xs">
+                  <AvatarFallback className="text-xs text-gray-700">
                     {user.full_name ? user.full_name.slice(0, 2).toUpperCase() : 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-xs text-gray-600 truncate hover:text-uiuc-blue transition-colors">
+                <span className="text-xs text-gray-700 truncate hover:text-uiuc-blue transition-colors">
                   {sanitizeContent(user.full_name || user.username || 'Anonymous')}
                 </span>
               </Link>
             ) : (
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
-                  <AvatarFallback className="text-xs">U</AvatarFallback>
+                  <AvatarFallback className="text-xs text-gray-700">U</AvatarFallback>
                 </Avatar>
-                <span className="text-xs text-gray-600 truncate">
+                <span className="text-xs text-gray-700 truncate">
                   Anonymous
                 </span>
               </div>
@@ -165,21 +171,23 @@ export function ProjectCard({ project }: ProjectCardProps) {
           
           <div className="flex items-center gap-3 text-gray-500">
             <div className="flex items-center gap-1">
-              <MessageCircle className="w-3 h-3" />
-              <span className="text-xs">{project.comments_count}</span>
+              <MessageCircle className="w-3 h-3 text-gray-500" />
+              <span className="text-xs text-gray-600">{project.comments_count}</span>
             </div>
-            <span className="text-xs">
+            <span className="text-xs text-gray-500">
               {formatDistance(new Date(project.created_at), new Date(), { addSuffix: true })}
             </span>
             <BookmarkButton 
               projectId={project.id}
               variant="ghost"
               size="sm"
+              className="text-gray-600 hover:text-uiuc-orange"
             />
             <AddToCollectionButton 
               projectId={project.id}
               variant="ghost"
               size="sm"
+              className="text-gray-600 hover:text-uiuc-orange"
             />
           </div>
         </div>

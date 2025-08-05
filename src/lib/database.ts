@@ -163,7 +163,10 @@ export class ProjectsService {
   // Check if user voted on project
   static async hasUserVoted(projectId: string) {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return false
+    if (!user) {
+      console.log('No user found for vote check')
+      return false
+    }
 
     try {
       const { data, error } = await supabase
@@ -179,7 +182,14 @@ export class ProjectsService {
         return false
       }
 
-      return !error && !!data
+      if (error) {
+        console.error('Error in hasUserVoted:', error)
+        return false
+      }
+
+      const hasVoted = !!data
+      console.log(`hasUserVoted result for project ${projectId}, user ${user.id}:`, hasVoted, 'data:', data)
+      return hasVoted
     } catch (err) {
       console.warn('Error checking vote status:', err)
       return false
@@ -445,9 +455,14 @@ export class CommentsService {
   // Soft delete a comment
   static async deleteComment(commentId: string) {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Must be authenticated to delete comments')
+    if (!user) {
+      console.error('No user found for comment deletion')
+      throw new Error('Must be authenticated to delete comments')
+    }
 
-    return supabase
+    console.log(`Attempting to delete comment ${commentId} for user ${user.id}`)
+
+    const result = await supabase
       .from('comments')
       .update({ 
         is_deleted: true,
@@ -455,6 +470,10 @@ export class CommentsService {
       })
       .eq('id', commentId)
       .eq('user_id', user.id) // Only allow users to delete their own comments
+      .select()
+
+    console.log('Delete comment result:', result)
+    return result
   }
 
   // Like a comment
@@ -485,16 +504,37 @@ export class CommentsService {
   // Check if user liked a comment
   static async hasUserLikedComment(commentId: string) {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return false
+    if (!user) {
+      console.log('No user found for like check')
+      return false
+    }
 
-    const { data, error } = await supabase
-      .from('comment_likes')
-      .select('id')
-      .eq('comment_id', commentId)
-      .eq('user_id', user.id)
-      .maybeSingle()
+    try {
+      const { data, error } = await supabase
+        .from('comment_likes')
+        .select('id')
+        .eq('comment_id', commentId)
+        .eq('user_id', user.id)
+        .maybeSingle()
 
-    return !error && !!data
+      // Handle case where comment_likes table doesn't exist (406 error)
+      if (error && (error.code === 'PGRST202' || error.code === '406' || error.message.includes('406'))) {
+        console.warn('Comment likes table not found - like feature not available')
+        return false
+      }
+
+      if (error) {
+        console.error('Error in hasUserLikedComment:', error)
+        return false
+      }
+
+      const hasLiked = !!data
+      console.log(`hasUserLikedComment result for comment ${commentId}, user ${user.id}:`, hasLiked, 'data:', data)
+      return hasLiked
+    } catch (err) {
+      console.warn('Error checking like status:', err)
+      return false
+    }
   }
 }
 

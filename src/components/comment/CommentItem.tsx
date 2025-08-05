@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { formatDistance } from 'date-fns'
 import { useAuth } from '@/hooks/useAuth'
 import { CommentsService } from '@/lib/database'
@@ -70,37 +70,61 @@ export function CommentItem({
   const [error, setError] = useState('')
 
   const isOwner = user && comment.users && user.id === comment.users.id
+  
+  // Debug ownership check
+  useEffect(() => {
+    console.log('CommentItem ownership check:', {
+      commentId: comment.id,
+      hasUser: !!user,
+      userId: user?.id,
+      hasCommentUser: !!comment.users,
+      commentUserId: comment.users?.id,
+      isOwner
+    })
+  }, [user, comment, isOwner])
   const canReply = comment.thread_depth < 3 // Max 3 levels deep
   
-  useEffect(() => {
-    if (user) {
-      checkLikeStatus()
-    }
-  }, [user, comment.id])
-
-  const checkLikeStatus = async () => {
+  const checkLikeStatus = useCallback(async () => {
+    if (!comment.id) return
+    
     try {
       const liked = await CommentsService.hasUserLikedComment(comment.id)
+      console.log(`Like status for comment ${comment.id}:`, liked)
       setIsLiked(liked)
     } catch (error) {
-      // Silently handle error - like status will remain unchecked
+      console.error('Error checking like status:', error)
+      // On error, assume user hasn't liked
+      setIsLiked(false)
     }
-  }
+  }, [comment.id])
+
+  useEffect(() => {
+    if (user && comment.id) {
+      console.log('CommentItem: Checking like status for user:', user.id, 'comment:', comment.id)
+      checkLikeStatus()
+    } else if (!user) {
+      console.log('CommentItem: No user, resetting like state')
+      setIsLiked(false)
+    }
+  }, [user, comment.id, checkLikeStatus])
 
   const handleLike = async () => {
     if (!user) return
 
     try {
       if (isLiked) {
+        console.log('User has liked comment, removing like...')
         await CommentsService.unlikeComment(comment.id)
         setLikeCount(prev => prev - 1)
         setIsLiked(false)
       } else {
+        console.log('User has not liked comment, adding like...')
         await CommentsService.likeComment(comment.id)
         setLikeCount(prev => prev + 1)
         setIsLiked(true)
       }
     } catch (error) {
+      console.error('Like error:', error)
       // Silently handle error - like state will revert
     }
   }
@@ -136,17 +160,25 @@ export function CommentItem({
       return
     }
 
+    console.log('CommentItem: Starting delete for comment:', comment.id)
+    console.log('CommentItem: Current user:', user?.id)
+    console.log('CommentItem: Comment owner:', comment.users?.id)
+
     try {
-      const { error } = await CommentsService.deleteComment(comment.id)
+      const result = await CommentsService.deleteComment(comment.id)
+      console.log('CommentItem: Delete result:', result)
       
-      if (error) {
-        setError('Failed to delete comment')
+      if (result.error) {
+        console.error('CommentItem: Delete error:', result.error)
+        setError('Failed to delete comment: ' + result.error.message)
         return
       }
 
+      console.log('CommentItem: Successfully deleted comment, calling onDelete')
       onDelete?.(comment.id)
     } catch (err) {
-      setError('An unexpected error occurred')
+      console.error('CommentItem: Delete exception:', err)
+      setError('An unexpected error occurred: ' + (err instanceof Error ? err.message : 'Unknown error'))
     }
   }
 
