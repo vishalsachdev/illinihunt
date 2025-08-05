@@ -462,18 +462,87 @@ export class CommentsService {
 
     console.log(`Attempting to delete comment ${commentId} for user ${user.id}`)
 
-    const result = await supabase
+    // First, let's verify the comment exists and belongs to the user
+    const { data: commentData, error: fetchError } = await supabase
       .from('comments')
-      .update({ 
-        is_deleted: true,
-        updated_at: new Date().toISOString()
-      })
+      .select('id, user_id, content, is_deleted')
       .eq('id', commentId)
-      .eq('user_id', user.id) // Only allow users to delete their own comments
-      .select()
+      .single()
 
-    console.log('Delete comment result:', result)
-    return result
+    if (fetchError) {
+      console.error('Error fetching comment for verification:', fetchError)
+      return { data: null, error: fetchError }
+    }
+
+    if (!commentData) {
+      console.error('Comment not found:', commentId)
+      return { data: null, error: { message: 'Comment not found' } }
+    }
+
+    console.log('Comment verification:', {
+      commentId: commentData.id,
+      commentUserId: commentData.user_id,
+      currentUserId: user.id,
+      isOwner: commentData.user_id === user.id,
+      isAlreadyDeleted: commentData.is_deleted
+    })
+
+    if (commentData.user_id !== user.id) {
+      console.error('User does not own this comment')
+      return { data: null, error: { message: 'You can only delete your own comments' } }
+    }
+
+    if (commentData.is_deleted) {
+      console.log('Comment is already deleted')
+      return { data: commentData, error: null }
+    }
+
+    // Try the update operation with proper RLS context
+    // The key is to use the right update approach that works with RLS
+    try {
+      const result = await supabase
+        .from('comments')
+        .update({ 
+          is_deleted: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', commentId)
+        .eq('user_id', user.id) // This should match the RLS policy
+        .select()
+
+      console.log('Delete operation result:', result)
+
+      if (result.error) {
+        console.error('Delete operation failed:', result.error)
+        
+        // If it's an RLS error, provide a more helpful message
+        if (result.error.message.includes('row-level security') || 
+            result.error.message.includes('policy')) {
+          return { 
+            data: null, 
+            error: { 
+              message: 'Permission denied. You can only delete your own comments.',
+              code: 'RLS_POLICY_VIOLATION'
+            } 
+          }
+        }
+        
+        return result
+      }
+
+      // Success - return the updated comment
+      return result
+
+    } catch (error) {
+      console.error('Unexpected error during comment deletion:', error)
+      return { 
+        data: null, 
+        error: { 
+          message: 'An unexpected error occurred while deleting the comment',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        } 
+      }
+    }
   }
 
   // Like a comment
