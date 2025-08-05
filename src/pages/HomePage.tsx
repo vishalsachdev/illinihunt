@@ -108,7 +108,7 @@ export function HomePage() {
           <div className="text-center w-full py-20">
             
             {/* Integrated Tagline */}
-            <div className="mb-4 sm:mb-6">
+            <div className="mb-4 sm:mb-6 pt-8 sm:pt-12">
               <div className="inline-flex items-center gap-2 text-uiuc-orange mb-3 sm:mb-4">
                 <Zap className="w-5 h-5 sm:w-6 sm:h-6" />
                 <span className="text-lg sm:text-xl lg:text-2xl font-semibold tracking-wide">Where Illini Ideas Come to Life</span>
