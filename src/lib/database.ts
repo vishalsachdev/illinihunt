@@ -164,7 +164,6 @@ export class ProjectsService {
   static async hasUserVoted(projectId: string) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-      console.log('No user found for vote check')
       return false
     }
 
@@ -188,7 +187,6 @@ export class ProjectsService {
       }
 
       const hasVoted = !!data
-      console.log(`hasUserVoted result for project ${projectId}, user ${user.id}:`, hasVoted, 'data:', data)
       return hasVoted
     } catch (err) {
       console.warn('Error checking vote status:', err)
@@ -473,48 +471,19 @@ export class CommentsService {
         }
       }
 
-      // Debug authentication state and supabase client
-      console.log('Delete operation auth state:', {
-        userId: user.id,
-        userEmail: user.email,
-        commentId,
-        timestamp: new Date().toISOString(),
-        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
-        hasAnonKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
-        anonKeyLength: import.meta.env.VITE_SUPABASE_ANON_KEY?.length || 0
-      })
 
       // Prepare the update payload - only modify the essential field
       const updatePayload = {
         is_deleted: true
       }
 
-      // Debug: Log the exact payload being sent
-      console.log('UPDATE payload being sent:', {
-        payload: updatePayload,
-        commentId,
-        userIdInPayload: updatePayload.user_id,
-        userIdType: typeof updatePayload.user_id
-      })
 
       // Double-check authentication right before database call
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      console.log('Session check before DB call:', {
-        hasSession: !!session,
-        hasAccessToken: !!session?.access_token,
-        tokenLength: session?.access_token?.length || 0,
-        sessionError,
-        userId: session?.user?.id,
-        userRole: session?.user?.role,
-        tokenType: session?.token_type,
-        expiresAt: session?.expires_at
-      })
       
       // Try to force refresh session if there are issues
       if (!session || !session.access_token) {
-        console.log('No valid session found, attempting to refresh...')
         const { data: refreshedData, error: refreshError } = await supabase.auth.refreshSession()
-        console.log('Refresh result:', { refreshedData, refreshError })
       }
 
       // Since RLS has authentication context issues, verify ownership manually
@@ -626,14 +595,6 @@ export class CommentsService {
         return result
       }
 
-      // Debug: Log successful deletion
-      console.log('Comment deletion SUCCESS:', {
-        commentId,
-        userId: user.id,
-        resultData: result.data,
-        actualUserIdInResult: result.data?.user_id,
-        wasDeleted: result.data?.is_deleted
-      })
 
       return result
 
