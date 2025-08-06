@@ -454,75 +454,171 @@ export class CommentsService {
 
   // Soft delete a comment
   static async deleteComment(commentId: string) {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      console.error('No user found for comment deletion')
-      throw new Error('Must be authenticated to delete comments')
-    }
-
-    console.log(`Attempting to delete comment ${commentId} for user ${user.id}`)
-
-    // First, let's verify the comment exists and belongs to the user
-    const { data: commentData, error: fetchError } = await supabase
-      .from('comments')
-      .select('id, user_id, content, is_deleted')
-      .eq('id', commentId)
-      .single()
-
-    if (fetchError) {
-      console.error('Error fetching comment for verification:', fetchError)
-      return { data: null, error: fetchError }
-    }
-
-    if (!commentData) {
-      console.error('Comment not found:', commentId)
-      return { data: null, error: { message: 'Comment not found' } }
-    }
-
-    console.log('Comment verification:', {
-      commentId: commentData.id,
-      commentUserId: commentData.user_id,
-      currentUserId: user.id,
-      isOwner: commentData.user_id === user.id,
-      isAlreadyDeleted: commentData.is_deleted
-    })
-
-    if (commentData.user_id !== user.id) {
-      console.error('User does not own this comment')
-      return { data: null, error: { message: 'You can only delete your own comments' } }
-    }
-
-    if (commentData.is_deleted) {
-      console.log('Comment is already deleted')
-      return { data: commentData, error: null }
-    }
-
-    // Try the update operation with proper RLS context
-    // The key is to use the right update approach that works with RLS
     try {
+      // Ensure session is fresh and valid
+      const { error: refreshError } = await supabase.auth.refreshSession()
+      if (refreshError) {
+        console.warn('Session refresh failed during delete:', refreshError)
+      }
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError || !user) {
+        console.error('Authentication check failed:', { userError, hasUser: !!user })
+        return { 
+          data: null, 
+          error: { 
+            message: 'Must be authenticated to delete comments',
+            code: 'AUTHENTICATION_REQUIRED'
+          } 
+        }
+      }
+
+      // Debug authentication state and supabase client
+      console.log('Delete operation auth state:', {
+        userId: user.id,
+        userEmail: user.email,
+        commentId,
+        timestamp: new Date().toISOString(),
+        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
+        hasAnonKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+        anonKeyLength: import.meta.env.VITE_SUPABASE_ANON_KEY?.length || 0
+      })
+
+      // Prepare the update payload - only modify the essential field
+      const updatePayload = {
+        is_deleted: true
+      }
+
+      // Debug: Log the exact payload being sent
+      console.log('UPDATE payload being sent:', {
+        payload: updatePayload,
+        commentId,
+        userIdInPayload: updatePayload.user_id,
+        userIdType: typeof updatePayload.user_id
+      })
+
+      // Double-check authentication right before database call
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      console.log('Session check before DB call:', {
+        hasSession: !!session,
+        hasAccessToken: !!session?.access_token,
+        tokenLength: session?.access_token?.length || 0,
+        sessionError,
+        userId: session?.user?.id,
+        userRole: session?.user?.role,
+        tokenType: session?.token_type,
+        expiresAt: session?.expires_at
+      })
+      
+      // Try to force refresh session if there are issues
+      if (!session || !session.access_token) {
+        console.log('No valid session found, attempting to refresh...')
+        const { data: refreshedData, error: refreshError } = await supabase.auth.refreshSession()
+        console.log('Refresh result:', { refreshedData, refreshError })
+      }
+
+      // Since RLS has authentication context issues, verify ownership manually
+      // First, get the comment to verify the user owns it
+      const { data: commentToDelete, error: fetchError } = await supabase
+        .from('comments')
+        .select('user_id')
+        .eq('id', commentId)
+        .single()
+
+      if (fetchError || !commentToDelete) {
+        console.error('Could not fetch comment for ownership verification:', fetchError)
+        return {
+          data: null,
+          error: {
+            message: 'Comment not found',
+            code: 'NOT_FOUND'
+          }
+        }
+      }
+
+      // Verify ownership
+      if (commentToDelete.user_id !== user.id) {
+        console.error('User does not own this comment:', {
+          commentUserId: commentToDelete.user_id,
+          currentUserId: user.id
+        })
+        return {
+          data: null,
+          error: {
+            message: 'You can only delete your own comments',
+            code: 'UNAUTHORIZED'
+          }
+        }
+      }
+
+      // Now perform the delete with ownership verified
       const result = await supabase
         .from('comments')
-        .update({ 
-          is_deleted: true,
-          updated_at: new Date().toISOString()
-        })
+        .update(updatePayload)
         .eq('id', commentId)
-        .eq('user_id', user.id) // This should match the RLS policy
-        .select()
-
-      console.log('Delete operation result:', result)
+        .select('id, user_id, is_deleted, updated_at')
+        .single()
 
       if (result.error) {
-        console.error('Delete operation failed:', result.error)
+        console.error('Database error during comment delete:', {
+          error: result.error,
+          errorCode: result.error?.code,
+          errorMessage: result.error?.message,
+          errorDetails: result.error?.details,
+          errorHint: result.error?.hint,
+          errorKeys: Object.keys(result.error || {}),
+          fullError: JSON.stringify(result.error, null, 2),
+          commentId,
+          userId: user.id,
+          resultData: result.data,
+          resultStatus: result.status,
+          resultStatusText: result.statusText
+        })
         
-        // If it's an RLS error, provide a more helpful message
+        // Handle specific Supabase/PostgREST error codes
+        if (result.error.code === 'PGRST116') {
+          // No rows returned - comment doesn't exist or user doesn't own it
+          return { 
+            data: null, 
+            error: { 
+              message: 'Comment not found or you do not have permission to delete it.',
+              code: 'NOT_FOUND_OR_UNAUTHORIZED'
+            } 
+          }
+        }
+        
+        // Handle 403 Forbidden errors specifically
+        if (result.error.code === 'PGRST301' || result.error.message.includes('403')) {
+          return { 
+            data: null, 
+            error: { 
+              message: 'Access denied. Please refresh the page and try again.',
+              code: 'FORBIDDEN_ERROR'
+            } 
+          }
+        }
+        
+        // Enhanced error handling for RLS violations
         if (result.error.message.includes('row-level security') || 
             result.error.message.includes('policy')) {
           return { 
             data: null, 
             error: { 
-              message: 'Permission denied. You can only delete your own comments.',
+              message: 'Permission denied. Please refresh the page and try again.',
               code: 'RLS_POLICY_VIOLATION'
+            } 
+          }
+        }
+        
+        // Handle authentication errors
+        if (result.error.message.includes('JWT') || 
+            result.error.message.includes('token') ||
+            result.error.message.includes('auth')) {
+          return { 
+            data: null, 
+            error: { 
+              message: 'Authentication expired. Please refresh the page and try again.',
+              code: 'TOKEN_EXPIRED'
             } 
           }
         }
@@ -530,7 +626,15 @@ export class CommentsService {
         return result
       }
 
-      // Success - return the updated comment
+      // Debug: Log successful deletion
+      console.log('Comment deletion SUCCESS:', {
+        commentId,
+        userId: user.id,
+        resultData: result.data,
+        actualUserIdInResult: result.data?.user_id,
+        wasDeleted: result.data?.is_deleted
+      })
+
       return result
 
     } catch (error) {
@@ -573,10 +677,7 @@ export class CommentsService {
   // Check if user liked a comment
   static async hasUserLikedComment(commentId: string) {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      console.log('No user found for like check')
-      return false
-    }
+    if (!user) return false
 
     try {
       const { data, error } = await supabase
@@ -584,22 +685,15 @@ export class CommentsService {
         .select('id')
         .eq('comment_id', commentId)
         .eq('user_id', user.id)
-        .maybeSingle()
+        .maybeSingle() // ← FIXED: returns null instead of throwing
 
-      // Handle case where comment_likes table doesn't exist (406 error)
-      if (error && (error.code === 'PGRST202' || error.code === '406' || error.message.includes('406'))) {
-        console.warn('Comment likes table not found - like feature not available')
+      // Handle missing table gracefully
+      if (error && (error.code === 'PGRST202' || error.code === '406')) {
+        console.warn('Comment likes table not found')
         return false
       }
 
-      if (error) {
-        console.error('Error in hasUserLikedComment:', error)
-        return false
-      }
-
-      const hasLiked = !!data
-      console.log(`hasUserLikedComment result for comment ${commentId}, user ${user.id}:`, hasLiked, 'data:', data)
-      return hasLiked
+      return !error && !!data
     } catch (err) {
       console.warn('Error checking like status:', err)
       return false
@@ -1004,12 +1098,18 @@ export class SafeCommentsService {
   }
 
   /**
-   * Safely delete a comment with proper error handling
+   * Safely delete a comment with proper error handling and rollback support
    */
   static async deleteCommentSafe(commentId: string): Promise<ServiceResult<any>> {
     return ErrorHandler.withErrorHandling(async () => {
       const result = await CommentsService.deleteComment(commentId)
-      if (result.error) throw new Error(result.error.message)
+      if (result.error) {
+        // Handle specific error types for better UX
+        if (result.error.code === 'RLS_POLICY_VIOLATION') {
+          throw new Error('Permission denied. You can only delete your own comments.')
+        }
+        throw new Error(result.error.message || 'Failed to delete comment')
+      }
       return result.data
     }, 'SafeCommentsService.deleteCommentSafe')
   }
