@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { formatDistance } from 'date-fns'
 import { useAuth } from '@/hooks/useAuth'
 import { CommentsService } from '@/lib/database'
+import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { CommentForm } from './CommentForm'
@@ -67,6 +68,7 @@ export function CommentItem({
     setLikeCount(comment.likes_count)
   }, [comment.likes_count])
   const [isUpdating, setIsUpdating] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState('')
 
   const isOwner = user && comment.users && user.id === comment.users.id
@@ -161,36 +163,80 @@ export function CommentItem({
     }
 
     setError('') // Clear any previous errors
-    console.log('CommentItem: Starting delete for comment:', comment.id)
-    console.log('CommentItem: Current user:', user?.id)
-    console.log('CommentItem: Comment owner:', comment.users?.id)
+    setIsDeleting(true) // Show loading state
 
     try {
+      // This ensures tokens are valid before getUser() is called
+      const { data: refreshedSession, error: refreshError } = await supabase.auth.refreshSession();
+
+      if (refreshError) {
+        console.warn("Failed to refresh session:", refreshError);
+        setError("Authentication expired. Please refresh and try again.");
+        setIsDeleting(false);
+        return;
+      }
+
+      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !currentUser) {
+        setError('Please log in to delete comments')
+        setIsDeleting(false)
+        return
+      }
+
+      // Verify user owns this comment
+      if (!comment.users || currentUser.id !== comment.users.id) {
+        setError('You can only delete your own comments')
+        setIsDeleting(false)
+        return
+      }
+
       const result = await CommentsService.deleteComment(comment.id)
-      console.log('CommentItem: Delete result:', result)
       
       if (result.error) {
-        console.error('CommentItem: Delete error:', result.error)
+        console.error('CommentItem: Delete error:', {
+          error: result.error,
+          errorType: typeof result.error,
+          errorKeys: Object.keys(result.error),
+          fullError: JSON.stringify(result.error, null, 2),
+          message: result.error.message,
+          code: result.error.code
+        })
         
-        // Provide more specific error messages based on the error type
-        if (result.error.code === 'RLS_POLICY_VIOLATION' || 
-            (result.error.message && result.error.message.includes('row-level security'))) {
-          setError('Permission denied. Please refresh the page and try again.')
-        } else if (result.error.message && result.error.message.includes('Comment not found')) {
-          setError('This comment has already been deleted.')
-          // Still call onDelete to refresh the UI
-          onDelete?.(comment.id)
-        } else {
-          setError('Failed to delete comment. Please try again.')
+        // Provide more specific error messages based on the error code and message
+        switch (result.error.code) {
+          case 'AUTHENTICATION_REQUIRED':
+          case 'TOKEN_EXPIRED':
+            setError('Authentication expired. Please refresh the page and try again.')
+            break
+          case 'UNAUTHORIZED':
+          case 'NOT_FOUND_OR_UNAUTHORIZED':
+            setError('You can only delete your own comments.')
+            break
+          case 'RLS_POLICY_VIOLATION':
+          case 'FORBIDDEN_ERROR':
+            setError('Permission denied. Please refresh the page and try again.')
+            break
+          default:
+            if (result.error.message && result.error.message.includes('Comment not found')) {
+              setError('This comment has already been deleted.')
+              // Still call onDelete to refresh the UI
+              onDelete?.(comment.id)
+            } else if (result.error.message && result.error.message.includes('Comments feature not available')) {
+              setError('Comments feature is temporarily unavailable.')
+            } else {
+              setError('Failed to delete comment. Please try again.')
+            }
         }
         return
       }
 
-      console.log('CommentItem: Successfully deleted comment, calling onDelete')
       onDelete?.(comment.id)
     } catch (err) {
       console.error('CommentItem: Delete exception:', err)
       setError('An unexpected error occurred. Please refresh the page and try again.')
+    } finally {
+      setIsDeleting(false) // Clear loading state
     }
   }
 
@@ -277,9 +323,9 @@ export function CommentItem({
                     <Edit3 className="w-4 h-4 mr-2" />
                     Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleDelete} className="text-red-600">
+                  <DropdownMenuItem onClick={handleDelete} disabled={isDeleting} className="text-red-600">
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
+                    {isDeleting ? 'Deleting...' : 'Delete'}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
