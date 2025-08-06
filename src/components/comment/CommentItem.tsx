@@ -164,13 +164,15 @@ export function CommentItem({
     console.log('CommentItem: Current user:', user?.id)
     console.log('CommentItem: Comment owner:', comment.users?.id)
 
+    setError('')
+
     try {
       const result = await CommentsService.deleteComment(comment.id)
       console.log('CommentItem: Delete result:', result)
       
       if (result.error) {
         console.error('CommentItem: Delete error:', result.error)
-        setError('Failed to delete comment: ' + result.error.message)
+        setError(result.error.message || 'Failed to delete comment')
         return
       }
 
@@ -178,7 +180,7 @@ export function CommentItem({
       onDelete?.(comment.id)
     } catch (err) {
       console.error('CommentItem: Delete exception:', err)
-      setError('An unexpected error occurred: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
     }
   }
 

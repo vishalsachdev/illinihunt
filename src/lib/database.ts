@@ -454,7 +454,11 @@ export class CommentsService {
 
   // Soft delete a comment
   static async deleteComment(commentId: string) {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError) {
+      console.error('User authentication error:', userError)
+      throw new Error('Authentication failed')
+    }
     if (!user) {
       console.error('No user found for comment deletion')
       throw new Error('Must be authenticated to delete comments')
@@ -462,6 +466,24 @@ export class CommentsService {
 
     console.log(`Attempting to delete comment ${commentId} for user ${user.id}`)
 
+    // First verify the comment exists and user owns it
+    const { data: comment, error: fetchError } = await supabase
+      .from('comments')
+      .select('user_id')
+      .eq('id', commentId)
+      .single()
+
+    if (fetchError) {
+      console.error('Error fetching comment:', fetchError)
+      throw new Error('Comment not found')
+    }
+
+    if (comment.user_id !== user.id) {
+      console.error('User does not own comment:', { commentUserId: comment.user_id, currentUserId: user.id })
+      throw new Error('You can only delete your own comments')
+    }
+
+    // Perform soft delete - RLS policy will handle authorization
     const result = await supabase
       .from('comments')
       .update({ 
@@ -469,7 +491,6 @@ export class CommentsService {
         updated_at: new Date().toISOString()
       })
       .eq('id', commentId)
-      .eq('user_id', user.id) // Only allow users to delete their own comments
       .select()
 
     console.log('Delete comment result:', result)
