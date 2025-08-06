@@ -73,17 +73,6 @@ export function CommentItem({
 
   const isOwner = user && comment.users && user.id === comment.users.id
   
-  // Debug ownership check
-  useEffect(() => {
-    console.log('CommentItem ownership check:', {
-      commentId: comment.id,
-      hasUser: !!user,
-      userId: user?.id,
-      hasCommentUser: !!comment.users,
-      commentUserId: comment.users?.id,
-      isOwner
-    })
-  }, [user, comment, isOwner])
   const canReply = comment.thread_depth < 3 // Max 3 levels deep
   
   const checkLikeStatus = useCallback(async () => {
@@ -91,7 +80,6 @@ export function CommentItem({
     
     try {
       const liked = await CommentsService.hasUserLikedComment(comment.id)
-      console.log(`Like status for comment ${comment.id}:`, liked)
       setIsLiked(liked)
     } catch (error) {
       console.error('Error checking like status:', error)
@@ -102,10 +90,8 @@ export function CommentItem({
 
   useEffect(() => {
     if (user && comment.id) {
-      console.log('CommentItem: Checking like status for user:', user.id, 'comment:', comment.id)
       checkLikeStatus()
     } else if (!user) {
-      console.log('CommentItem: No user, resetting like state')
       setIsLiked(false)
     }
   }, [user, comment.id, checkLikeStatus])
@@ -115,12 +101,10 @@ export function CommentItem({
 
     try {
       if (isLiked) {
-        console.log('User has liked comment, removing like...')
         await CommentsService.unlikeComment(comment.id)
         setLikeCount(prev => prev - 1)
         setIsLiked(false)
       } else {
-        console.log('User has not liked comment, adding like...')
         await CommentsService.likeComment(comment.id)
         setLikeCount(prev => prev + 1)
         setIsLiked(true)
