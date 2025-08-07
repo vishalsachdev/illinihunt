@@ -151,7 +151,7 @@ export function CommentItem({
 
     try {
       // This ensures tokens are valid before getUser() is called
-      const { data: refreshedSession, error: refreshError } = await supabase.auth.refreshSession();
+      const { error: refreshError } = await supabase.auth.refreshSession();
 
       if (refreshError) {
         console.warn("Failed to refresh session:", refreshError);
