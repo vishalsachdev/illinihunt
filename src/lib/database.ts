@@ -479,11 +479,11 @@ export class CommentsService {
 
 
       // Double-check authentication right before database call
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      const { data: { session } } = await supabase.auth.getSession()
       
       // Try to force refresh session if there are issues
       if (!session || !session.access_token) {
-        const { data: refreshedData, error: refreshError } = await supabase.auth.refreshSession()
+        await supabase.auth.refreshSession()
       }
 
       // Since RLS has authentication context issues, verify ownership manually
