@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
+import { useError } from '@/contexts/ErrorContext'
 import { ProjectsService } from '@/lib/database'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { VoteButton } from '@/components/project/VoteButton'
-import { ArrowLeft, ExternalLink, Github, User } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Github, User, RefreshCw } from 'lucide-react'
 import { CommentList } from '@/components/comment/CommentList'
 import { sanitizeContent, sanitizeUrl } from '@/lib/sanitize'
 
@@ -38,36 +39,45 @@ type ProjectDetail = {
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { user } = useAuth()
+  const { handleServiceError } = useError()
   const [project, setProject] = useState<ProjectDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [imageError, setImageError] = useState(false)
   const [currentVoteCount, setCurrentVoteCount] = useState(0)
 
-  useEffect(() => {
-    const loadProject = async () => {
-      if (!id) return
-      
-      setLoading(true)
+  const loadProject = async () => {
+    if (!id) return
+    
+    setLoading(true)
+    setError('')
+    
+    try {
       const { data, error } = await ProjectsService.getProject(id)
       
       if (error) {
         setError('Failed to load project')
-        setLoading(false)
+        handleServiceError(error, 'load project', loadProject)
         return
       }
       
       if (!data) {
         setError('Project not found')
-        setLoading(false)
         return
       }
       
       setProject(data)
       setCurrentVoteCount(data.upvotes_count)
+      setError('')
+    } catch (err) {
+      setError('Failed to load project')
+      handleServiceError(err, 'load project', loadProject)
+    } finally {
       setLoading(false)
     }
+  }
 
+  useEffect(() => {
     loadProject()
   }, [id])
 
@@ -87,17 +97,31 @@ export function ProjectDetailPage() {
   }
 
   if (error || !project) {
+    const isNetworkError = error.includes('load project')
+    
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Project Not Found</h1>
-          <p className="text-gray-600 mb-6">{error || 'The requested project could not be found.'}</p>
-          <Button asChild>
-            <Link to="/">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Link>
-          </Button>
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            {isNetworkError ? 'Failed to Load Project' : 'Project Not Found'}
+          </h1>
+          <p className="text-gray-600 mb-6">
+            {error || 'The requested project could not be found.'}
+          </p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            {isNetworkError && (
+              <Button onClick={loadProject} variant="outline" className="flex items-center gap-2">
+                <RefreshCw className="w-4 h-4" />
+                Retry
+              </Button>
+            )}
+            <Button asChild className="bg-uiuc-orange hover:bg-uiuc-orange/90">
+              <Link to="/" className="flex items-center gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Back to Home
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     )

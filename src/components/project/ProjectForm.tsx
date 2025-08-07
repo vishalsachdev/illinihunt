@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuth } from '@/hooks/useAuth'
+import { useError } from '@/contexts/ErrorContext'
 import { ProjectsService, CategoriesService } from '@/lib/database'
 import { projectSchema, type ProjectFormData } from '@/lib/validations'
 import { Button } from '@/components/ui/button'
@@ -31,9 +32,11 @@ interface ProjectFormProps {
 
 export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess, onCancel }: ProjectFormProps) {
   const { user } = useAuth()
+  const { handleServiceError, handleFormError, handleAuthError, showSuccess } = useError()
   const [categories, setCategories] = useState<Category[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [imageUrl, setImageUrl] = useState<string>('')
+  const [, setLoadingCategories] = useState(true)
 
   const {
     register,
@@ -66,6 +69,7 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
   }, [mode, initialData, reset])
 
   const loadCategories = async () => {
+    setLoadingCategories(true)
     try {
       const { data, error } = await CategoriesService.getCategories()
       if (error) {
@@ -73,17 +77,21 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
       }
       setCategories(data || [])
     } catch (error) {
+      handleServiceError(error, 'load categories', loadCategories)
       // Categories will remain empty, form will still be functional
+    } finally {
+      setLoadingCategories(false)
     }
   }
 
   const onSubmit = async (data: ProjectFormData) => {
     if (!user) {
-      alert('You must be signed in to submit a project')
+      handleAuthError('You must be signed in to submit a project')
       return
     }
 
     setIsSubmitting(true)
+    
     try {
       const projectData = {
         ...data,
@@ -96,16 +104,16 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
       if (mode === 'edit' && projectId) {
         const { error } = await ProjectsService.updateProject(projectId, projectData)
         if (error) throw error
-        alert('Project updated successfully!')
+        showSuccess('Project updated successfully!', 'Your changes have been saved and are now live.')
       } else {
         const { error } = await ProjectsService.createProject(projectData)
         if (error) throw error
-        alert('Project submitted successfully!')
+        showSuccess('Project submitted successfully!', 'Your project is now live on IlliniHunt!')
       }
 
       onSuccess?.()
     } catch (error) {
-      alert(`Failed to ${mode === 'edit' ? 'update' : 'submit'} project. Please try again.`)
+      handleFormError(error, `project ${mode === 'edit' ? 'update' : 'submission'}`)
     } finally {
       setIsSubmitting(false)
     }
