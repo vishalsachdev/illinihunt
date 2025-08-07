@@ -27,7 +27,7 @@ export function CommentForm({
 }: CommentFormProps) {
   const { user, profile } = useAuth()
   const { showAuthPrompt } = useAuthPrompt()
-  const { handleServiceError, handleAuthError, showSuccess } = useError()
+  const { handleServiceError, showSuccess } = useError()
   const [content, setContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -66,7 +66,7 @@ export function CommentForm({
         onCommentAdded?.(data)
       }
     } catch (err) {
-      handleServiceError(err, 'post comment', handleSubmit)
+      handleServiceError(err, 'post comment', () => handleSubmit(e))
       setError('Failed to post comment. Please try again.')
     } finally {
       setIsSubmitting(false)
