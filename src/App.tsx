@@ -2,12 +2,14 @@ import './App.css'
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
 import { Suspense, lazy, useEffect } from 'react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import { Toaster } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
 import { LoginButton } from '@/components/auth/LoginButton'
 import { UserMenu } from '@/components/auth/UserMenu'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { AuthPromptProvider, useAuthPrompt } from '@/contexts/AuthPromptContext'
+import { ErrorProvider } from '@/contexts/ErrorContext'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 // Lazy load all pages for code splitting
@@ -203,10 +205,28 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
-        <AuthPromptProvider>
-          <AppContent />
-          <SpeedInsights />
-        </AuthPromptProvider>
+        <ErrorProvider>
+          <AuthPromptProvider>
+            <AppContent />
+            <SpeedInsights />
+            <Toaster 
+              position="top-right"
+              richColors
+              closeButton
+              visibleToasts={4}
+              toastOptions={{
+                duration: 4000,
+                classNames: {
+                  toast: 'group toast group-[.toaster]:bg-white group-[.toaster]:border group-[.toaster]:shadow-lg',
+                  description: 'group-[.toast]:text-gray-600',
+                  actionButton: 'group-[.toast]:bg-uiuc-orange group-[.toast]:text-white',
+                  cancelButton: 'group-[.toast]:bg-gray-100 group-[.toast]:text-gray-600',
+                  closeButton: 'group-[.toast]:bg-gray-200 group-[.toast]:border-none',
+                }
+              }}
+            />
+          </AuthPromptProvider>
+        </ErrorProvider>
       </BrowserRouter>
     </ErrorBoundary>
   )

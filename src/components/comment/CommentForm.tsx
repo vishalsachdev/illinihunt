@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthPrompt } from '@/contexts/AuthPromptContext'
+import { useError } from '@/contexts/ErrorContext'
 import { CommentsService } from '@/lib/database'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -26,6 +27,7 @@ export function CommentForm({
 }: CommentFormProps) {
   const { user, profile } = useAuth()
   const { showAuthPrompt } = useAuthPrompt()
+  const { handleServiceError, handleAuthError, showSuccess } = useError()
   const [content, setContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -54,16 +56,18 @@ export function CommentForm({
       })
 
       if (error) {
-        setError('Failed to post comment. Please try again.')
-        return
+        throw error
       }
 
       if (data) {
         setContent('')
+        setError('')
+        showSuccess('Comment posted!', 'Your comment has been added to the discussion.')
         onCommentAdded?.(data)
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.')
+      handleServiceError(err, 'post comment', handleSubmit)
+      setError('Failed to post comment. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
