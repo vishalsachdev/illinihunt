@@ -76,6 +76,7 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
         }
         
         showSuccess('Vote removed')
+        // Update parent component
         onVoteChange?.(newCount)
       } else {
         // Optimistically update UI
@@ -90,6 +91,7 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
         }
         
         showSuccess('Vote added!')
+        // Update parent component  
         onVoteChange?.(newCount)
       }
     } catch (error) {
