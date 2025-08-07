@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthPrompt } from '@/contexts/AuthPromptContext'
+import { useError } from '@/contexts/ErrorContext'
 import { ProjectsService } from '@/lib/database'
 import { Button } from '@/components/ui/button'
 import { ChevronUp } from 'lucide-react'
@@ -16,6 +17,7 @@ interface VoteButtonProps {
 export function VoteButton({ projectId, initialVoteCount, className, onVoteChange }: VoteButtonProps) {
   const { user } = useAuth()
   const { showAuthPrompt } = useAuthPrompt()
+  const { handleServiceError, showSuccess } = useError()
   const [voteCount, setVoteCount] = useState(initialVoteCount)
   
   // Update vote count if initialVoteCount changes
@@ -32,11 +34,11 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
       const voted = await ProjectsService.hasUserVoted(projectId)
       setHasVoted(voted)
     } catch (error) {
-      console.error('Error checking vote status:', error)
+      handleServiceError(error, 'check vote status')
       // On error, assume user hasn't voted
       setHasVoted(false)
     }
-  }, [projectId])
+  }, [projectId, handleServiceError])
 
   useEffect(() => {
     if (user && projectId) {
@@ -57,7 +59,8 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     // Store current state for rollback
     const previousVoteCount = voteCount
     const previousHasVoted = hasVoted
-    
+    const isRemoving = hasVoted
+    const retry = () => handleVote()
     
     try {
       if (hasVoted) {
@@ -69,11 +72,10 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
         // Remove vote
         const { error } = await ProjectsService.unvoteProject(projectId)
         if (error) {
-          console.error('VoteButton: Error removing vote:', error)
           throw error
         }
         
-        // Update parent component
+        showSuccess('Vote removed')
         onVoteChange?.(newCount)
       } else {
         // Optimistically update UI
@@ -84,19 +86,19 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
         // Add vote
         const { error } = await ProjectsService.voteProject(projectId)
         if (error) {
-          console.error('VoteButton: Error adding vote:', error)
           throw error
         }
         
-        // Update parent component  
+        showSuccess('Vote added!')
         onVoteChange?.(newCount)
       }
     } catch (error) {
       // Rollback on error
       setVoteCount(previousVoteCount)
       setHasVoted(previousHasVoted)
-      console.error('Vote error:', error)
-      alert('Failed to vote. Please try again.')
+      
+      const operation = isRemoving ? 'remove vote' : 'add vote'
+      handleServiceError(error, operation, retry)
     } finally {
       setIsLoading(false)
     }
