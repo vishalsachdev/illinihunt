@@ -39,7 +39,7 @@ type ProjectDetail = {
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { user } = useAuth()
-  const { handleServiceError, showInfo } = useError()
+  const { handleServiceError } = useError()
   const [project, setProject] = useState<ProjectDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')

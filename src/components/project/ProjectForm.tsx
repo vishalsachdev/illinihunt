@@ -36,7 +36,7 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
   const [categories, setCategories] = useState<Category[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [imageUrl, setImageUrl] = useState<string>('')
-  const [loadingCategories, setLoadingCategories] = useState(true)
+  const [, setLoadingCategories] = useState(true)
 
   const {
     register,
@@ -91,7 +91,6 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
     }
 
     setIsSubmitting(true)
-    const operation = mode === 'edit' ? 'update project' : 'submit project'
     
     try {
       const projectData = {
