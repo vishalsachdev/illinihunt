@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useCallback } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { ProjectsService } from '@/lib/database'
 import { Button } from '@/components/ui/button'
@@ -16,7 +16,8 @@ import {
   Edit3,
   Eye,
   Calendar,
-  TrendingUp
+  TrendingUp,
+  RefreshCw
 } from 'lucide-react'
 
 type DashboardProject = {
@@ -41,6 +42,7 @@ type DashboardProject = {
 
 export function DashboardPage() {
   const { user, profile, loading: authLoading } = useAuth()
+  const location = useLocation()
   const [projects, setProjects] = useState<DashboardProject[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
@@ -50,33 +52,34 @@ export function DashboardPage() {
     totalViews: 0 // Placeholder for future views tracking
   })
 
-  useEffect(() => {
-    const loadUserProjects = async () => {
-      if (!user?.id) return
+  const loadUserProjects = useCallback(async () => {
+    if (!user?.id) return
+    
+    setLoading(true)
+    const { data, error } = await ProjectsService.getUserProjects(user.id)
+    
+    if (!error && data) {
+      setProjects(data)
       
-      setLoading(true)
-      const { data, error } = await ProjectsService.getUserProjects(user.id)
+      // Calculate stats
+      const totalUpvotes = data.reduce((sum, p) => sum + p.upvotes_count, 0)
+      const totalComments = data.reduce((sum, p) => sum + p.comments_count, 0)
       
-      if (!error && data) {
-        setProjects(data)
-        
-        // Calculate stats
-        const totalUpvotes = data.reduce((sum, p) => sum + p.upvotes_count, 0)
-        const totalComments = data.reduce((sum, p) => sum + p.comments_count, 0)
-        
-        setStats({
-          totalProjects: data.length,
-          totalUpvotes,
-          totalComments,
-          totalViews: 0 // Placeholder
-        })
-      }
-      
-      setLoading(false)
+      setStats({
+        totalProjects: data.length,
+        totalUpvotes,
+        totalComments,
+        totalViews: 0 // Placeholder
+      })
     }
-
-    loadUserProjects()
+    
+    setLoading(false)
   }, [user?.id])
+
+  // Load projects when component mounts or when returning from another page
+  useEffect(() => {
+    loadUserProjects()
+  }, [loadUserProjects, location.pathname])
 
   // Show loading while auth is being determined
   if (authLoading) {
@@ -200,12 +203,23 @@ export function DashboardPage() {
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Your Projects</h2>
-            <Button asChild variant="outline">
-              <Link to={`/user/${user.id}`}>
-                <Eye className="w-4 h-4 mr-2" />
-                View Public Profile
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={() => loadUserProjects()}
+                disabled={loading}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button asChild variant="outline">
+                <Link to={`/user/${user.id}`}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  View Public Profile
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {loading ? (

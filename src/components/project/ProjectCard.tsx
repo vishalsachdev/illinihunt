@@ -52,7 +52,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-uiuc-orange/30 group text-gray-900">
       {/* Project Image Header */}
-      <div className="relative h-48 bg-gray-100">
+      <Link to={`/project/${project.id}`} className="block relative h-48 bg-gray-100 cursor-pointer">
         {project.image_url && !imageError ? (
           <img
             src={project.image_url}
@@ -67,7 +67,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         )}
         
         {/* Vote Button Overlay */}
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3" onClick={(e) => e.preventDefault()}>
           <VoteButton 
             projectId={project.id}
             initialVoteCount={project.upvotes_count}
@@ -92,7 +92,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </span>
           </div>
         )}
-      </div>
+      </Link>
 
       {/* Project Content */}
       <div className="p-5 text-gray-900">
