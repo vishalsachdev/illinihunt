@@ -30,7 +30,6 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     
     try {
       const voted = await ProjectsService.hasUserVoted(projectId)
-      console.log(`Vote status for project ${projectId}:`, voted)
       setHasVoted(voted)
     } catch (error) {
       console.error('Error checking vote status:', error)
@@ -41,10 +40,8 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
 
   useEffect(() => {
     if (user && projectId) {
-      console.log('VoteButton: Checking vote status for user:', user.id, 'project:', projectId)
       checkVoteStatus()
     } else if (!user) {
-      console.log('VoteButton: No user, resetting vote state')
       setHasVoted(false)
     }
   }, [user, projectId, checkVoteStatus])
@@ -61,16 +58,9 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     const previousVoteCount = voteCount
     const previousHasVoted = hasVoted
     
-    console.log('VoteButton: Starting vote action. Current state:', {
-      hasVoted,
-      voteCount,
-      userId: user.id,
-      projectId
-    })
     
     try {
       if (hasVoted) {
-        console.log('VoteButton: User has voted, removing vote...')
         // Optimistically update UI
         const newCount = voteCount - 1
         setVoteCount(newCount)
@@ -83,11 +73,9 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
           throw error
         }
         
-        console.log('VoteButton: Successfully removed vote')
         // Update parent component
         onVoteChange?.(newCount)
       } else {
-        console.log('VoteButton: User has not voted, adding vote...')
         // Optimistically update UI
         const newCount = voteCount + 1
         setVoteCount(newCount)
@@ -100,13 +88,11 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
           throw error
         }
         
-        console.log('VoteButton: Successfully added vote')
         // Update parent component  
         onVoteChange?.(newCount)
       }
     } catch (error) {
       // Rollback on error
-      console.log('VoteButton: Rolling back due to error')
       setVoteCount(previousVoteCount)
       setHasVoted(previousHasVoted)
       console.error('Vote error:', error)
