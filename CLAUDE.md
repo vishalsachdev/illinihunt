@@ -224,6 +224,44 @@ npm run type-check && npm run build && npx supabase projects list && echo "✅ A
 - Email notifications
 - Testing framework
 
+## Parallel Development Coordination
+
+### Active Development Streams
+This project has multiple parallel development streams:
+1. **Local Development** - Direct development with Claude Code
+2. **GitHub Actions** - Automated Claude responses to issues/PRs
+3. **Contributor PRs** - Other developers submitting features
+
+### Coordination Best Practices
+
+**Before Starting Work:**
+```bash
+# Always sync with latest changes
+git fetch origin
+git pull origin main
+gh pr list --state open  # Check active PRs to avoid conflicts
+```
+
+**Conflict Prevention:**
+- Check open PRs before starting major changes
+- For database changes, coordinate via issues first
+- Use feature flags for experimental features
+- Keep PRs focused and small to reduce conflict surface
+
+**When Conflicts Occur:**
+```bash
+# Standard conflict resolution
+git fetch origin
+git rebase origin/main
+# Resolve conflicts preserving both features
+git push --force-with-lease
+```
+
+**PR Management:**
+- PRs from GitHub Actions: Review for completeness
+- Conflicting PRs: Rebase smaller PR first
+- Database migrations: Apply in sequence, never parallel
+
 ## Development Workflow
 
 ### Adding Features with DB Changes
@@ -251,4 +289,23 @@ npm run lint && npm run type-check && npm run build
 
 # Verify production ready
 grep -r "console.log" src/  # Should be minimal
+
+# Check for parallel work
+gh pr list --state open
+git fetch origin
 ```
+
+### GitHub Actions Claude Integration
+
+**Issue Tagging Format:**
+When creating issues for Claude to resolve via GitHub Actions:
+- Use clear, specific titles
+- Tag with `@claude` in description
+- Include acceptance criteria
+- Reference related files/components
+
+**Auto-Generated PR Review:**
+- Check for completeness of implementation
+- Verify tests pass (if applicable)
+- Review for unintended side effects
+- Ensure follows existing patterns
