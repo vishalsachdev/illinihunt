@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthPrompt } from '@/contexts/AuthPromptContext'
 import { useError } from '@/contexts/ErrorContext'
+import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
 import { ProjectsService } from '@/lib/database'
 import { Button } from '@/components/ui/button'
 import { ChevronUp } from 'lucide-react'
@@ -18,14 +19,30 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
   const { user } = useAuth()
   const { showAuthPrompt } = useAuthPrompt()
   const { handleServiceError, showSuccess } = useError()
-  const [voteCount, setVoteCount] = useState(initialVoteCount)
+  const { getVoteData, updateVoteCount, updateUserVote, isRealtimeConnected } = useRealtimeVotesContext()
   
-  // Update vote count if initialVoteCount changes
-  useEffect(() => {
-    setVoteCount(initialVoteCount)
-  }, [initialVoteCount])
+  const [voteCount, setVoteCount] = useState(initialVoteCount)
   const [hasVoted, setHasVoted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const isVotingRef = useRef(false)
+  const debounceTimeoutRef = useRef<NodeJS.Timeout>()
+
+  // Update from real-time data if available
+  useEffect(() => {
+    const realtimeData = getVoteData(projectId)
+    if (realtimeData && isRealtimeConnected) {
+      setVoteCount(realtimeData.count)
+      setHasVoted(realtimeData.hasVoted)
+    } else {
+      // Fallback to initial values
+      setVoteCount(initialVoteCount)
+    }
+  }, [getVoteData, projectId, initialVoteCount, isRealtimeConnected])
+  
+  // Initialize real-time data with current values
+  useEffect(() => {
+    updateVoteCount(projectId, initialVoteCount)
+  }, [projectId, initialVoteCount, updateVoteCount])
 
   const checkVoteStatus = useCallback(async () => {
     if (!projectId) return
@@ -33,41 +50,42 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     try {
       const voted = await ProjectsService.hasUserVoted(projectId)
       setHasVoted(voted)
+      updateUserVote(projectId, voted)
     } catch (error) {
       handleServiceError(error, 'check vote status')
       // On error, assume user hasn't voted
       setHasVoted(false)
+      updateUserVote(projectId, false)
     }
-  }, [projectId, handleServiceError])
+  }, [projectId, handleServiceError, updateUserVote])
 
   useEffect(() => {
     if (user && projectId) {
       checkVoteStatus()
     } else if (!user) {
       setHasVoted(false)
+      updateUserVote(projectId, false)
     }
-  }, [user, projectId, checkVoteStatus])
+  }, [user, projectId, checkVoteStatus, updateUserVote])
 
-  const handleVote = async () => {
-    if (!user) {
-      showAuthPrompt('vote on projects')
-      return
-    }
-
+  const executeVote = async () => {
+    if (isVotingRef.current) return
+    isVotingRef.current = true
     setIsLoading(true)
     
     // Store current state for rollback
     const previousVoteCount = voteCount
     const previousHasVoted = hasVoted
     const isRemoving = hasVoted
-    const retry = () => handleVote()
     
     try {
       if (hasVoted) {
-        // Optimistically update UI
-        const newCount = voteCount - 1
+        // Optimistically update UI and real-time state
+        const newCount = Math.max(0, voteCount - 1)
         setVoteCount(newCount)
         setHasVoted(false)
+        updateVoteCount(projectId, newCount)
+        updateUserVote(projectId, false)
         
         // Remove vote
         const { error } = await ProjectsService.unvoteProject(projectId)
@@ -76,13 +94,14 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
         }
         
         showSuccess('Vote removed')
-        // Update parent component
         onVoteChange?.(newCount)
       } else {
-        // Optimistically update UI
+        // Optimistically update UI and real-time state
         const newCount = voteCount + 1
         setVoteCount(newCount)
         setHasVoted(true)
+        updateVoteCount(projectId, newCount)
+        updateUserVote(projectId, true)
         
         // Add vote
         const { error } = await ProjectsService.voteProject(projectId)
@@ -91,20 +110,48 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
         }
         
         showSuccess('Vote added!')
-        // Update parent component  
         onVoteChange?.(newCount)
       }
     } catch (error) {
       // Rollback on error
       setVoteCount(previousVoteCount)
       setHasVoted(previousHasVoted)
+      updateVoteCount(projectId, previousVoteCount)
+      updateUserVote(projectId, previousHasVoted)
       
       const operation = isRemoving ? 'remove vote' : 'add vote'
-      handleServiceError(error, operation, retry)
+      handleServiceError(error, operation, () => handleVote())
     } finally {
       setIsLoading(false)
+      isVotingRef.current = false
     }
   }
+
+  const handleVote = () => {
+    if (!user) {
+      showAuthPrompt('vote on projects')
+      return
+    }
+
+    // Clear existing timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current)
+    }
+
+    // Debounce to prevent rapid clicking (300ms)
+    debounceTimeoutRef.current = setTimeout(() => {
+      executeVote()
+    }, 300)
+  }
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+    }
+  }, [])
 
   return (
     <Button

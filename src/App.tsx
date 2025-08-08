@@ -12,6 +12,7 @@ import { AuthPromptProvider, useAuthPrompt } from '@/contexts/AuthPromptContext'
 import { ErrorProvider } from '@/contexts/ErrorContext'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { RealtimeVotesProvider } from '@/contexts/RealtimeVotesContext'
 
 // Lazy load all pages for code splitting
 const HomePage = lazy(() => import('@/pages/HomePage').then(module => ({ default: module.HomePage })))
@@ -209,24 +210,26 @@ function App() {
         <ErrorProvider>
           <AuthProvider>
             <AuthPromptProvider>
-              <AppContent />
-              <SpeedInsights />
-              <Toaster
-                position="top-right"
-                richColors
-                closeButton
-                visibleToasts={4}
-                toastOptions={{
-                  duration: 4000,
-                  classNames: {
-                    toast: 'group toast group-[.toaster]:bg-white group-[.toaster]:border group-[.toaster]:shadow-lg',
-                    description: 'group-[.toast]:text-gray-600',
-                    actionButton: 'group-[.toast]:bg-uiuc-orange group-[.toast]:text-white',
-                    cancelButton: 'group-[.toast]:bg-gray-100 group-[.toast]:text-gray-600',
-                    closeButton: 'group-[.toast]:bg-gray-200 group-[.toast]:border-none',
-                  }
-                }}
-              />
+              <RealtimeVotesProvider>
+                <AppContent />
+                <SpeedInsights />
+                <Toaster
+                  position="top-right"
+                  richColors
+                  closeButton
+                  visibleToasts={4}
+                  toastOptions={{
+                    duration: 4000,
+                    classNames: {
+                      toast: 'group toast group-[.toaster]:bg-white group-[.toaster]:border group-[.toaster]:shadow-lg',
+                      description: 'group-[.toast]:text-gray-600',
+                      actionButton: 'group-[.toast]:bg-uiuc-orange group-[.toast]:text-white',
+                      cancelButton: 'group-[.toast]:bg-gray-100 group-[.toast]:text-gray-600',
+                      closeButton: 'group-[.toast]:bg-gray-200 group-[.toast]:border-none',
+                    }
+                  }}
+                />
+              </RealtimeVotesProvider>
             </AuthPromptProvider>
           </AuthProvider>
         </ErrorProvider>
