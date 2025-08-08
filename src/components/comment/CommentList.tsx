@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { CommentsService } from '@/lib/database'
 import { CommentItem } from './CommentItem'
 import { CommentForm } from './CommentForm'
 import { Button } from '@/components/ui/button'
 import { MessageCircle, RefreshCw } from 'lucide-react'
+import type { Database } from '@/types/database'
+
+type Comment = Database['public']['Tables']['comments']['Row']
 
 interface CommentData {
   id: string
@@ -37,11 +40,7 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
   const [error, setError] = useState('')
   const [refreshing, setRefreshing] = useState(false)
 
-  useEffect(() => {
-    loadComments()
-  }, [projectId])
-
-  const loadComments = async (isRefresh = false) => {
+  const loadComments = useCallback(async (isRefresh = false) => {
     if (isRefresh) {
       setRefreshing(true)
     } else {
@@ -67,10 +66,19 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
       setLoading(false)
       setRefreshing(false)
     }
-  }
+  }, [projectId])
 
-  const handleCommentAdded = (newComment: CommentData) => {
-    setComments(prev => [...prev, newComment])
+  useEffect(() => {
+    loadComments()
+  }, [loadComments])
+
+  const handleCommentAdded = (newComment: Comment) => {
+    // Transform the new comment to match our CommentData interface
+    const commentData: CommentData = {
+      ...newComment,
+      users: null // This will be populated when we refresh comments
+    }
+    setComments(prev => [...prev, commentData])
   }
 
   const handleCommentUpdated = (commentId: string, newContent: string) => {

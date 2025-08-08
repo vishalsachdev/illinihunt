@@ -3,12 +3,15 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { ProjectsService } from '@/lib/database'
 import { ProjectForm } from '@/components/project/ProjectForm'
+import type { Database } from '@/types/database'
+
+type Project = Database['public']['Tables']['projects']['Row']
 
 export function EditProjectPage() {
   const { user, loading: authLoading } = useAuth()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [project, setProject] = useState<any>(null)
+  const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
