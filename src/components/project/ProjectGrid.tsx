@@ -31,15 +31,19 @@ type Project = Database['public']['Tables']['projects']['Row'] & {
 
 type Category = Database['public']['Tables']['categories']['Row']
 
-export function ProjectGrid() {
+type ProjectGridProps = {
+  selectedCategory?: string
+}
+
+export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridProps) {
   const [projects, setProjects] = useState<Project[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
+
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedCategory, setSelectedCategory] = useState<string>(externalCategory || 'all')
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent')
 
   useEffect(() => {
@@ -52,7 +56,12 @@ export function ProjectGrid() {
       loadProjects()
     }, searchQuery ? 300 : 0) // Only debounce search, immediate for filters
     return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, selectedCategory, sortBy])
+
+  useEffect(() => {
+    setSelectedCategory(externalCategory || 'all')
+  }, [externalCategory])
 
   const loadCategories = async () => {
     try {
