@@ -47,6 +47,7 @@ export function HomePage() {
   const [featuredLoading, setFeaturedLoading] = useState(true)
   const [categories, setCategories] = useState<Category[]>([])
   const [categoriesLoading, setCategoriesLoading] = useState(true)
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   useEffect(() => {
     const loadStats = async () => {
@@ -247,13 +248,10 @@ export function HomePage() {
                     <button
                       key={category.id}
                       onClick={() => {
-                        // Scroll to projects section and set category filter
-                        const projectsSection = document.getElementById('projects-section')
-                        if (projectsSection) {
-                          projectsSection.scrollIntoView({ behavior: 'smooth' })
-                          // You would need to pass the category to ProjectGrid component
-                          // This is a simplified implementation
-                        }
+                        setSelectedCategory(category.id)
+                        document
+                          .getElementById('projects-section')
+                          ?.scrollIntoView({ behavior: 'smooth' })
                       }}
                       className="group bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 sm:p-4 hover:bg-white/20 transition-all duration-300 text-center"
                     >
@@ -369,7 +367,7 @@ export function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Projects Grid */}
           <div className="lg:col-span-3">
-            <ProjectGrid />
+            <ProjectGrid selectedCategory={selectedCategory} />
           </div>
           
           {/* Community Activity Sidebar */}
