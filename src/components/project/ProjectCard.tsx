@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { formatDistance } from 'date-fns'
 import { ExternalLink, Github, MessageCircle } from 'lucide-react'
 import { CategoryIcon } from '@/lib/categoryIcons'
@@ -41,13 +41,18 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   const [imageError, setImageError] = useState(false)
+  const [currentVoteCount, setCurrentVoteCount] = useState(project.upvotes_count)
   const user = project.users
   const category = project.categories
 
-  const handleVoteChange = (_newCount: number) => {
-    // VoteButton manages its own state, this is just for potential future use
-    // Could be used to update parent component or analytics
+  const handleVoteChange = (newCount: number) => {
+    setCurrentVoteCount(newCount)
   }
+
+  // Update local count when project prop changes (for initial loads or external updates)
+  useEffect(() => {
+    setCurrentVoteCount(project.upvotes_count)
+  }, [project.upvotes_count])
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-uiuc-orange/30 group text-gray-900">
@@ -70,7 +75,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <div className="absolute top-3 right-3" onClick={(e) => e.preventDefault()}>
           <VoteButton 
             projectId={project.id}
-            initialVoteCount={project.upvotes_count}
+            initialVoteCount={currentVoteCount}
             onVoteChange={handleVoteChange}
             className="bg-white/95 backdrop-blur-sm hover:bg-white shadow-md"
           />

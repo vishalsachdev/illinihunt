@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthPrompt } from '@/contexts/AuthPromptContext'
 import { useError } from '@/contexts/ErrorContext'
@@ -6,6 +6,16 @@ import { ProjectsService } from '@/lib/database'
 import { Button } from '@/components/ui/button'
 import { ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+// Import with fallback for realtime context
+let useRealtimeVotesContext: (() => any) | null = null
+try {
+  const realtimeContext = require('@/contexts/RealtimeVotesContext')
+  useRealtimeVotesContext = realtimeContext.useRealtimeVotesContext
+} catch (error) {
+  // Fallback when realtime context is not available
+  console.warn('RealtimeVotesContext not available')
+}
 
 interface VoteButtonProps {
   projectId: string
@@ -18,14 +28,38 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
   const { user } = useAuth()
   const { showAuthPrompt } = useAuthPrompt()
   const { handleServiceError, showSuccess } = useError()
-  const [voteCount, setVoteCount] = useState(initialVoteCount)
   
-  // Update vote count if initialVoteCount changes
-  useEffect(() => {
-    setVoteCount(initialVoteCount)
-  }, [initialVoteCount])
+  // Use realtime context if available, otherwise use fallback
+  const realtimeVotes = useRealtimeVotesContext ? useRealtimeVotesContext() : null
+  
+  const [voteCount, setVoteCount] = useState(initialVoteCount)
   const [hasVoted, setHasVoted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  
+  // Debouncing ref
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+  const isVotingRef = useRef(false)
+
+  // Update vote count from real-time updates or initial value
+  useEffect(() => {
+    if (realtimeVotes && realtimeVotes.getVoteCount) {
+      const realtimeCount = realtimeVotes.getVoteCount(projectId)
+      const currentCount = realtimeCount !== undefined ? realtimeCount : initialVoteCount
+      setVoteCount(currentCount)
+      onVoteChange?.(currentCount)
+    } else {
+      // Fallback: just use initial vote count
+      setVoteCount(initialVoteCount)
+    }
+  }, [realtimeVotes, projectId, initialVoteCount, onVoteChange])
+
+  // Subscribe to real-time updates when component mounts
+  useEffect(() => {
+    if (realtimeVotes && realtimeVotes.subscribe && realtimeVotes.unsubscribe) {
+      realtimeVotes.subscribe(projectId)
+      return () => realtimeVotes.unsubscribe(projectId)
+    }
+  }, [projectId, realtimeVotes])
 
   const checkVoteStatus = useCallback(async () => {
     if (!projectId) return
@@ -48,63 +82,84 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     }
   }, [user, projectId, checkVoteStatus])
 
-  const handleVote = async () => {
+  // Debounced vote handler
+  const handleVote = useCallback(() => {
     if (!user) {
       showAuthPrompt('vote on projects')
       return
     }
 
-    setIsLoading(true)
-    
-    // Store current state for rollback
-    const previousVoteCount = voteCount
-    const previousHasVoted = hasVoted
-    const isRemoving = hasVoted
-    const retry = () => handleVote()
-    
-    try {
-      if (hasVoted) {
-        // Optimistically update UI
-        const newCount = voteCount - 1
-        setVoteCount(newCount)
-        setHasVoted(false)
-        
-        // Remove vote
-        const { error } = await ProjectsService.unvoteProject(projectId)
-        if (error) {
-          throw error
-        }
-        
-        showSuccess('Vote removed')
-        // Update parent component
-        onVoteChange?.(newCount)
-      } else {
-        // Optimistically update UI
-        const newCount = voteCount + 1
-        setVoteCount(newCount)
-        setHasVoted(true)
-        
-        // Add vote
-        const { error } = await ProjectsService.voteProject(projectId)
-        if (error) {
-          throw error
-        }
-        
-        showSuccess('Vote added!')
-        // Update parent component  
-        onVoteChange?.(newCount)
-      }
-    } catch (error) {
-      // Rollback on error
-      setVoteCount(previousVoteCount)
-      setHasVoted(previousHasVoted)
-      
-      const operation = isRemoving ? 'remove vote' : 'add vote'
-      handleServiceError(error, operation, retry)
-    } finally {
-      setIsLoading(false)
+    if (isLoading || isVotingRef.current) {
+      return // Prevent rapid clicking
     }
-  }
+
+    // Clear any existing debounce timer
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+    }
+
+    // Set debounce timer
+    debounceTimer.current = setTimeout(async () => {
+      if (isVotingRef.current) return // Additional check
+
+      isVotingRef.current = true
+      setIsLoading(true)
+
+      // Store current state for rollback
+      const previousVoteCount = voteCount
+      const previousHasVoted = hasVoted
+      const isRemoving = hasVoted
+      
+      try {
+        if (hasVoted) {
+          // Optimistically update UI
+          const newCount = Math.max(voteCount - 1, 0)
+          setVoteCount(newCount)
+          setHasVoted(false)
+          
+          // Remove vote
+          const { error } = await ProjectsService.unvoteProject(projectId)
+          if (error) {
+            throw error
+          }
+          
+          showSuccess('Vote removed')
+        } else {
+          // Optimistically update UI
+          const newCount = voteCount + 1
+          setVoteCount(newCount)
+          setHasVoted(true)
+          
+          // Add vote
+          const { error } = await ProjectsService.voteProject(projectId)
+          if (error) {
+            throw error
+          }
+          
+          showSuccess('Vote added!')
+        }
+      } catch (error) {
+        // Rollback on error
+        setVoteCount(previousVoteCount)
+        setHasVoted(previousHasVoted)
+        
+        const operation = isRemoving ? 'remove vote' : 'add vote'
+        handleServiceError(error, operation)
+      } finally {
+        setIsLoading(false)
+        isVotingRef.current = false
+      }
+    }, 300) // 300ms debounce
+  }, [user, showAuthPrompt, isLoading, hasVoted, voteCount, projectId, handleServiceError, showSuccess])
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current)
+      }
+    }
+  }, [])
 
   return (
     <Button
