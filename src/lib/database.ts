@@ -4,6 +4,8 @@ import { ErrorHandler, type ServiceResult } from './errorHandler'
 
 type ProjectInsert = Database['public']['Tables']['projects']['Insert']
 type ProjectUpdate = Database['public']['Tables']['projects']['Update']
+type ProjectRow = Database['public']['Tables']['projects']['Row']
+type CommentRow = Database['public']['Tables']['comments']['Row']
 type BookmarkInsert = Database['public']['Tables']['bookmarks']['Insert']
 type CollectionInsert = Database['public']['Tables']['collections']['Insert']
 type CollectionUpdate = Database['public']['Tables']['collections']['Update']
@@ -986,7 +988,7 @@ export class CollectionService {
   /**
    * Safely create a new project with proper error handling
    */
-  static async createProjectSafe(project: ProjectInsert): Promise<ServiceResult<any>> {
+  static async createProjectSafe(project: ProjectInsert): Promise<ServiceResult<ProjectRow>> {
     return ErrorHandler.withErrorHandling(async () => {
       const { data, error } = await ProjectsService.createProject(project)
       if (error) throw error
@@ -997,7 +999,7 @@ export class CollectionService {
   /**
    * Safely get project with proper error handling
    */
-  static async getProjectSafe(id: string): Promise<ServiceResult<any>> {
+  static async getProjectSafe(id: string): Promise<ServiceResult<ProjectRow>> {
     return ErrorHandler.withErrorHandling(async () => {
       const { data, error } = await ProjectsService.getProject(id)
       if (error) throw error
@@ -1008,7 +1010,7 @@ export class CollectionService {
   /**
    * Safely vote on project with proper error handling
    */
-  static async voteProjectSafe(projectId: string): Promise<ServiceResult<any>> {
+  static async voteProjectSafe(projectId: string): Promise<ServiceResult<unknown>> {
     return ErrorHandler.withErrorHandling(async () => {
       const { data, error } = await ProjectsService.voteProject(projectId)
       if (error) throw error
@@ -1019,7 +1021,7 @@ export class CollectionService {
   /**
    * Safely remove vote with proper error handling
    */
-  static async unvoteProjectSafe(projectId: string): Promise<ServiceResult<any>> {
+  static async unvoteProjectSafe(projectId: string): Promise<ServiceResult<unknown>> {
     return ErrorHandler.withErrorHandling(async () => {
       const { data, error } = await ProjectsService.unvoteProject(projectId)
       if (error) throw error
@@ -1039,7 +1041,7 @@ export class SafeCommentsService {
     content: string
     project_id: string
     parent_id?: string | null
-  }): Promise<ServiceResult<any>> {
+  }): Promise<ServiceResult<CommentRow>> {
     return ErrorHandler.withErrorHandling(async () => {
       const result = await CommentsService.createComment(data)
       if (result.error) throw new Error(result.error.message)
@@ -1050,7 +1052,7 @@ export class SafeCommentsService {
   /**
    * Safely update a comment with proper error handling
    */
-  static async updateCommentSafe(commentId: string, content: string): Promise<ServiceResult<any>> {
+  static async updateCommentSafe(commentId: string, content: string): Promise<ServiceResult<CommentRow>> {
     return ErrorHandler.withErrorHandling(async () => {
       const result = await CommentsService.updateComment(commentId, content)
       if (result.error) throw new Error(result.error.message)
@@ -1061,7 +1063,7 @@ export class SafeCommentsService {
   /**
    * Safely delete a comment with proper error handling and rollback support
    */
-  static async deleteCommentSafe(commentId: string): Promise<ServiceResult<any>> {
+  static async deleteCommentSafe(commentId: string): Promise<ServiceResult<unknown>> {
     return ErrorHandler.withErrorHandling(async () => {
       const result = await CommentsService.deleteComment(commentId)
       if (result.error) {

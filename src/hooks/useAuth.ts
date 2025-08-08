@@ -30,12 +30,17 @@ export function useAuth() {
     const initializeAuth = async () => {
       // Set a timeout to prevent indefinite loading
       timeoutId = setTimeout(() => {
-        if (mounted && state.loading) {
-          setState(prev => ({ 
-            ...prev, 
-            loading: false, 
-            error: 'Authentication check timed out. Please refresh the page.' 
-          }))
+        if (mounted) {
+          setState(prev => {
+            if (prev.loading) {
+              return {
+                ...prev, 
+                loading: false, 
+                error: 'Authentication check timed out. Please refresh the page.' 
+              }
+            }
+            return prev
+          })
         }
       }, 5000) // 5 second timeout
 

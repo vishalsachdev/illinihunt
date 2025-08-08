@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useError } from '@/contexts/ErrorContext'
@@ -46,7 +46,7 @@ export function ProjectDetailPage() {
   const [imageError, setImageError] = useState(false)
   const [currentVoteCount, setCurrentVoteCount] = useState(0)
 
-  const loadProject = async () => {
+  const loadProject = useCallback(async () => {
     if (!id) return
     
     setLoading(true)
@@ -75,11 +75,11 @@ export function ProjectDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id, handleServiceError])
 
   useEffect(() => {
     loadProject()
-  }, [id])
+  }, [loadProject])
 
   if (!id) {
     return <Navigate to="/" replace />

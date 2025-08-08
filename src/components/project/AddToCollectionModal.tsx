@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { CollectionService } from '@/lib/database'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthPrompt } from '@/contexts/AuthPromptContext'
@@ -14,14 +14,9 @@ import {
   Loader2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import type { Database } from '@/types/database'
 
-interface Collection {
-  id: string
-  name: string
-  description: string | null
-  is_public: boolean
-  projects_count: number
-}
+type Collection = Database['public']['Tables']['collections']['Row']
 
 interface AddToCollectionModalProps {
   projectId: string
@@ -47,25 +42,7 @@ export function AddToCollectionModal({
   const [newCollectionDescription, setNewCollectionDescription] = useState('')
   const [newCollectionPublic, setNewCollectionPublic] = useState(false)
 
-  useEffect(() => {
-    if (isOpen && user) {
-      loadUserCollections()
-    }
-  }, [isOpen, user, projectId])
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'unset'
-    }
-    
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
-  }, [isOpen])
-
-  const loadUserCollections = async () => {
+  const loadUserCollections = useCallback(async () => {
     if (!user) return
 
     setLoading(true)
@@ -80,7 +57,7 @@ export function AddToCollectionModal({
       }
 
       if (!projectCollectionsResult.error && projectCollectionsResult.data) {
-        const collectionIds = new Set(projectCollectionsResult.data.map((c: any) => c.id))
+        const collectionIds = new Set(projectCollectionsResult.data.map((c: Collection) => c.id))
         setCollectionsWithProject(collectionIds)
       }
     } catch (error) {
@@ -88,7 +65,25 @@ export function AddToCollectionModal({
     } finally {
       setLoading(false)
     }
-  }
+  }, [user, projectId])
+
+  useEffect(() => {
+    if (isOpen && user) {
+      loadUserCollections()
+    }
+  }, [isOpen, user, loadUserCollections])
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
 
   const handleToggleProject = async (collectionId: string) => {
     if (!user) {

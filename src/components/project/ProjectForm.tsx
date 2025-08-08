@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuth } from '@/hooks/useAuth'
@@ -21,11 +21,12 @@ import { CategoryIcon } from '@/lib/categoryIcons'
 import type { Database } from '@/types/database'
 
 type Category = Database['public']['Tables']['categories']['Row']
+type Project = Database['public']['Tables']['projects']['Row']
 
 interface ProjectFormProps {
   mode?: 'create' | 'edit'
   projectId?: string
-  initialData?: any
+  initialData?: Partial<Project>
   onSuccess?: () => void
   onCancel?: () => void
 }
@@ -48,27 +49,7 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
     resolver: zodResolver(projectSchema)
   })
 
-
-  useEffect(() => {
-    loadCategories()
-  }, [])
-
-  // Populate form with initial data for edit mode
-  useEffect(() => {
-    if (mode === 'edit' && initialData) {
-      reset({
-        name: initialData.name,
-        tagline: initialData.tagline,
-        description: initialData.description,
-        category_id: initialData.category_id,
-        website_url: initialData.website_url || '',
-        github_url: initialData.github_url || ''
-      })
-      setImageUrl(initialData.image_url || '')
-    }
-  }, [mode, initialData, reset])
-
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     setLoadingCategories(true)
     try {
       const { data, error } = await CategoriesService.getCategories()
@@ -77,12 +58,31 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
       }
       setCategories(data || [])
     } catch (error) {
-      handleServiceError(error, 'load categories', loadCategories)
+      handleServiceError(error, 'load categories')
       // Categories will remain empty, form will still be functional
     } finally {
       setLoadingCategories(false)
     }
-  }
+  }, [handleServiceError])
+
+  useEffect(() => {
+    loadCategories()
+  }, [loadCategories])
+
+  // Populate form with initial data for edit mode
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      reset({
+        name: initialData.name,
+        tagline: initialData.tagline,
+        description: initialData.description,
+        category_id: initialData.category_id || '',
+        website_url: initialData.website_url || '',
+        github_url: initialData.github_url || ''
+      })
+      setImageUrl(initialData.image_url || '')
+    }
+  }, [mode, initialData, reset])
 
   const onSubmit = async (data: ProjectFormData) => {
     if (!user) {

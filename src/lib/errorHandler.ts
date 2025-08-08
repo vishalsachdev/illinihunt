@@ -81,7 +81,7 @@ export class ErrorHandler {
   /**
    * Creates a user-friendly error message from a service result
    */
-  static getUserMessage(result: ServiceResult<any>): string {
+  static getUserMessage<T>(result: ServiceResult<T>): string {
     return result.error || 'Operation completed successfully'
   }
 
