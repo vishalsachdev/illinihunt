@@ -25,7 +25,7 @@ const CollectionsPage = lazy(() => import('@/pages/CollectionsPage').then(module
 const CollectionViewPage = lazy(() => import('@/pages/CollectionViewPage').then(module => ({ default: module.CollectionViewPage })))
 
 // Preload critical routes for better UX
-const preloadRoute = (importFn: () => Promise<any>) => {
+const preloadRoute = (importFn: () => Promise<unknown>) => {
   const componentImport = importFn()
   return componentImport
 }
