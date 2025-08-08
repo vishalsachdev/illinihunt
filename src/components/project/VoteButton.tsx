@@ -32,8 +32,10 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     
     try {
       const voted = await ProjectsService.hasUserVoted(projectId)
+      console.log(`[VoteButton] Project ${projectId} - user has voted:`, voted)
       setHasVoted(voted)
     } catch (error) {
+      console.error(`[VoteButton] Error checking vote status for ${projectId}:`, error)
       handleServiceError(error, 'check vote status')
       // On error, assume user hasn't voted
       setHasVoted(false)
@@ -70,11 +72,14 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
         setHasVoted(false)
         
         // Remove vote
+        console.log(`[VoteButton] Attempting to remove vote from project ${projectId}`)
         const { error } = await ProjectsService.unvoteProject(projectId)
         if (error) {
+          console.error(`[VoteButton] Error removing vote from project ${projectId}:`, error)
           throw error
         }
         
+        console.log(`[VoteButton] Successfully removed vote from project ${projectId}`)
         showSuccess('Vote removed')
         // Update parent component
         onVoteChange?.(newCount)
@@ -85,11 +90,14 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
         setHasVoted(true)
         
         // Add vote
+        console.log(`[VoteButton] Attempting to vote on project ${projectId}`)
         const { error } = await ProjectsService.voteProject(projectId)
         if (error) {
+          console.error(`[VoteButton] Error voting on project ${projectId}:`, error)
           throw error
         }
         
+        console.log(`[VoteButton] Successfully voted on project ${projectId}`)
         showSuccess('Vote added!')
         // Update parent component  
         onVoteChange?.(newCount)
