@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { VoteButton } from '@/components/project/VoteButton'
-import { ArrowLeft, ExternalLink, Github, User, RefreshCw } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Github, User, RefreshCw, Edit } from 'lucide-react'
 import { CommentList } from '@/components/comment/CommentList'
 import { sanitizeContent, sanitizeUrl } from '@/lib/sanitize'
 
@@ -298,11 +298,19 @@ export function ProjectDetailPage() {
               {user && project.users && user.id === project.users.id && (
                 <div className="bg-white border rounded-lg p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Manage Project</h3>
-                  <Button asChild className="w-full">
-                    <Link to="/dashboard">
-                      Go to Dashboard
-                    </Link>
-                  </Button>
+                  <div className="space-y-2">
+                    <Button asChild className="w-full bg-uiuc-orange hover:bg-uiuc-orange/90">
+                      <Link to={`/project/${project.id}/edit`}>
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit Project
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" className="w-full">
+                      <Link to="/dashboard">
+                        View Dashboard
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
