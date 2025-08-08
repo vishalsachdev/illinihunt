@@ -64,8 +64,8 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     
     try {
       if (hasVoted) {
-        // Optimistically update UI
-        const newCount = voteCount - 1
+        // Optimistically update UI - prevent negative votes
+        const newCount = Math.max(0, voteCount - 1)
         setVoteCount(newCount)
         setHasVoted(false)
         
