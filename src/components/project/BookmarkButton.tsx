@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Bookmark, BookmarkCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { BookmarkService } from '@/lib/database'
@@ -26,21 +26,21 @@ export function BookmarkButton({
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Check if project is bookmarked on mount
-  useEffect(() => {
-    if (user) {
-      checkBookmarkStatus()
-    }
-  }, [projectId, user])
-
-  const checkBookmarkStatus = async () => {
+  const checkBookmarkStatus = useCallback(async () => {
     try {
       const bookmarked = await BookmarkService.isBookmarked(projectId)
       setIsBookmarked(bookmarked)
     } catch (error) {
       // Silently fail, bookmark status will remain false
     }
-  }
+  }, [projectId])
+
+  // Check if project is bookmarked on mount
+  useEffect(() => {
+    if (user) {
+      checkBookmarkStatus()
+    }
+  }, [user, checkBookmarkStatus])
 
   const handleBookmarkToggle = async () => {
     if (!user) {

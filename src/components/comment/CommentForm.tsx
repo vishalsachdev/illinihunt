@@ -7,11 +7,14 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { MessageCircle, X } from 'lucide-react'
+import type { Database } from '@/types/database'
+
+type Comment = Database['public']['Tables']['comments']['Row']
 
 interface CommentFormProps {
   projectId: string
   parentId?: string | null
-  onCommentAdded?: (comment: any) => void
+  onCommentAdded?: (comment: Comment) => void
   onCancel?: () => void
   placeholder?: string
   showAvatar?: boolean
