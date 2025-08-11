@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import type { Database } from '@/types/database'
 
 interface VoteCountChange {
   projectId: string
@@ -47,14 +48,19 @@ export function useRealtimeVotes({
               table: 'projects',
               filter: 'upvotes_count=neq.0'
             },
-            (payload: RealtimePostgresChangesPayload<any>) => {
-              if (payload.new && payload.old) {
-                const newCount = payload.new.upvotes_count
-                const oldCount = payload.old.upvotes_count
-                
+            (
+              payload: RealtimePostgresChangesPayload<Database['public']['Tables']['projects']['Row']>
+            ) => {
+              const newProject = payload.new as Database['public']['Tables']['projects']['Row'] | null
+              const oldProject = payload.old as Database['public']['Tables']['projects']['Row'] | null
+
+              if (newProject && oldProject) {
+                const newCount = newProject.upvotes_count
+                const oldCount = oldProject.upvotes_count
+
                 if (newCount !== oldCount) {
-                  onVoteCountChange?({
-                    projectId: payload.new.id,
+                  onVoteCountChange?.({
+                    projectId: newProject.id,
                     newCount: newCount
                   })
                 }
@@ -72,11 +78,15 @@ export function useRealtimeVotes({
               schema: 'public',
               table: 'votes'
             },
-            (payload: RealtimePostgresChangesPayload<any>) => {
-              if (payload.new) {
-                onUserVoteChange?({
-                  projectId: payload.new.project_id,
-                  userId: payload.new.user_id,
+            (
+              payload: RealtimePostgresChangesPayload<Database['public']['Tables']['votes']['Row']>
+            ) => {
+              const newVote = payload.new as Database['public']['Tables']['votes']['Row'] | null
+
+              if (newVote) {
+                onUserVoteChange?.({
+                  projectId: newVote.project_id,
+                  userId: newVote.user_id,
                   hasVoted: true
                 })
               }
@@ -89,11 +99,15 @@ export function useRealtimeVotes({
               schema: 'public',
               table: 'votes'
             },
-            (payload: RealtimePostgresChangesPayload<any>) => {
-              if (payload.old) {
-                onUserVoteChange?({
-                  projectId: payload.old.project_id,
-                  userId: payload.old.user_id,
+            (
+              payload: RealtimePostgresChangesPayload<Database['public']['Tables']['votes']['Row']>
+            ) => {
+              const oldVote = payload.old as Database['public']['Tables']['votes']['Row'] | null
+
+              if (oldVote) {
+                onUserVoteChange?.({
+                  projectId: oldVote.project_id,
+                  userId: oldVote.user_id,
                   hasVoted: false
                 })
               }

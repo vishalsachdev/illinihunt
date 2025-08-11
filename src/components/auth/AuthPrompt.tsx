@@ -1,7 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent, type ChangeEvent } from 'react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { useAuth } from '@/hooks/useAuth'
 import { Lock, X } from 'lucide-react'
+
+const ILLINOIS_DOMAIN = 'illinois.edu'
+
+function isValidIllinoisEmail(email: string) {
+  return email.toLowerCase().endsWith(`@${ILLINOIS_DOMAIN}`)
+}
 
 interface AuthPromptProps {
   actionRequired?: string
@@ -9,17 +16,44 @@ interface AuthPromptProps {
 }
 
 export function AuthPrompt({ actionRequired = 'vote and submit projects', onClose }: AuthPromptProps) {
-  const { signInWithGoogle } = useAuth()
+  const { signInWithGoogle, signInWithEmail, error: authError } = useAuth()
   const [isVisible, setIsVisible] = useState(false)
+  const [email, setEmail] = useState('')
+  const [emailValid, setEmailValid] = useState(true)
+  const [linkSent, setLinkSent] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [localError, setLocalError] = useState<string | null>(null)
+  const [cooldown, setCooldown] = useState(0)
 
   useEffect(() => {
     // Trigger the animation after the component mounts
     const timer = setTimeout(() => {
       setIsVisible(true)
     }, 50)
-    
+
     return () => clearTimeout(timer)
   }, [])
+
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown(c => c - 1), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [cooldown])
+
+  const error = localError || authError
+
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.trim()
+    setEmail(value)
+    const valid = isValidIllinoisEmail(value)
+    setEmailValid(valid || value === '')
+    if (!valid && value) {
+      setLocalError(`Only @${ILLINOIS_DOMAIN} email addresses are allowed`)
+    } else {
+      setLocalError(null)
+    }
+  }
 
   const handleClose = () => {
     setIsVisible(false)
@@ -35,6 +69,30 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
       handleClose()
     } catch (error) {
       // Sign in errors are handled by the auth hook
+    }
+  }
+
+  const handleEmailSignIn = async (e: FormEvent) => {
+    e.preventDefault()
+    setLocalError(null)
+    if (!isValidIllinoisEmail(email)) {
+      setEmailValid(false)
+      setLocalError(`Only @${ILLINOIS_DOMAIN} email addresses are allowed`)
+      return
+    }
+    if (cooldown > 0) {
+      setLocalError('Please wait before requesting another link')
+      return
+    }
+    setSending(true)
+    try {
+      await signInWithEmail(email)
+      setLinkSent(true)
+      setCooldown(30)
+    } catch (error: unknown) {
+      setLocalError(error instanceof Error ? error.message : 'Failed to send magic link')
+    } finally {
+      setSending(false)
     }
   }
 
@@ -96,7 +154,36 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
               <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
               <span>Continue with Illinois Email</span>
             </Button>
-            
+
+            <form onSubmit={handleEmailSignIn} className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder="you@illinois.edu"
+                  value={email}
+                  onChange={handleEmailChange}
+                  className={!emailValid && email ? 'border-red-500' : ''}
+                  required
+                />
+                <Button
+                  type="submit"
+                  disabled={sending || !emailValid || cooldown > 0}
+                  className="bg-uiuc-blue hover:bg-uiuc-blue/90 text-white"
+                >
+                  {sending
+                    ? 'Sending...'
+                    : cooldown > 0
+                      ? `Resend in ${cooldown}s`
+                      : 'Send Magic Link'}
+                </Button>
+              </div>
+              {error && <p className="text-sm text-red-600 text-left">{error}</p>}
+            </form>
+
+            {linkSent && (
+              <p className="text-sm text-green-600">Magic link sent! Check your email.</p>
+            )}
+
             {onClose && (
               <Button
                 variant="ghost"
