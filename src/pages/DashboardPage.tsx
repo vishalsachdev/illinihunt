@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DeleteProjectModal } from '@/components/project/DeleteProjectModal'
+import { showToast } from '@/components/ui/toast'
 import { 
   Plus, 
   BarChart3, 
@@ -17,7 +19,8 @@ import {
   Eye,
   Calendar,
   TrendingUp,
-  RefreshCw
+  RefreshCw,
+  Trash2
 } from 'lucide-react'
 
 type DashboardProject = {
@@ -51,6 +54,14 @@ export function DashboardPage() {
     totalComments: 0,
     totalViews: 0 // Placeholder for future views tracking
   })
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean
+    project: DashboardProject | null
+  }>({
+    isOpen: false,
+    project: null
+  })
+  const [deleting, setDeleting] = useState(false)
 
   const loadUserProjects = useCallback(async () => {
     if (!user?.id) return
@@ -80,6 +91,59 @@ export function DashboardPage() {
   useEffect(() => {
     loadUserProjects()
   }, [loadUserProjects, location.pathname])
+
+  const handleDeleteProject = (project: DashboardProject) => {
+    setDeleteModal({
+      isOpen: true,
+      project
+    })
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.project || !user?.id) return
+
+    setDeleting(true)
+    try {
+      const { error } = await ProjectsService.deleteProject(deleteModal.project.id)
+      
+      if (error) {
+        throw new Error(error.message)
+      }
+
+      // Remove project from local state
+      setProjects(prev => prev.filter(p => p.id !== deleteModal.project!.id))
+      
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        totalProjects: prev.totalProjects - 1,
+        totalUpvotes: prev.totalUpvotes - deleteModal.project!.upvotes_count,
+        totalComments: prev.totalComments - deleteModal.project!.comments_count
+      }))
+
+      showToast.success(
+        'Project deleted successfully',
+        `"${deleteModal.project.name}" has been permanently deleted.`
+      )
+    } catch (error) {
+      console.error('Error deleting project:', error)
+      showToast.error(
+        'Failed to delete project',
+        { 
+          description: error instanceof Error ? error.message : 'An unexpected error occurred'
+        }
+      )
+    } finally {
+      setDeleting(false)
+      setDeleteModal({ isOpen: false, project: null })
+    }
+  }
+
+  const handleCloseDeleteModal = () => {
+    if (!deleting) {
+      setDeleteModal({ isOpen: false, project: null })
+    }
+  }
 
   // Show loading while auth is being determined
   if (authLoading) {
@@ -299,7 +363,7 @@ export function DashboardPage() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 flex-wrap">
                           <Button asChild variant="outline" size="sm">
                             <Link to={`/project/${project.id}`}>
                               <Eye className="w-4 h-4 mr-1" />
@@ -312,6 +376,16 @@ export function DashboardPage() {
                               <Edit3 className="w-4 h-4 mr-1" />
                               Edit
                             </Link>
+                          </Button>
+                          
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleDeleteProject(project)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Delete
                           </Button>
                           
                           {project.website_url && (
@@ -359,6 +433,15 @@ export function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Project Modal */}
+      <DeleteProjectModal
+        projectName={deleteModal.project?.name || ''}
+        isOpen={deleteModal.isOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        loading={deleting}
+      />
     </div>
   )
 }
