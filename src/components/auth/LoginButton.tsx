@@ -1,24 +1,22 @@
-import { useAuth } from '@/hooks/useAuth'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { AuthPrompt } from '@/components/auth/AuthPrompt'
+import { useAuth } from '@/hooks/useAuth'
 
 export function LoginButton() {
-  const { signInWithGoogle, loading } = useAuth()
-
-  const handleLogin = async () => {
-    try {
-      await signInWithGoogle()
-    } catch (error) {
-      // Login errors are handled by the auth hook
-    }
-  }
+  const { loading } = useAuth()
+  const [showPrompt, setShowPrompt] = useState(false)
 
   return (
-    <Button 
-      onClick={handleLogin} 
-      disabled={loading}
-      className="bg-uiuc-orange hover:bg-uiuc-orange/90 text-white"
-    >
-      {loading ? 'Signing in...' : 'Sign in with Google'}
-    </Button>
+    <>
+      <Button
+        onClick={() => setShowPrompt(true)}
+        disabled={loading}
+        className="bg-uiuc-orange hover:bg-uiuc-orange/90 text-white"
+      >
+        {loading ? 'Signing in...' : 'Sign in'}
+      </Button>
+      {showPrompt && <AuthPrompt onClose={() => setShowPrompt(false)} />}
+    </>
   )
 }
