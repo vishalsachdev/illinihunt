@@ -1,5 +1,6 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react'
-import { User, Session } from '@supabase/supabase-js'
+import { User, Session, type PostgrestError } from '@supabase/supabase-js'
 import { z } from 'zod'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/types/database'
@@ -14,6 +15,7 @@ interface AuthState {
   loading: boolean
   error: string | null
   signInWithGoogle: () => Promise<void>
+  signInWithEmail: (email: string) => Promise<void>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
 }
@@ -76,7 +78,7 @@ function clearCachedProfile() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<Omit<AuthState, 'signInWithGoogle' | 'signOut' | 'refreshProfile'>>({
+  const [state, setState] = useState<Omit<AuthState, 'signInWithGoogle' | 'signInWithEmail' | 'signOut' | 'refreshProfile'>>({
     user: null,
     profile: null,
     session: null,
@@ -116,9 +118,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      let retries = 0
-      let data: UserProfile | null = null
-      let error: any = null
+        let retries = 0
+        let data: UserProfile | null = null
+        let error: PostgrestError | null = null
       while (retries < MAX_PROFILE_RETRIES) {
         const response = await supabase
           .from('users')
@@ -298,6 +300,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error
   }
 
+  const signInWithEmail = async (email: string) => {
+    if (!isValidIllinoisEmail(email)) {
+      setState(prev => ({ ...prev, error: `Only @${ILLINOIS_DOMAIN} email addresses are allowed` }))
+      throw new Error(`Only @${ILLINOIS_DOMAIN} email addresses are allowed`)
+    }
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.origin
+      }
+    })
+
+    if (error) {
+      setState(prev => ({ ...prev, error: error.message }))
+      throw error
+    }
+
+    setState(prev => ({ ...prev, error: null }))
+  }
+
   const signOut = async () => {
     setState(prev => ({ ...prev, loading: true }))
     const { error } = await supabase.auth.signOut()
@@ -315,7 +338,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ ...state, signInWithGoogle, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ ...state, signInWithGoogle, signInWithEmail, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   )

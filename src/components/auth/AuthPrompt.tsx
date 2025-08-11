@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { useAuth } from '@/hooks/useAuth'
 import { Lock, X } from 'lucide-react'
 
@@ -9,8 +10,11 @@ interface AuthPromptProps {
 }
 
 export function AuthPrompt({ actionRequired = 'vote and submit projects', onClose }: AuthPromptProps) {
-  const { signInWithGoogle } = useAuth()
+  const { signInWithGoogle, signInWithEmail } = useAuth()
   const [isVisible, setIsVisible] = useState(false)
+  const [email, setEmail] = useState('')
+  const [linkSent, setLinkSent] = useState(false)
+  const [sending, setSending] = useState(false)
 
   useEffect(() => {
     // Trigger the animation after the component mounts
@@ -35,6 +39,19 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
       handleClose()
     } catch (error) {
       // Sign in errors are handled by the auth hook
+    }
+  }
+
+  const handleEmailSignIn = async (e: FormEvent) => {
+    e.preventDefault()
+    setSending(true)
+    try {
+      await signInWithEmail(email)
+      setLinkSent(true)
+    } catch (error) {
+      // errors handled by auth hook
+    } finally {
+      setSending(false)
     }
   }
 
@@ -96,7 +113,24 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
               <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
               <span>Continue with Illinois Email</span>
             </Button>
-            
+
+            <form onSubmit={handleEmailSignIn} className="flex gap-2">
+              <Input
+                type="email"
+                placeholder="you@illinois.edu"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+              />
+              <Button type="submit" disabled={sending} className="bg-uiuc-blue hover:bg-uiuc-blue/90 text-white">
+                {sending ? 'Sending...' : 'Send Magic Link'}
+              </Button>
+            </form>
+
+            {linkSent && (
+              <p className="text-sm text-green-600">Magic link sent! Check your email.</p>
+            )}
+
             {onClose && (
               <Button
                 variant="ghost"
