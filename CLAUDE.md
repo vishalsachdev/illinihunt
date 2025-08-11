@@ -198,6 +198,18 @@ npx kill-port 5173
 npm run dev -- --port 3000
 ```
 
+**Voting system showing -1 votes**
+```bash
+# Root cause: Database sync issue (upvotes_count ≠ actual votes)
+# Check for sync issues:
+mcp__supabase__execute_sql project_id:catzwowmxluzwbhdyhnf query:"SELECT p.name, p.upvotes_count, COUNT(v.id) as actual_votes FROM projects p LEFT JOIN votes v ON p.id = v.project_id GROUP BY p.id HAVING p.upvotes_count != COUNT(v.id)"
+
+# Fix database sync:
+mcp__supabase__execute_sql project_id:catzwowmxluzwbhdyhnf query:"UPDATE projects SET upvotes_count = (SELECT COUNT(*) FROM votes WHERE project_id = projects.id)"
+
+# Code fix: VoteButton.tsx should have Math.max(0, voteCount - 1) protection
+```
+
 ### Health Check
 ```bash
 npm run type-check && npm run build && npx supabase projects list && echo "✅ All systems operational"
