@@ -98,7 +98,7 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
 
   return (
     <div 
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+      className={`fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-20 p-4 transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       style={{
         transition: 'opacity 300ms ease-out, backdrop-filter 300ms ease-out',
         backdropFilter: isVisible ? 'blur(4px)' : 'blur(0)'
@@ -115,9 +115,10 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
       
       {/* Modal */}
       <div 
-        className={`relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+        className={`relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-2 opacity-0 scale-95'}`}
         style={{
-          transition: 'opacity 300ms ease-out, transform 300ms cubic-bezier(0.18, 0.89, 0.32, 1.28)'
+          transition: 'opacity 300ms ease-out, transform 300ms cubic-bezier(0.18, 0.89, 0.32, 1.28)',
+          marginTop: 'max(1rem, env(safe-area-inset-top, 0px))'
         }}
         onClick={(e) => e.stopPropagation()}
       >
