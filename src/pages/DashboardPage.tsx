@@ -315,7 +315,12 @@ export function DashboardPage() {
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                              {project.name}
+                              <Link 
+                                to={`/project/${project.id}`}
+                                className="hover:text-uiuc-orange transition-colors cursor-pointer"
+                              >
+                                {project.name}
+                              </Link>
                             </h3>
                             <p className="text-gray-600 mb-2 line-clamp-2">
                               {project.tagline}
