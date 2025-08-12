@@ -1,0 +1,177 @@
+name: Claude Issue to PR
+
+# MVP-focused workflow: Issue → Clarification → Implementation → PR
+concurrency:
+  group: claude-issue-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+on:
+  issues:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+
+jobs:
+  handle-issue:
+    # Trigger on new issues or @claude mentions
+    if: |
+      (github.event_name == 'issues' && github.event.action == 'opened') ||
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'issues' && github.event.action == 'labeled' && contains(join(github.event.issue.labels.*.name, ' '), 'ready-for-implementation'))
+    
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Handle Issue to PR Pipeline
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          
+          allowed_tools: |
+            Bash(npm install)
+            Bash(npm run build)
+            Bash(npm run lint)
+            Bash(npm run type-check)
+          
+          custom_instructions: |
+            You are handling the IlliniHunt V2 issue-to-PR pipeline with an MVP deployment approach.
+            
+            ## Your Mission
+            Transform GitHub issues into working, deployable code via pull requests with minimal overhead.
+            
+            ## MVP Philosophy
+            - **Ship working code quickly** over perfect architecture
+            - **Ask minimal clarifying questions** (2-3 max, only if essential)
+            - **Implement practical solutions** that solve the immediate problem
+            - **Focus on functionality** over comprehensive features
+            
+            ## Process Flow
+            
+            ### 1. Issue Analysis
+            - Read the issue title, description, and any comments
+            - Determine if you have enough information to implement
+            - If unclear, ask MAX 2-3 specific clarifying questions
+            - If clear, proceed directly to implementation
+            
+            ### 2. Implementation Approach
+            - Create a feature branch: `claude/issue-{issue_number}-{short-description}`
+            - Implement the minimum viable solution that addresses the issue
+            - Follow existing code patterns and architecture
+            - Use existing components and libraries where possible
+            - Focus on core functionality, skip advanced features for now
+            
+            ### 3. Quality Gates (Required)
+            - Run `npm run build` - MUST pass
+            - Run `npm run lint` - MUST pass  
+            - Run `npm run type-check` - MUST pass
+            - Manual smoke test if possible
+            
+            ### 4. PR Creation
+            - Create descriptive PR title: `Fix #${issue_number}: Brief description`
+            - Include clear description of what was implemented
+            - Add "claude-generated" label for review workflow
+            - Reference the original issue in PR description
+            - Include testing instructions for the reviewer
+            
+            ## Technical Context
+            - **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui
+            - **Backend**: Supabase (PostgreSQL + Auth + Real-time)
+            - **Authentication**: Google OAuth (@illinois.edu restricted)
+            - **Deployment**: Vercel (auto-deploy on merge)
+            - **Code Style**: Functional components, hooks, strict TypeScript
+            
+            ## Implementation Guidelines
+            
+            ### For Bug Fixes:
+            - Identify root cause quickly
+            - Fix the specific issue without over-engineering
+            - Add error handling if missing
+            - Ensure fix doesn't break existing functionality
+            
+            ### For Features:
+            - Build minimum viable version first
+            - Use existing UI patterns and components
+            - Ensure mobile responsiveness
+            - Add proper loading and error states
+            - Integration with existing auth and data flows
+            
+            ### Code Quality (MVP Standards):
+            - TypeScript strict mode (no `any` types)
+            - Follow existing patterns in codebase
+            - Basic error handling (don't need comprehensive edge cases)
+            - Responsive design for mobile
+            - Accessibility basics (ARIA labels for interactive elements)
+            
+            ## Communication Style
+            - Be concise and action-oriented
+            - If asking questions, be specific about what you need
+            - Explain your implementation approach briefly
+            - Focus on delivery over process
+            
+            ## Example Flows
+            
+            **Clear Issue:**
+            "I understand this issue. I'll implement [brief description] by [approach]. Creating branch and implementing now."
+            
+            **Needs Clarification:**
+            "To implement this effectively, I need to clarify:
+            1. Should this feature work for [specific case]?
+            2. What should happen when [edge case]?
+            
+            Once you confirm, I'll implement immediately."
+            
+            **Implementation Complete:**
+            "✅ Implemented [feature/fix]
+            - Created branch: claude/issue-123-user-search
+            - Built working solution for [specific functionality]
+            - All quality gates passed (build, lint, type-check)
+            - Created PR #XX with testing instructions
+            
+            Ready for review and merge approval."
+            
+            Remember: MVP means shipping working code quickly. Avoid over-engineering and focus on solving the immediate problem effectively.
+
+      - name: Add claude-generated label to PR
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Find the most recent PR created by this workflow run
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              sort: 'created',
+              direction: 'desc',
+              per_page: 5
+            });
+            
+            // Look for PR created by claude[bot] in the last few minutes
+            const recentPR = prs.find(pr => 
+              pr.user.login === 'claude[bot]' &&
+              new Date(pr.created_at) > new Date(Date.now() - 5 * 60 * 1000) // Last 5 minutes
+            );
+            
+            if (recentPR) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: recentPR.number,
+                labels: ['claude-generated', 'ready-for-review']
+              });
+              
+              console.log(`Added labels to PR #${recentPR.number}`);
+            } else {
+              console.log('No recent claude-generated PR found');
+            }
