@@ -1,7 +1,7 @@
 name: 🎓 Course Project Integration
-description: Propose integrating IlliniHunt with your UIUC coursework
+description: Connect your UIUC coursework with IlliniHunt contributions
 title: "[COURSE] "
-labels: ["course-project", "academic-integration", "student-friendly"]
+labels: ["course-project", "student-friendly"]
 projects: ["vishalsachdev/illinihunt"]
 assignees:
   - vishalsachdev
@@ -10,9 +10,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        Perfect! We love when students integrate IlliniHunt contributions with their coursework. This creates real-world learning opportunities while improving the platform.
+        Great! We welcome students who want to connect their coursework with real-world development.
         
-        🤖 **AI Support**: @claude can help design your project scope and implementation approach!
+        🚀 **How it works**: @claude can help scope your project and implement features for your coursework.
 
   - type: input
     id: course_info
@@ -66,14 +66,12 @@ body:
     id: assignment_requirements
     attributes:
       label: Assignment Requirements
-      description: What are the specific requirements from your professor?
+      description: What does your professor require?
       placeholder: |
         Example:
-        - Create a user interface improvement with A/B testing
-        - Must demonstrate user research methods
-        - Implement accessibility features (WCAG 2.1)
-        - Write a 10-page report on design decisions
-        - Present findings to class
+        - Build a web application feature
+        - Write technical documentation
+        - Present to class
         - Due: April 15, 2025
     validations:
       required: true
@@ -81,15 +79,14 @@ body:
   - type: textarea
     id: proposed_contribution
     attributes:
-      label: Proposed IlliniHunt Contribution
-      description: What would you like to implement or improve?
+      label: Proposed Contribution
+      description: What would you like to work on?
       placeholder: |
         Example:
-        - Redesign the project submission form with better UX
-        - Add user testing and analytics to measure improvement
-        - Implement accessibility features for screen readers
-        - Create A/B test for two different layouts
-        - Document the entire design process
+        - Improve the project submission form
+        - Add new search filters
+        - Create mobile-responsive components
+        - Write technical documentation
     validations:
       required: true
 
@@ -122,35 +119,28 @@ body:
       required: true
 
   - type: textarea
-    id: learning_objectives
+    id: learning_goals
     attributes:
-      label: Learning Objectives
-      description: What do you hope to learn from this project?
+      label: Learning Goals
+      description: What do you hope to learn?
       placeholder: |
         Example:
-        - Learn React and TypeScript in a real production environment
-        - Understand user research and A/B testing methodologies  
-        - Gain experience with accessibility standards
-        - Practice working with a real codebase and GitHub workflow
-        - Build portfolio project for internship applications
-    validations:
-      required: true
+        - React and TypeScript development
+        - Working with real codebases
+        - Open source contribution process
+        - Building portfolio projects
 
   - type: textarea
     id: deliverables
     attributes:
       label: Course Deliverables
-      description: What do you need to submit for your course?
+      description: What do you need to submit?
       placeholder: |
         Example:
-        - Working implementation deployed to production
-        - Technical documentation and code comments
-        - User research report with testing results
-        - Class presentation (15 minutes)
-        - Reflection paper on lessons learned
-        - GitHub repository with commit history
-    validations:
-      required: true
+        - Working code implementation
+        - Technical documentation
+        - Class presentation
+        - Project report
 
   - type: dropdown
     id: technical_skills
@@ -167,20 +157,16 @@ body:
       required: true
 
   - type: textarea
-    id: mentor_needs
+    id: support_needed
     attributes:
-      label: Mentorship Needs
-      description: What kind of support would help you succeed?
+      label: Support Needed
+      description: How can we help you succeed?
       placeholder: |
         Example:
-        - Weekly check-ins with maintainers
-        - Code review and feedback on approach
-        - Help understanding the existing codebase
-        - Guidance on user research methodologies
-        - Support with technical implementation challenges
-        - Help preparing final presentation
-    validations:
-      required: true
+        - Code review and feedback
+        - Help understanding the codebase
+        - Guidance on technical implementation
+        - Mentorship and check-ins
 
   - type: dropdown
     id: professor_involvement
@@ -196,93 +182,43 @@ body:
     validations:
       required: true
 
-  - type: textarea
-    id: academic_credit
-    attributes:
-      label: Academic Credit Requirements
-      description: Any special requirements for academic credit?
-      placeholder: |
-        Example:
-        - Must demonstrate original contribution
-        - Need to show learning progression over time
-        - Requires peer review from classmates
-        - Must align with specific course learning objectives
-        - Professor needs progress reports every two weeks
 
-  - type: checkboxes
-    id: collaboration_preferences
-    attributes:
-      label: Collaboration Preferences
-      description: How would you like to work with the IlliniHunt team?
-      options:
-        - label: Regular mentorship meetings (weekly/bi-weekly)
-        - label: Code review and feedback on my contributions
-        - label: Help with technical implementation challenges
-        - label: Support with user research and testing
-        - label: Guidance on documentation and presentation
-        - label: Connection with other student contributors
-        - label: Potential co-authorship on research papers
+
+
+
+
 
   - type: textarea
-    id: success_metrics
+    id: additional_notes
     attributes:
-      label: Success Metrics
-      description: How will you measure success for your course project?
+      label: Additional Notes
+      description: Anything else we should know?
       placeholder: |
-        Example:
-        - Feature successfully deployed to production
-        - Positive user feedback from A/B testing
-        - Improved accessibility score (WCAG compliance)
-        - Positive code review from maintainers
-        - Course grade of A- or better
-        - Portfolio piece ready for job applications
+        - Special requirements or constraints
+        - Preferred communication methods
+        - Timeline considerations
+        
+        Want AI help? Add: @claude please help with this course project
 
   - type: markdown
     attributes:
       value: |
         ---
         
-        ### 🤖 AI Assistant Integration
+        ### 🚀 Next Steps
         
-        Get AI guidance for your course project:
+        After submitting:
+        1. We'll discuss project scope and feasibility
+        2. Help you plan timeline and milestones
+        3. Connect you with mentorship and resources
         
-        ```
-        @claude help me scope this course project appropriately for CS 465
-        
-        @claude suggest a user research methodology for testing this feature
-        
-        @claude create a project timeline with milestones for this assignment
-        ```
-        
-        ### 🎯 Course Integration Benefits
+        ### 🎯 Benefits
         
         **For You:**
         - Real-world development experience
-        - Portfolio project for job applications  
-        - Mentorship from experienced developers
-        - Learning modern tech stack (React, TypeScript, Supabase)
-        - Understanding of production software development
+        - Portfolio project for applications
+        - Modern tech stack experience
         
         **For IlliniHunt:**
-        - Fresh perspectives from students
-        - Features aligned with student needs
-        - Academic rigor in implementation
-        - Documentation that helps future contributors
-        
-        **For UIUC:**
-        - Showcase of student innovation
-        - Bridge between academia and open source
-        - Real-world learning opportunities
-        - Potential research collaboration
-        
-        ---
-        
-        ### 📚 Next Steps
-        
-        1. **Professor Approval**: Confirm this aligns with course requirements
-        2. **Scope Discussion**: We'll help refine your project scope
-        3. **Timeline Planning**: Create realistic milestones
-        4. **Mentorship Setup**: Connect you with appropriate guidance
-        5. **Implementation**: Start building with AI and human support!
-        
-        We're excited to support your academic success! 🚀
+        - Student perspectives and fresh ideas
+        - Quality contributions to the platform

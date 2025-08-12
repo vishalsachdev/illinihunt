@@ -10,9 +10,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping improve IlliniHunt! Clear bug reports help us fix issues quickly with our AI-assisted development workflow.
+        Thanks for helping improve IlliniHunt! 
         
-        🤖 **Automated Workflow**: @claude will automatically analyze your bug report, ask clarifying questions if needed, and implement a fix once the issue is clear!
+        🔧 **How it works**: @claude will analyze your bug report, implement a fix, and create a PR for review.
 
   - type: input
     id: summary
@@ -190,57 +190,43 @@ body:
         - Internet connection type/speed?
 
   - type: checkboxes
-    id: automated_workflow
+    id: assistance_needed
     attributes:
-      label: 🤖 AI-Assisted Bug Fix Workflow
-      description: How would you like this bug to be resolved?
+      label: How can we help?
+      description: What kind of assistance would you like?
       options:
-        - label: "✅ **I want @claude to automatically analyze and fix this bug** (Recommended)"
-        - label: I'd like to investigate and fix this myself with @claude assistance
-        - label: I can help test the fix when it's ready
-        - label: I'm just reporting for manual investigation by the team
+        - label: I'd like @claude to help analyze and fix this bug
+        - label: I want to investigate this myself with guidance
+        - label: I can help test any fix that's implemented
+        - label: I'm just reporting for the team to investigate
 
   - type: textarea
-    id: claude_request
+    id: additional_info
     attributes:
-      label: 🤖 Direct Request to @claude
-      description: "REQUIRED: Tell @claude exactly what you want (this triggers the automated workflow)"
+      label: Additional Information
+      description: Any other details that might help?
       placeholder: |
-        @claude please analyze this bug report, ask me clarifying questions if needed, and implement a fix.
+        - When did this start happening?
+        - Does it affect specific user groups?
+        - Any recent changes that might be related?
         
-        Priority considerations:
-        - This bug affects [specify user group/functionality]
-        - Fix should maintain existing functionality
-        - Please ensure mobile compatibility
-      value: |
-        @claude please analyze this bug report, ask me clarifying questions if needed, and implement a fix.
-    validations:
-      required: true
+        Want AI fix? Add: @claude please fix this bug
 
   - type: markdown
     attributes:
       value: |
         ---
         
-        ### 🤖 AI Assistant Integration
+        ### 🔧 Next Steps
         
-        Get AI help with this bug:
+        After submitting:
+        1. We'll review and prioritize based on severity
+        2. If you mentioned @claude, you'll get AI assistance with investigation
+        3. We'll keep you updated on progress and any fixes
         
-        ```
-        @claude analyze this bug report and suggest potential causes
+        ### 🎓 Want to Help?
         
-        @claude create a fix for this mobile responsive issue
-        
-        @claude review the ProjectGrid component for this error
-        ```
-        
-        ### 🎓 Learning Opportunity
-        
-        This bug report could be great for:
-        - Learning debugging techniques
-        - Understanding responsive design challenges  
-        - Mobile web development experience
-        - Working with React error boundaries
-        - Database query optimization
-        
-        Don't hesitate to ask questions or request mentorship!
+        Bug fixing is a great way to:
+        - Learn debugging and troubleshooting skills
+        - Understand the codebase better
+        - Contribute to open source development

@@ -10,9 +10,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to improve IlliniHunt! This template helps you create clear feature requests that will be automatically processed by our AI-assisted development workflow.
+        Thanks for taking the time to improve IlliniHunt! 
         
-        🤖 **Automated Workflow**: @claude will automatically analyze your request, ask clarifying questions, create a detailed specification, and implement the feature once you approve it!
+        🚀 **How it works**: @claude will ask clarifying questions, implement your feature, and create a PR for review.
 
   - type: input
     id: summary
@@ -143,54 +143,42 @@ body:
         - Timeline preferences
 
   - type: checkboxes
-    id: automated_workflow
+    id: development_approach
     attributes:
-      label: 🤖 AI-Assisted Development Workflow
-      description: Choose how you'd like this feature to be developed
+      label: Development Approach
+      description: How would you like this feature to be developed?
       options:
-        - label: "✅ **I want @claude to automatically analyze, specify, and implement this feature** (Recommended for non-technical users)"
-        - label: I'd like to work on this feature myself with @claude assistance
-        - label: I'd like to collaborate with student developers on this
-        - label: I'm proposing this for manual implementation by the team
+        - label: I'd like @claude to help with planning and implementation
+        - label: I want to work on this myself with guidance
+        - label: I'm suggesting this for the team to consider
 
   - type: textarea
-    id: claude_request
+    id: additional_notes
     attributes:
-      label: 🤖 Direct Request to @claude
-      description: "REQUIRED: Tell @claude exactly what you want (this triggers the automated workflow)"
+      label: Additional Notes
+      description: Any other context or requirements?
       placeholder: |
-        @claude please analyze this feature request, ask me clarifying questions, create a detailed specification, and implement it once I approve.
+        - Timeline considerations
+        - Integration requirements
+        - Design preferences
         
-        Key priorities for this feature:
-        - User experience should be intuitive for UIUC students
-        - Performance should be optimized for mobile devices
-        - Implementation should follow existing design patterns
-      value: |
-        @claude please analyze this feature request, ask me clarifying questions, create a detailed specification, and implement it once I approve.
-    validations:
-      required: true
+        Want AI implementation? Add: @claude please implement this feature
 
   - type: markdown
     attributes:
       value: |
         ---
         
-        ### 🤖 AI Assistant Integration
+        ### 🚀 Next Steps
         
-        Want AI help with this feature? Try these commands:
+        After submitting:
+        1. The team will review your request
+        2. If you mentioned @claude, you'll get AI assistance with planning
+        3. We'll discuss implementation approach and timeline
         
-        ```
-        @claude analyze this feature request and suggest an implementation approach
+        ### 🎓 For Students
         
-        @claude create a technical specification for this notification system
-        
-        @claude implement the basic notification bell component with TypeScript
-        ```
-        
-        ### 📚 For Students
-        
-        This feature request could be perfect for:
-        - Course projects requiring real-world application development
-        - Research on user engagement and notification systems
-        - Portfolio development for internship/job applications
-        - Learning modern React, TypeScript, and real-time systems
+        Feature contributions can be great for:
+        - Building your development portfolio
+        - Learning React, TypeScript, and modern web development
+        - Contributing to open source projects

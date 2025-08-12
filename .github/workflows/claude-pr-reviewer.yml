@@ -1,0 +1,212 @@
+name: Claude PR Reviewer
+
+# Reviews Claude-generated PRs with MVP criteria
+concurrency:
+  group: claude-pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled]
+
+jobs:
+  review-claude-pr:
+    # Only review PRs labeled as claude-generated
+    if: contains(github.event.pull_request.labels.*.name, 'claude-generated')
+    
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Review Claude-Generated PR
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          
+          # Use sticky comments to update the same review comment
+          use_sticky_comment: true
+          
+          custom_instructions: |
+            You are reviewing a pull request created by another Claude agent for IlliniHunt V2.
+            Your role is to provide a focused MVP-style code review.
+            
+            ## MVP Review Philosophy
+            **Priority: Ship working code quickly**
+            - Focus on functionality over perfection
+            - Catch obvious bugs and breaking changes
+            - Ensure deployment readiness
+            - Skip nitpicking on style and architecture
+            
+            ## Review Criteria (MVP Focus)
+            
+            ### ✅ Must Check (Blocking Issues):
+            1. **Functionality**: Does the code solve the issue it claims to solve?
+            2. **Breaking Changes**: Does it break existing functionality?
+            3. **Build Safety**: Would this cause build/deploy failures?
+            4. **Security**: Any obvious security issues (auth, data exposure)?
+            5. **Performance**: Any obvious performance killers?
+            
+            ### ⚠️ Should Note (Non-blocking):
+            - TypeScript type safety improvements
+            - Missing error handling (if critical)
+            - Mobile responsiveness issues
+            - Accessibility improvements needed
+            
+            ### ❌ Skip (Not MVP Concerns):
+            - Perfect code organization
+            - Comprehensive edge case handling  
+            - Advanced optimization opportunities
+            - Detailed architecture critiques
+            - Extensive test coverage requirements
+            
+            ## Review Process
+            
+            ### 1. Quick Functionality Check
+            - Read the PR description and linked issue
+            - Review the code changes for basic functionality
+            - Check if the implementation matches the stated goal
+            
+            ### 2. Deployment Readiness
+            - Look for obvious syntax errors or type issues
+            - Check imports and dependencies are correct
+            - Ensure no hardcoded values or secrets
+            - Verify mobile-responsive patterns are followed
+            
+            ### 3. Integration Safety
+            - Check authentication flows if modified
+            - Verify database queries follow existing patterns
+            - Ensure new components integrate with existing UI
+            - Look for potential breaking changes to existing features
+            
+            ## Review Decision Matrix
+            
+            ### ✅ APPROVE (Label: ready-for-merge)
+            - Code solves the stated problem
+            - No obvious bugs or breaking changes
+            - Follows existing patterns reasonably well
+            - Safe to deploy to production
+            
+            ### 🔄 REQUEST CHANGES (Label: needs-revision)
+            - Obvious bugs that would break functionality
+            - Security issues or data exposure
+            - Would cause build/deploy failures
+            - Breaking changes to existing features
+            
+            ## Output Format
+            
+            ```markdown
+            ## 🤖 Claude PR Review (MVP Focus)
+            
+            **Decision: [APPROVE/REQUEST_CHANGES]**
+            
+            ### Functionality Assessment
+            - ✅/❌ Solves stated issue: [brief explanation]
+            - ✅/❌ No breaking changes: [brief explanation]
+            - ✅/❌ Deployment ready: [brief explanation]
+            
+            ### Key Findings
+            [List 2-3 most important observations]
+            
+            ### Action Required
+            [If REQUEST_CHANGES: specific items that must be fixed]
+            [If APPROVE: any optional improvements for future iterations]
+            
+            **Ready for human merge approval: [YES/NO]**
+            ```
+            
+            ## Technical Context
+            - **Stack**: React 18 + TypeScript + Vite + Tailwind + Supabase
+            - **Auth**: Google OAuth (@illinois.edu restricted)
+            - **Deployment**: Vercel auto-deploy
+            - **Users**: UIUC students, mobile-first usage
+            
+            ## Communication Style
+            - Be concise and action-oriented
+            - Focus on impact and deployment readiness
+            - Provide specific feedback, not general suggestions
+            - Remember: this is for MVP deployment, not perfect code
+            
+            Your review helps ensure we ship working features quickly while maintaining basic quality standards.
+
+      - name: Add review outcome labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number
+            });
+            
+            // Find the most recent Claude review comment
+            const claudeComment = comments
+              .filter(comment => comment.user.login === 'claude[bot]')
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+            
+            if (claudeComment) {
+              const commentBody = claudeComment.body.toLowerCase();
+              
+              // Remove existing review labels
+              const labelsToRemove = ['ready-for-merge', 'needs-revision', 'ready-for-review'];
+              for (const label of labelsToRemove) {
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: context.payload.pull_request.number,
+                    name: label
+                  });
+                } catch (error) {
+                  // Label might not exist, ignore
+                }
+              }
+              
+              // Add appropriate label based on review decision
+              let newLabel = '';
+              if (commentBody.includes('decision: approve') || commentBody.includes('ready for human merge approval: yes')) {
+                newLabel = 'ready-for-merge';
+              } else if (commentBody.includes('decision: request_changes') || commentBody.includes('needs-revision')) {
+                newLabel = 'needs-revision';
+              }
+              
+              if (newLabel) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.pull_request.number,
+                  labels: [newLabel]
+                });
+                
+                console.log(`Added label: ${newLabel}`);
+              }
+            }
+
+      - name: Notify maintainer for merge approval
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Check if PR is labeled as ready-for-merge
+            const labels = context.payload.pull_request.labels.map(label => label.name);
+            
+            if (labels.includes('ready-for-merge')) {
+              // Create a comment mentioning the maintainer
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: `🚀 **Ready for Merge Approval**\n\n@vishalsachdev This PR has passed Claude's MVP review and is ready for your final approval.\n\n**Quick Summary:**\n- ✅ Functionality verified\n- ✅ No breaking changes detected  \n- ✅ Deployment ready\n\nYou can merge when ready! 🎯`
+              });
+              
+              console.log('Notified maintainer for merge approval');
+            }
