@@ -13,6 +13,7 @@ import { ErrorProvider } from '@/contexts/ErrorContext'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { RealtimeVotesProvider } from '@/contexts/RealtimeVotesContext'
+import { GitHubPopupButton } from '@/components/GitHubPopupButton'
 
 // Lazy load all pages for code splitting
 const HomePage = lazy(() => import('@/pages/HomePage').then(module => ({ default: module.HomePage })))
@@ -212,6 +213,7 @@ function App() {
             <AuthPromptProvider>
               <RealtimeVotesProvider>
                 <AppContent />
+                <GitHubPopupButton />
                 <SpeedInsights />
                 <Toaster
                   position="top-right"
