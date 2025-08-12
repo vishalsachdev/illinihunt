@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { formatDistance } from 'date-fns'
+import { Link } from 'react-router-dom'
 import { StatsService } from '@/lib/database'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
@@ -80,16 +81,24 @@ export function RecentActivityFeed() {
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs text-gray-600 truncate">
+              <Link 
+                to={`/user/${activity.users?.id}`}
+                className="text-xs text-gray-600 truncate hover:text-uiuc-orange transition-colors"
+              >
                 {activity.users?.full_name || 'Someone'}
-              </span>
+              </Link>
               <span className="text-xs text-gray-400">submitted</span>
             </div>
             
             <div className="mb-2">
-              <h4 className="text-sm font-medium text-gray-900 truncate">
-                {activity.name}
-              </h4>
+              <Link 
+                to={`/project/${activity.id}`}
+                className="block"
+              >
+                <h4 className="text-sm font-medium text-gray-900 truncate hover:text-uiuc-orange transition-colors">
+                  {activity.name}
+                </h4>
+              </Link>
               <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
                 {activity.tagline}
               </p>
@@ -97,12 +106,13 @@ export function RecentActivityFeed() {
             
             <div className="flex items-center justify-between">
               {activity.categories && (
-                <span 
-                  className="text-xs px-2 py-1 rounded-full text-white"
+                <Link 
+                  to={`/?category=${activity.categories.id}`}
+                  className="text-xs px-2 py-1 rounded-full text-white hover:opacity-80 transition-opacity"
                   style={{ backgroundColor: activity.categories.color }}
                 >
                   {activity.categories.name}
-                </span>
+                </Link>
               )}
               <span className="text-xs text-gray-400">
                 {formatDistance(new Date(activity.created_at), new Date(), { addSuffix: true })}
