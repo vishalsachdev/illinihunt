@@ -43,10 +43,14 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors }
   } = useForm<ProjectFormData>({
-    resolver: zodResolver(projectSchema)
+    resolver: zodResolver(projectSchema),
+    defaultValues: {
+      category_id: ''
+    }
   })
 
   const loadCategories = useCallback(async () => {
@@ -166,34 +170,68 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
           <p className="text-sm text-gray-600 mb-2">
             Choose the category that best describes what your project does, not just the technology used.
           </p>
-          <Select onValueChange={(value) => setValue('category_id', value)}>
-            <SelectTrigger>
+          <Select 
+            value={watch('category_id') || ''} 
+            onValueChange={(value) => setValue('category_id', value)}
+          >
+            <SelectTrigger 
+              id="category"
+              aria-label="Select project category"
+              className="min-h-[2.5rem]"
+            >
               <SelectValue placeholder="Select the problem your project solves" />
             </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  <div className="flex items-center gap-2">
-                    <CategoryIcon 
-                      iconName={category.icon} 
-                      className="w-4 h-4" 
-                      fallback={category.name}
-                    />
-                    <div className="flex flex-col">
-                      <span className="font-medium">{category.name}</span>
-                      {category.description && (
-                        <span className="text-xs text-gray-500 line-clamp-1">
-                          {category.description}
-                        </span>
-                      )}
+            <SelectContent 
+              className="max-h-[300px] overflow-y-auto"
+              position="popper"
+              sideOffset={4}
+            >
+              {categories.length === 0 ? (
+                <div className="p-2 text-sm text-gray-500">
+                  Loading categories...
+                </div>
+              ) : (
+                categories.map((category) => (
+                  <SelectItem 
+                    key={category.id} 
+                    value={category.id}
+                    className="focus:bg-gray-100 cursor-pointer"
+                  >
+                    <div className="flex items-start gap-2 w-full">
+                      <div className="flex-shrink-0 mt-0.5">
+                        <CategoryIcon 
+                          iconName={category.icon} 
+                          className="w-4 h-4" 
+                          fallback={category.name}
+                        />
+                      </div>
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="font-medium text-sm">{category.name}</span>
+                        {category.description && (
+                          <span 
+                            className="text-xs text-gray-500 mt-0.5"
+                            style={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                              wordBreak: 'break-word'
+                            }}
+                          >
+                            {category.description}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </SelectItem>
-              ))}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
           {errors.category_id && (
-            <p className="text-sm text-red-600">{errors.category_id.message}</p>
+            <p className="text-sm text-red-600" role="alert">
+              {errors.category_id.message}
+            </p>
           )}
         </div>
 

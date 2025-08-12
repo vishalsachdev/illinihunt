@@ -40,13 +40,33 @@ export function CategoryIcon({ iconName, className = "w-4 h-4", fallback }: Cate
   const IconComponent = getCategoryIcon(iconName)
   
   if (IconComponent) {
-    return <IconComponent className={className} />
+    try {
+      return <IconComponent className={className} />
+    } catch (error) {
+      console.warn('Error rendering category icon:', error)
+      // Fall through to fallback
+    }
   }
   
-  // Fallback to first letter if no icon found
+  // Fallback to first letter if no icon found or icon fails to render
   if (fallback) {
-    return <span className={className}>{fallback.charAt(0)}</span>
+    return (
+      <span 
+        className={`${className} inline-flex items-center justify-center bg-gray-200 text-gray-600 rounded text-xs font-medium`}
+        style={{ minWidth: '1rem', minHeight: '1rem' }}
+      >
+        {fallback.charAt(0).toUpperCase()}
+      </span>
+    )
   }
   
-  return null
+  // Ultimate fallback
+  return (
+    <span 
+      className={`${className} inline-flex items-center justify-center bg-gray-200 text-gray-600 rounded text-xs`}
+      style={{ minWidth: '1rem', minHeight: '1rem' }}
+    >
+      ?
+    </span>
+  )
 }
