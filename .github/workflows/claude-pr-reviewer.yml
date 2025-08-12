@@ -3,7 +3,7 @@ name: Claude PR Reviewer
 # Reviews Claude-generated PRs with MVP criteria
 concurrency:
   group: claude-pr-review-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 on:
   pull_request:
