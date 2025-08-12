@@ -142,22 +142,45 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
           
           <h2 className="text-2xl font-bold text-gray-900 mb-3">@illinois.edu Authentication Required</h2>
           
-          <p className="text-gray-600 mb-8">
+          <p className="text-gray-600 mb-6">
             Sign in with your Illinois account to {actionRequired}.
           </p>
-          
-          <div className="space-y-4">
-            <Button
-              onClick={handleSignIn}
-              className="w-full bg-uiuc-blue hover:bg-uiuc-blue/90 text-white font-medium py-3 px-6 rounded-lg transition-all hover:shadow-lg flex items-center justify-center gap-3"
-              size="lg"
-            >
-              <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
-              <span>Continue with Illinois Email</span>
-            </Button>
 
-            <form onSubmit={handleEmailSignIn} className="flex flex-col gap-2">
-              <div className="flex gap-2">
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Choose your sign-in method:</h3>
+          </div>
+          
+          <div className="space-y-6">
+            {/* Google OAuth Option */}
+            <div className="p-4 border-2 border-gray-200 rounded-xl bg-gray-50/50 transition-colors hover:border-uiuc-blue/30">
+              <div className="text-center mb-3">
+                <h4 className="font-medium text-gray-800 mb-1">Quick Sign In</h4>
+                <p className="text-sm text-gray-600">Use your Illinois Google account</p>
+              </div>
+              <Button
+                onClick={handleSignIn}
+                className="w-full bg-uiuc-blue hover:bg-uiuc-blue/90 text-white font-medium py-3 px-6 rounded-lg transition-all hover:shadow-lg flex items-center justify-center gap-3"
+                size="lg"
+              >
+                <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
+                <span>Sign in with Google</span>
+              </Button>
+            </div>
+
+            {/* OR Divider */}
+            <div className="flex items-center justify-center">
+              <div className="flex-1 border-t border-gray-300"></div>
+              <span className="px-4 text-sm font-medium text-gray-500 bg-white">OR</span>
+              <div className="flex-1 border-t border-gray-300"></div>
+            </div>
+
+            {/* Magic Link Option */}
+            <div className="p-4 border-2 border-gray-200 rounded-xl bg-gray-50/50 transition-colors hover:border-uiuc-blue/30">
+              <div className="text-center mb-3">
+                <h4 className="font-medium text-gray-800 mb-1">Email Magic Link</h4>
+                <p className="text-sm text-gray-600">Get a secure link sent to your Illinois email</p>
+              </div>
+              <form onSubmit={handleEmailSignIn} className="space-y-3">
                 <Input
                   type="email"
                   placeholder="you@illinois.edu"
@@ -169,7 +192,8 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
                 <Button
                   type="submit"
                   disabled={sending || !emailValid || cooldown > 0}
-                  className="bg-uiuc-blue hover:bg-uiuc-blue/90 text-white"
+                  className="w-full bg-uiuc-blue hover:bg-uiuc-blue/90 text-white font-medium py-3 px-6 rounded-lg transition-all hover:shadow-lg"
+                  size="lg"
                 >
                   {sending
                     ? 'Sending...'
@@ -177,19 +201,18 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
                       ? `Resend in ${cooldown}s`
                       : 'Send Magic Link'}
                 </Button>
-              </div>
-              {error && <p className="text-sm text-red-600 text-left">{error}</p>}
-            </form>
-
-            {linkSent && (
-              <p className="text-sm text-green-600">Magic link sent! Check your email.</p>
-            )}
+                {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+                {linkSent && (
+                  <p className="text-sm text-green-600 text-center">Magic link sent! Check your email.</p>
+                )}
+              </form>
+            </div>
 
             {onClose && (
               <Button
                 variant="ghost"
                 onClick={handleClose}
-                className="w-full text-gray-600 hover:bg-gray-100 font-medium py-3 px-6 rounded-lg transition-colors"
+                className="w-full text-gray-600 hover:bg-gray-100 font-medium py-3 px-6 rounded-lg transition-colors mt-4"
                 size="lg"
               >
                 Maybe later
