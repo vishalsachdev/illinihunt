@@ -17,12 +17,14 @@ interface UserVoteChange {
 interface UseRealtimeVotesProps {
   onVoteCountChange?: (change: VoteCountChange) => void
   onUserVoteChange?: (change: UserVoteChange) => void
+  onProjectDeleted?: (projectId: string) => void
   userId?: string
 }
 
 export function useRealtimeVotes({ 
   onVoteCountChange, 
   onUserVoteChange, 
+  onProjectDeleted,
   userId 
 }: UseRealtimeVotesProps) {
   const channelsRef = useRef<RealtimeChannel[]>([])
@@ -37,7 +39,7 @@ export function useRealtimeVotes({
 
     const setupRealtimeSubscriptions = async () => {
       try {
-        // Channel 1: Listen to project upvotes_count changes
+        // Channel 1: Listen to project upvotes_count changes and deletions
         const projectsChannel = supabase
           .channel('realtime-projects-votes')
           .on(
@@ -45,8 +47,8 @@ export function useRealtimeVotes({
             {
               event: 'UPDATE',
               schema: 'public',
-              table: 'projects',
-              filter: 'upvotes_count=neq.0'
+              table: 'projects'
+              // Removed problematic filter: 'upvotes_count=neq.0'
             },
             (
               payload: RealtimePostgresChangesPayload<Database['public']['Tables']['projects']['Row']>
@@ -64,6 +66,24 @@ export function useRealtimeVotes({
                     newCount: newCount
                   })
                 }
+              }
+            }
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: 'DELETE',
+              schema: 'public',
+              table: 'projects'
+            },
+            (
+              payload: RealtimePostgresChangesPayload<Database['public']['Tables']['projects']['Row']>
+            ) => {
+              const deletedProject = payload.old as Database['public']['Tables']['projects']['Row'] | null
+
+              if (deletedProject) {
+                // Clear vote data for deleted project
+                onProjectDeleted?.(deletedProject.id)
               }
             }
           )
@@ -125,16 +145,11 @@ export function useRealtimeVotes({
             
             channel.subscribe((status) => {
               if (status === 'SUBSCRIBED') {
-                console.log(`✅ Subscribed to ${channelName}`)
                 resolve()
               } else if (status === 'CHANNEL_ERROR') {
-                console.error(`❌ Error subscribing to ${channelName}`)
                 reject(new Error(`Failed to subscribe to ${channelName}`))
               } else if (status === 'TIMED_OUT') {
-                console.error(`⏰ Timeout subscribing to ${channelName}`)
                 reject(new Error(`Timeout subscribing to ${channelName}`))
-              } else if (status === 'CLOSED') {
-                console.log(`🔌 Channel ${channelName} closed`)
               }
             })
           })
@@ -144,7 +159,7 @@ export function useRealtimeVotes({
         isConnectedRef.current = true
 
       } catch (error) {
-        console.error('Failed to setup realtime subscriptions:', error)
+        // Silently handle realtime setup errors to avoid console noise
         isConnectedRef.current = false
       }
     }
@@ -157,13 +172,13 @@ export function useRealtimeVotes({
         try {
           supabase.removeChannel(channel)
         } catch (error) {
-          console.error('Error removing channel:', error)
+          // Silently handle channel cleanup errors
         }
       })
       channelsRef.current = []
       isConnectedRef.current = false
     }
-  }, [onVoteCountChange, onUserVoteChange, userId])
+  }, [onVoteCountChange, onUserVoteChange, onProjectDeleted, userId])
 
   return {
     isConnected: isConnectedRef.current,

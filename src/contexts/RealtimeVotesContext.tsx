@@ -12,6 +12,7 @@ interface RealtimeVotesContextValue {
   getVoteData: (projectId: string) => VoteData | null
   updateVoteCount: (projectId: string, count: number) => void
   updateUserVote: (projectId: string, hasVoted: boolean) => void
+  clearVoteData: (projectId: string) => void
   isRealtimeConnected: boolean
 }
 
@@ -52,9 +53,18 @@ export function RealtimeVotesProvider({ children }: RealtimeVotesProviderProps) 
     }
   }, [user])
 
+  const handleProjectDeleted = useCallback((projectId: string) => {
+    setVoteData(prev => {
+      const newMap = new Map(prev)
+      newMap.delete(projectId)
+      return newMap
+    })
+  }, [])
+
   const { isConnected } = useRealtimeVotes({
     onVoteCountChange: handleVoteCountChange,
     onUserVoteChange: handleUserVoteChange,
+    onProjectDeleted: handleProjectDeleted,
     userId: user?.id
   })
 
@@ -86,10 +96,19 @@ export function RealtimeVotesProvider({ children }: RealtimeVotesProviderProps) 
     })
   }, [])
 
+  const clearVoteData = useCallback((projectId: string) => {
+    setVoteData(prev => {
+      const newMap = new Map(prev)
+      newMap.delete(projectId)
+      return newMap
+    })
+  }, [])
+
   const contextValue: RealtimeVotesContextValue = {
     getVoteData,
     updateVoteCount,
     updateUserVote,
+    clearVoteData,
     isRealtimeConnected: isConnected
   }
 

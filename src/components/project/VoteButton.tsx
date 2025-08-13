@@ -19,7 +19,7 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
   const { user } = useAuth()
   const { showAuthPrompt } = useAuthPrompt()
   const { handleServiceError, showSuccess } = useError()
-  const { getVoteData, updateVoteCount, updateUserVote, isRealtimeConnected } = useRealtimeVotesContext()
+  const { getVoteData, updateVoteCount, updateUserVote, clearVoteData, isRealtimeConnected } = useRealtimeVotesContext()
   
   const [voteCount, setVoteCount] = useState(initialVoteCount)
   const [hasVoted, setHasVoted] = useState(false)
@@ -48,6 +48,16 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     if (!projectId) return
     
     try {
+      // First verify project exists
+      const { data: project, error: projectError } = await ProjectsService.getProject(projectId)
+      if (projectError || !project) {
+        // Project doesn't exist - clear vote data
+        clearVoteData(projectId)
+        setHasVoted(false)
+        setVoteCount(0)
+        return
+      }
+
       const voted = await ProjectsService.hasUserVoted(projectId)
       setHasVoted(voted)
       updateUserVote(projectId, voted)
@@ -57,7 +67,7 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
       setHasVoted(false)
       updateUserVote(projectId, false)
     }
-  }, [projectId, handleServiceError, updateUserVote])
+  }, [projectId, handleServiceError, updateUserVote, clearVoteData])
 
   useEffect(() => {
     if (user && projectId) {
@@ -79,6 +89,17 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     const isRemoving = hasVoted
     
     try {
+      // First check if project still exists
+      const { data: project, error: projectError } = await ProjectsService.getProject(projectId)
+      if (projectError || !project) {
+        // Project doesn't exist - clear from local state
+        clearVoteData(projectId)
+        setVoteCount(0)
+        setHasVoted(false)
+        handleServiceError(new Error('This project no longer exists'), 'vote on project')
+        return
+      }
+
       if (hasVoted) {
         // Optimistically update UI - prevent negative votes
         const newCount = Math.max(0, voteCount - 1)
