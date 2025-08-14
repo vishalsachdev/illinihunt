@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuth } from '@/hooks/useAuth'
 import { useError } from '@/contexts/ErrorContext'
@@ -37,13 +37,13 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
   const [categories, setCategories] = useState<Category[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [imageUrl, setImageUrl] = useState<string>('')
-  const [, setLoadingCategories] = useState(true)
+  const [loadingCategories, setLoadingCategories] = useState(true)
 
   const {
     register,
     handleSubmit,
-    setValue,
     reset,
+    control,
     formState: { errors }
   } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema)
@@ -166,32 +166,53 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
           <p className="text-sm text-gray-600 mb-2">
             Choose the category that best describes what your project does, not just the technology used.
           </p>
-          <Select onValueChange={(value) => setValue('category_id', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select the problem your project solves" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  <div className="flex items-center gap-2">
-                    <CategoryIcon 
-                      iconName={category.icon} 
-                      className="w-4 h-4" 
-                      fallback={category.name}
-                    />
-                    <div className="flex flex-col">
-                      <span className="font-medium">{category.name}</span>
-                      {category.description && (
-                        <span className="text-xs text-gray-500 line-clamp-1">
-                          {category.description}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {loadingCategories ? (
+            <div className="flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-uiuc-orange mr-2"></div>
+              Loading categories...
+            </div>
+          ) : categories.length === 0 ? (
+            <div className="flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
+              No categories available
+            </div>
+          ) : (
+            <Controller
+              name="category_id"
+              control={control}
+              render={({ field }) => (
+                <Select 
+                  onValueChange={field.onChange} 
+                  value={field.value || ''}
+                  disabled={isSubmitting}
+                >
+                  <SelectTrigger aria-label="Category selection">
+                    <SelectValue placeholder="Select the problem your project solves" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        <div className="flex items-center gap-2">
+                          <CategoryIcon 
+                            iconName={category.icon} 
+                            className="w-4 h-4 flex-shrink-0" 
+                            fallback={category.name}
+                          />
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-medium truncate">{category.name}</span>
+                            {category.description && (
+                              <span className="text-xs text-gray-500 truncate max-w-[250px]">
+                                {category.description}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          )}
           {errors.category_id && (
             <p className="text-sm text-red-600">{errors.category_id.message}</p>
           )}
