@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
 import { ProjectsService, CategoriesService } from '@/lib/database'
 import { ProjectCard } from './ProjectCard'
 import { Button } from '@/components/ui/button'
@@ -45,6 +46,9 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>(externalCategory || 'all')
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent')
+
+  // Real-time vote updates
+  const { getVoteData } = useRealtimeVotesContext()
 
   useEffect(() => {
     loadCategories()
@@ -93,6 +97,15 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
       setLoading(false)
     }
   }
+
+  // Enrich projects with real-time vote data
+  const enrichedProjects = projects.map(project => {
+    const realtimeVoteData = getVoteData(project.id)
+    return {
+      ...project,
+      upvotes_count: realtimeVoteData?.count ?? project.upvotes_count
+    }
+  })
 
 
   if (error) {
@@ -236,7 +249,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
       {/* Projects Grid */}
       {!loading && projects.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
+          {enrichedProjects.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
