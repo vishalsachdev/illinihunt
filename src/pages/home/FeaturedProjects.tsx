@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { StatsService } from '@/lib/database'
+import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
 
 // Types for featured projects
 export type FeaturedProject = {
@@ -25,6 +26,7 @@ export type FeaturedProject = {
 export function FeaturedProjects() {
   const [featuredProjects, setFeaturedProjects] = useState<FeaturedProject[]>([])
   const [loading, setLoading] = useState(true)
+  const { getVoteData } = useRealtimeVotesContext()
 
   useEffect(() => {
     const loadFeaturedProjects = async () => {
@@ -37,6 +39,15 @@ export function FeaturedProjects() {
     loadFeaturedProjects()
   }, [])
 
+  // Enrich featured projects with real-time vote data
+  const enrichedFeaturedProjects = featuredProjects.map(project => {
+    const realtimeVoteData = getVoteData(project.id)
+    return {
+      ...project,
+      upvotes_count: realtimeVoteData?.count ?? project.upvotes_count
+    }
+  })
+
   if (loading || featuredProjects.length === 0) {
     return null
   }
@@ -48,7 +59,7 @@ export function FeaturedProjects() {
         <p className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto">Discover innovation at Illinois</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
-        {featuredProjects.map((project) => (
+        {enrichedFeaturedProjects.map((project) => (
           <div
             key={project.id}
             className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 hover:border-white/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer group shadow-lg hover:shadow-xl"
