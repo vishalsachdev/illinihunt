@@ -14,6 +14,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { RealtimeVotesProvider } from '@/contexts/RealtimeVotesContext'
 import { GitHubPopupButton } from '@/components/GitHubPopupButton'
+import { performGlobalSyncCheck } from '@/lib/voteSync'
 
 // Lazy load all pages for code splitting
 const HomePage = lazy(() => import('@/pages/HomePage').then(module => ({ default: module.HomePage })))
@@ -97,6 +98,24 @@ function AppContent() {
 
   // Don't block rendering for auth loading
   // The page should render immediately with or without auth
+  
+  // Perform periodic vote sync check on app startup
+  useEffect(() => {
+    const performSyncCheck = async () => {
+      try {
+        const syncResults = await performGlobalSyncCheck()
+        if (syncResults.length > 0) {
+          console.log(`Vote sync check: Fixed ${syncResults.length} projects with mismatched counts`)
+        }
+      } catch (error) {
+        console.error('Failed to perform vote sync check:', error)
+      }
+    }
+
+    // Run sync check after a brief delay to not block initial render
+    const timer = setTimeout(performSyncCheck, 2000)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <div className="min-h-screen bg-background">
