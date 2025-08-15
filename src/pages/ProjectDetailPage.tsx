@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { VoteButton } from '@/components/project/VoteButton'
 import { ArrowLeft, ExternalLink, Github, User, RefreshCw, Edit } from 'lucide-react'
 import { CommentList } from '@/components/comment/CommentList'
-import { sanitizeContent, sanitizeUrl } from '@/lib/sanitize'
+import { sanitizeContent, sanitizeUrl, linkifyText } from '@/lib/sanitize'
 
 type ProjectDetail = {
   id: string
@@ -199,9 +199,12 @@ export function ProjectDetailPage() {
               {/* Description */}
               <div className="prose max-w-none">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">About this project</h2>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {sanitizeContent(project.description)}
-                </div>
+                <div 
+                  className="text-gray-700 leading-relaxed whitespace-pre-wrap"
+                  dangerouslySetInnerHTML={{
+                    __html: linkifyText(sanitizeContent(project.description))
+                  }}
+                />
               </div>
 
               {/* Links */}

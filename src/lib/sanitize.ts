@@ -67,3 +67,25 @@ export function sanitizeUrl(url: string): string {
   
   return ''
 }
+
+/**
+ * Convert URLs in text to clickable links
+ * Specifically handles "View our pitch deck" links and general URLs
+ */
+export function linkifyText(text: string): string {
+  if (!text) return ''
+  
+  // First, handle the specific "View our pitch deck" pattern
+  let linkedText = text.replace(
+    /📊 \*\*View our pitch deck\*\*: (https?:\/\/[^\s]+)/g,
+    '📊 <a href="$1" target="_blank" rel="noopener noreferrer" class="text-uiuc-blue hover:text-uiuc-orange underline font-semibold">View our pitch deck</a>'
+  )
+  
+  // Then handle any remaining URLs that aren't already linked
+  linkedText = linkedText.replace(
+    /(?<!href=["'])(https?:\/\/[^\s<>"]+)(?![^<]*<\/a>)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-uiuc-blue hover:text-uiuc-orange underline">$1</a>'
+  )
+  
+  return linkedText
+}
