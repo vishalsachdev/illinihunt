@@ -119,7 +119,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-background">
-        <header className="absolute top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b text-gray-900 p-4 shadow-sm">
+        <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b text-gray-900 p-4 shadow-sm">
           <div className="container mx-auto flex items-center justify-between">
             <div className="flex-shrink-0">
               <Link to="/" className="block">
