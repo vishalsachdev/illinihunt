@@ -10,8 +10,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to improve IlliniHunt! 
-        
+        Thanks for taking the time to improve IlliniHunt!
+
         🚀 **How it works**: @claude will ask clarifying questions, implement your feature, and create a PR for review.
 
   - type: input
@@ -23,35 +23,14 @@ body:
     validations:
       required: true
 
-  - type: dropdown
-    id: platform_area
-    attributes:
-      label: Platform Area
-      description: Which part of the IlliniHunt platform does this feature improve?
-      options:
-        - User Interface & Design
-        - Search & Discovery
-        - Project Submission & Management
-        - User Authentication & Profiles
-        - Voting & Engagement
-        - Comments & Community
-        - Performance & Technical
-        - Mobile Experience
-        - Admin & Moderation
-        - Analytics & Insights
-        - Notifications & Alerts
-        - API & Integrations
-    validations:
-      required: true
-
   - type: textarea
     id: problem
     attributes:
-      label: Platform Issue or Need
-      description: What issue with IlliniHunt does this feature address, or what need does it fulfill?
+      label: Problem This Solves
+      description: What issue with IlliniHunt does this feature address?
       placeholder: |
-        Example: Users miss new project submissions in categories they're interested in. 
-        They have to manually check the platform frequently to stay updated, which reduces engagement.
+        Example: Users miss new project submissions in categories they're interested in.
+        They have to manually check the platform frequently to stay updated.
     validations:
       required: true
 
@@ -59,32 +38,14 @@ body:
     id: solution
     attributes:
       label: Proposed Solution
-      description: How would you like this platform feature to work?
+      description: How would you like this feature to work?
       placeholder: |
         Example: Add a notification bell icon in the header that shows:
         - New projects in categories the user follows
         - Comments on projects they've voted on
         - Replies to their comments
-        
-        The feature should allow users to:
-        - Mark notifications as read/unread
-        - Configure notification preferences in settings
-        - Optionally receive email summaries
-    validations:
-      required: true
 
-  - type: dropdown
-    id: user_type
-    attributes:
-      label: Target Users
-      description: Who would benefit from this feature?
-      multiple: true
-      options:
-        - Students (undergraduate)
-        - Students (graduate)
-        - Faculty
-        - Staff
-        - External visitors
+        Users can mark notifications as read and configure preferences.
     validations:
       required: true
 
@@ -102,83 +63,30 @@ body:
       required: true
 
   - type: textarea
-    id: acceptance_criteria
-    attributes:
-      label: Acceptance Criteria
-      description: What needs to be done for this feature to be complete?
-      placeholder: |
-        - [ ] Notification bell icon appears in header for authenticated users
-        - [ ] Badge shows unread notification count
-        - [ ] Dropdown shows recent notifications with timestamps
-        - [ ] Users can mark individual notifications as read
-        - [ ] Users can mark all notifications as read
-        - [ ] Notification preferences page in user settings
-        - [ ] Mobile responsive design
-        - [ ] Real-time updates using Supabase subscriptions
-
-  - type: dropdown
-    id: course_integration
-    attributes:
-      label: Course Integration
-      description: Could this feature be part of a UIUC course project?
-      options:
-        - "Yes - CS 225 (Data Structures)"
-        - "Yes - CS 411 (Database Systems)"
-        - "Yes - CS 465 (User Interface Design)"
-        - "Yes - CS 519 (Scientific Visualization)"
-        - "Yes - BADM 350 (Foundations of Business)"
-        - "Yes - Other course"
-        - "No - Personal contribution"
-        - "Not sure"
-
-  - type: textarea
     id: additional_context
     attributes:
       label: Additional Context
-      description: Add any other context, mockups, or examples
+      description: Any other details that might help? (mockups, examples, timeline, etc.)
       placeholder: |
         - Similar features in other platforms
         - Screenshots or mockups
         - Technical considerations
-        - Timeline preferences
+        - Course project? Mention your course
 
-  - type: checkboxes
-    id: development_approach
-    attributes:
-      label: Development Approach
-      description: How would you like this feature to be developed?
-      options:
-        - label: I'd like @claude to help with planning and implementation
-        - label: I want to work on this myself with guidance
-        - label: I'm suggesting this for the team to consider
-
-  - type: textarea
-    id: additional_notes
-    attributes:
-      label: Additional Notes
-      description: Any other context or requirements?
-      placeholder: |
-        - Timeline considerations
-        - Integration requirements
-        - Design preferences
-        
         Want AI implementation? Add: @claude please implement this feature
 
   - type: markdown
     attributes:
       value: |
         ---
-        
+
         ### 🚀 Next Steps
-        
+
         After submitting:
         1. The team will review your request
         2. If you mentioned @claude, you'll get AI assistance with planning
         3. We'll discuss implementation approach and timeline
-        
+
         ### 🎓 For Students
-        
-        Feature contributions can be great for:
-        - Building your development portfolio
-        - Learning React, TypeScript, and modern web development
-        - Contributing to open source projects
+
+        Feature contributions are great for building your portfolio and learning modern web development!
