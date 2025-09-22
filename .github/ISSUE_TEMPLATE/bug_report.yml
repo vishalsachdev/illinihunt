@@ -10,8 +10,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping improve IlliniHunt! 
-        
+        Thanks for helping improve IlliniHunt!
+
         🔧 **How it works**: @claude will analyze your bug report, implement a fix, and create a PR for review.
 
   - type: input
@@ -45,188 +45,63 @@ body:
         1. Go to 'https://illinihunt.vercel.app'
         2. Sign in with @illinois.edu account
         3. Navigate to 'Projects' page
-        4. Switch to mobile view (or use phone)
-        5. Scroll down to load more projects
-        6. See error: cards fail to load
+        4. See error: [describe what happens]
     validations:
       required: true
 
   - type: textarea
-    id: expected
+    id: expected_vs_actual
     attributes:
-      label: Expected Behavior
-      description: What should happen?
-      placeholder: "Project cards should load smoothly on mobile devices, showing project information clearly"
-    validations:
-      required: true
-
-  - type: textarea
-    id: actual
-    attributes:
-      label: Actual Behavior
-      description: What actually happens?
-      placeholder: "Project cards show loading spinner indefinitely, or display error message 'Failed to load projects'"
-    validations:
-      required: true
-
-  - type: dropdown
-    id: browser
-    attributes:
-      label: Browser
-      description: Which browser are you using?
-      multiple: true
-      options:
-        - Chrome
-        - Firefox
-        - Safari
-        - Edge
-        - Mobile Safari (iOS)
-        - Chrome Mobile (Android)
-        - Other
-    validations:
-      required: true
-
-  - type: dropdown
-    id: device
-    attributes:
-      label: Device Type
-      description: What device are you using?
-      options:
-        - Desktop (Windows)
-        - Desktop (Mac)
-        - Desktop (Linux)
-        - Laptop
-        - Tablet (iPad)
-        - Tablet (Android)
-        - Phone (iPhone)
-        - Phone (Android)
-    validations:
-      required: true
-
-  - type: input
-    id: screen_size
-    attributes:
-      label: Screen Size/Resolution
-      description: If relevant, what's your screen size?
-      placeholder: "1920x1080, iPhone 13 Pro, iPad Air, etc."
-
-  - type: dropdown
-    id: user_type
-    attributes:
-      label: User Type
-      description: What type of UIUC user are you?
-      options:
-        - Undergraduate student
-        - Graduate student  
-        - Faculty
-        - Staff
-        - Alumni
-        - External visitor
-    validations:
-      required: true
-
-  - type: textarea
-    id: console_errors
-    attributes:
-      label: Console Errors
-      description: Any errors in browser console? (F12 > Console tab)
+      label: Expected vs Actual Behavior
+      description: What should happen vs what actually happens?
       placeholder: |
-        Example:
-        TypeError: Cannot read property 'map' of undefined
-        at ProjectGrid.tsx:45:12
-        
-        Or: "No console errors visible"
-      render: text
-
-  - type: textarea
-    id: network_errors
-    attributes:
-      label: Network Errors
-      description: Any failed network requests? (F12 > Network tab)
-      placeholder: |
-        Example:
-        GET https://illinihunt.vercel.app/api/projects - 500 Internal Server Error
-        
-        Or: "No network errors visible"
-      render: text
-
-  - type: textarea
-    id: screenshots
-    attributes:
-      label: Screenshots/Videos
-      description: Visual evidence helps! Drag and drop images here.
-      placeholder: "Drag and drop screenshots, or paste image URLs"
-
-  - type: dropdown
-    id: frequency
-    attributes:
-      label: How Often Does This Happen?
-      description: Is this bug reproducible?
-      options:
-        - Always (100% of the time)
-        - Often (more than 50% of the time)
-        - Sometimes (less than 50% of the time)
-        - Rarely (happened once or twice)
-        - Not sure
+        Expected: Project cards should load smoothly on mobile devices
+        Actual: Project cards show loading spinner indefinitely or display error message
     validations:
       required: true
 
-  - type: textarea
-    id: workaround
+  - type: dropdown
+    id: environment
     attributes:
-      label: Workaround
-      description: Have you found any way to work around this issue?
-      placeholder: "Refreshing the page fixes it temporarily, or switching to desktop works"
+      label: Environment
+      description: Where are you experiencing this issue?
+      options:
+        - Desktop - Chrome
+        - Desktop - Firefox
+        - Desktop - Safari
+        - Desktop - Edge
+        - Mobile - iPhone Safari
+        - Mobile - Android Chrome
+        - Tablet - iPad
+        - Other (specify in additional context)
+    validations:
+      required: true
 
   - type: textarea
     id: additional_context
     attributes:
       label: Additional Context
-      description: Anything else that might help?
+      description: Any other details that might help? (screenshots, console errors, etc.)
       placeholder: |
+        - Screenshots or videos
+        - Console errors (F12 > Console)
         - When did this start happening?
-        - Does it happen on specific pages only?
-        - Any browser extensions that might interfere?
-        - Internet connection type/speed?
+        - Any workarounds you found?
 
-  - type: checkboxes
-    id: assistance_needed
-    attributes:
-      label: How can we help?
-      description: What kind of assistance would you like?
-      options:
-        - label: I'd like @claude to help analyze and fix this bug
-        - label: I want to investigate this myself with guidance
-        - label: I can help test any fix that's implemented
-        - label: I'm just reporting for the team to investigate
-
-  - type: textarea
-    id: additional_info
-    attributes:
-      label: Additional Information
-      description: Any other details that might help?
-      placeholder: |
-        - When did this start happening?
-        - Does it affect specific user groups?
-        - Any recent changes that might be related?
-        
         Want AI fix? Add: @claude please fix this bug
 
   - type: markdown
     attributes:
       value: |
         ---
-        
+
         ### 🔧 Next Steps
-        
+
         After submitting:
         1. We'll review and prioritize based on severity
-        2. If you mentioned @claude, you'll get AI assistance with investigation
-        3. We'll keep you updated on progress and any fixes
-        
-        ### 🎓 Want to Help?
-        
-        Bug fixing is a great way to:
-        - Learn debugging and troubleshooting skills
-        - Understand the codebase better
-        - Contribute to open source development
+        2. If you mentioned @claude, you'll get AI assistance
+        3. We'll keep you updated on progress
+
+        ### 🎓 Want to Help Fix It?
+
+        Bug fixing is a great way to learn debugging and contribute to open source!
