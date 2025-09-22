@@ -12,7 +12,9 @@ body:
       value: |
         Thanks for taking the time to improve IlliniHunt!
 
-        🚀 **How it works**: @claude will ask clarifying questions, implement your feature, and create a PR for review.
+        🤖 **Want AI help?** Add `@claude` anywhere in your issue:
+        - **Repository Collaborators**: Immediate automatic implementation and PR creation
+        - **External Contributors**: AI guidance and assistance (requires workflow approval)
 
   - type: input
     id: summary
@@ -73,7 +75,7 @@ body:
         - Technical considerations
         - Course project? Mention your course
 
-        Want AI implementation? Add: @claude please implement this feature
+        🤖 For automatic AI implementation, add: @claude please implement this feature
 
   - type: markdown
     attributes:
@@ -83,9 +85,9 @@ body:
         ### 🚀 Next Steps
 
         After submitting:
-        1. The team will review your request
-        2. If you mentioned @claude, you'll get AI assistance with planning
-        3. We'll discuss implementation approach and timeline
+        1. **With @claude (Collaborators)**: Automatic implementation within minutes
+        2. **With @claude (External Contributors)**: AI assistance after workflow approval
+        3. **Without @claude**: Manual review and planning by the team
 
         ### 🎓 For Students
 
