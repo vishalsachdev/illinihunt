@@ -12,7 +12,9 @@ body:
       value: |
         Thanks for helping improve IlliniHunt!
 
-        🔧 **How it works**: @claude will analyze your bug report, implement a fix, and create a PR for review.
+        🤖 **Want AI help?** Add `@claude` anywhere in your issue:
+        - **Repository Collaborators**: Immediate automatic implementation and PR creation
+        - **External Contributors**: AI guidance and assistance (requires workflow approval)
 
   - type: input
     id: summary
@@ -88,7 +90,7 @@ body:
         - When did this start happening?
         - Any workarounds you found?
 
-        Want AI fix? Add: @claude please fix this bug
+        🤖 For automatic AI fix, add: @claude please fix this bug
 
   - type: markdown
     attributes:
@@ -98,9 +100,9 @@ body:
         ### 🔧 Next Steps
 
         After submitting:
-        1. We'll review and prioritize based on severity
-        2. If you mentioned @claude, you'll get AI assistance
-        3. We'll keep you updated on progress
+        1. **With @claude (Collaborators)**: Automatic fix implementation within minutes
+        2. **With @claude (External Contributors)**: AI assistance after workflow approval
+        3. **Without @claude**: Manual review and prioritization by the team
 
         ### 🎓 Want to Help Fix It?
 
