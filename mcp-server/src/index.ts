@@ -13,9 +13,17 @@ import dotenv from 'dotenv';
 // Load environment variables from parent directory
 dotenv.config({ path: '../.env.local' });
 
+interface RateLimitEntry {
+  count: number;
+  resetTime: number;
+}
+
 class IlliniHuntMCPServer {
   private server: Server;
   private supabase: any;
+  private rateLimiter: Map<string, RateLimitEntry>;
+  private readonly RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+  private readonly RATE_LIMIT_MAX_REQUESTS = 30; // 30 requests per minute
 
   constructor() {
     this.server = new Server(
@@ -39,7 +47,106 @@ class IlliniHuntMCPServer {
     }
 
     this.supabase = createClient(supabaseUrl, supabaseAnonKey);
+    this.rateLimiter = new Map();
     this.setupHandlers();
+  }
+
+  // Rate limiting method
+  private checkRateLimit(clientId: string): boolean {
+    const now = Date.now();
+    const entry = this.rateLimiter.get(clientId);
+
+    if (!entry || now > entry.resetTime) {
+      // Reset or create new entry
+      this.rateLimiter.set(clientId, {
+        count: 1,
+        resetTime: now + this.RATE_LIMIT_WINDOW
+      });
+      return true;
+    }
+
+    if (entry.count >= this.RATE_LIMIT_MAX_REQUESTS) {
+      return false;
+    }
+
+    entry.count++;
+    return true;
+  }
+
+  // Input validation methods
+  private validateQueryProjectsInput(args: any): void {
+    if (args.limit && (typeof args.limit !== 'number' || args.limit < 1 || args.limit > 100)) {
+      throw new Error('Limit must be a number between 1 and 100');
+    }
+    
+    if (args.category && (typeof args.category !== 'string' || args.category.length > 100)) {
+      throw new Error('Category must be a string with maximum 100 characters');
+    }
+    
+    if (args.search && (typeof args.search !== 'string' || args.search.length > 200)) {
+      throw new Error('Search term must be a string with maximum 200 characters');
+    }
+    
+    if (args.sortBy && !['recent', 'popular', 'featured'].includes(args.sortBy)) {
+      throw new Error('SortBy must be one of: recent, popular, featured');
+    }
+  }
+
+  private validateProjectIdInput(args: any): void {
+    if (!args.projectId || typeof args.projectId !== 'string') {
+      throw new Error('ProjectId is required and must be a string');
+    }
+    
+    // Basic UUID validation
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(args.projectId)) {
+      throw new Error('ProjectId must be a valid UUID');
+    }
+  }
+
+  private validateUserIdInput(args: any): void {
+    if (!args.userId || typeof args.userId !== 'string') {
+      throw new Error('UserId is required and must be a string');
+    }
+    
+    // Basic UUID validation
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(args.userId)) {
+      throw new Error('UserId must be a valid UUID');
+    }
+  }
+
+  private validateCustomQueryInput(args: any): void {
+    if (!args.query || typeof args.query !== 'string') {
+      throw new Error('Query is required and must be a string');
+    }
+    
+    if (args.query.length > 1000) {
+      throw new Error('Query must be less than 1000 characters');
+    }
+    
+    // Check for dangerous SQL keywords
+    const dangerousKeywords = ['drop', 'delete', 'update', 'insert', 'alter', 'create', 'truncate'];
+    const queryLower = args.query.toLowerCase();
+    
+    for (const keyword of dangerousKeywords) {
+      if (queryLower.includes(keyword)) {
+        throw new Error(`Query contains dangerous keyword: ${keyword}`);
+      }
+    }
+  }
+
+  // Logging method
+  private logRequest(toolName: string, clientId: string, success: boolean, error?: string): void {
+    const timestamp = new Date().toISOString();
+    const status = success ? 'SUCCESS' : 'ERROR';
+    const logMessage = `[${timestamp}] MCP Request: ${toolName} | Client: ${clientId} | Status: ${status}`;
+    
+    if (error) {
+      console.error(`${logMessage} | Error: ${error}`);
+    } else {
+      console.log(logMessage);
+    }
   }
 
   private setupHandlers() {
@@ -154,32 +261,84 @@ class IlliniHuntMCPServer {
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args } = request.params;
+      const clientId = Math.random().toString(36).substring(7); // Generate a simple client ID
 
       try {
+        // Rate limiting check
+        if (!this.checkRateLimit(clientId)) {
+          this.logRequest(name, clientId, false, 'Rate limit exceeded');
+          return {
+            content: [
+              {
+                type: 'text',
+                text: 'Rate limit exceeded. Maximum 30 requests per minute allowed.',
+              },
+            ],
+            isError: true,
+          };
+        }
+
+        // Input validation
         switch (name) {
           case 'query_projects':
-            return await this.queryProjects(args);
+            this.validateQueryProjectsInput(args);
+            break;
           case 'get_project_details':
-            return await this.getProjectDetails(args);
-          case 'get_user_projects':
-            return await this.getUserProjects(args);
-          case 'get_categories':
-            return await this.getCategories();
           case 'get_project_comments':
-            return await this.getProjectComments(args);
-          case 'get_platform_stats':
-            return await this.getPlatformStats();
+            this.validateProjectIdInput(args);
+            break;
+          case 'get_user_projects':
+            this.validateUserIdInput(args);
+            break;
           case 'execute_custom_query':
-            return await this.executeCustomQuery(args);
+            this.validateCustomQueryInput(args);
+            break;
+          case 'get_categories':
+          case 'get_platform_stats':
+            // No validation needed for these tools
+            break;
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
+
+        // Execute the tool
+        let result;
+        switch (name) {
+          case 'query_projects':
+            result = await this.queryProjects(args);
+            break;
+          case 'get_project_details':
+            result = await this.getProjectDetails(args);
+            break;
+          case 'get_user_projects':
+            result = await this.getUserProjects(args);
+            break;
+          case 'get_categories':
+            result = await this.getCategories();
+            break;
+          case 'get_project_comments':
+            result = await this.getProjectComments(args);
+            break;
+          case 'get_platform_stats':
+            result = await this.getPlatformStats();
+            break;
+          case 'execute_custom_query':
+            result = await this.executeCustomQuery(args);
+            break;
+          default:
+            throw new Error(`Unknown tool: ${name}`);
+        }
+
+        this.logRequest(name, clientId, true);
+        return result;
       } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        this.logRequest(name, clientId, false, errorMessage);
         return {
           content: [
             {
               type: 'text',
-              text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+              text: `Error: ${errorMessage}`,
             },
           ],
           isError: true,

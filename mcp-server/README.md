@@ -76,10 +76,15 @@ Execute a custom SQL query (SELECT only):
 
 ## Security
 
-- Only SELECT queries are allowed for custom queries
-- All database connections use environment variables
-- Connection pooling and proper error handling
-- Input validation and sanitization
+- **Rate Limiting**: Maximum 30 requests per minute per client
+- **Input Validation**: Comprehensive validation for all tool inputs
+- **UUID Validation**: Strict UUID format validation for IDs
+- **SQL Injection Protection**: Dangerous SQL keywords blocked
+- **Query Length Limits**: Maximum 1000 characters for custom queries
+- **Read-Only Access**: Only SELECT queries allowed for custom queries
+- **Environment Variables**: All sensitive data stored in environment variables
+- **Request Logging**: All requests logged with timestamps and client IDs
+- **Error Handling**: Proper error handling with detailed logging
 
 ## Database Schema
 
