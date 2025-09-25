@@ -1,0 +1,153 @@
+erDiagram
+    %% Core User Management
+    USERS {
+        uuid id PK "References auth.users"
+        text email UK "Unique email"
+        text username UK "Unique username"
+        text full_name "Display name"
+        text avatar_url "Profile picture"
+        text bio "User biography"
+        text github_url "GitHub profile"
+        text linkedin_url "LinkedIn profile"
+        text website_url "Personal website"
+        text year_of_study "Academic year"
+        text department "Academic department"
+        boolean is_verified "Verification status"
+        timestamp created_at "Account creation"
+        timestamp updated_at "Last update"
+    }
+
+    %% Project Categories
+    CATEGORIES {
+        uuid id PK "Primary key"
+        text name UK "Category name"
+        text description "Category description"
+        text icon "Icon identifier"
+        text color "UI color"
+        boolean is_active "Active status"
+        timestamp created_at "Creation date"
+    }
+
+    %% Main Project Data
+    PROJECTS {
+        uuid id PK "Primary key"
+        text name "Project name"
+        text tagline "Short description"
+        text description "Full description"
+        text image_url "Project image"
+        text website_url "Live website"
+        text github_url "Source code"
+        uuid category_id FK "References categories"
+        uuid user_id FK "References users"
+        integer upvotes_count "Vote count"
+        integer comments_count "Comment count"
+        text status "active|featured|archived|draft"
+        timestamp created_at "Creation date"
+        timestamp updated_at "Last update"
+    }
+
+    %% Voting System
+    VOTES {
+        uuid id PK "Primary key"
+        uuid user_id FK "References users"
+        uuid project_id FK "References projects"
+        timestamp created_at "Vote date"
+    }
+
+    %% Comment System
+    COMMENTS {
+        uuid id PK "Primary key"
+        text content "Comment text"
+        uuid user_id FK "References users"
+        uuid project_id FK "References projects"
+        uuid parent_id FK "References comments (self)"
+        integer thread_depth "Nesting level (0-3)"
+        integer likes_count "Like count"
+        boolean is_deleted "Soft delete flag"
+        timestamp created_at "Creation date"
+        timestamp updated_at "Last update"
+    }
+
+    %% Comment Likes
+    COMMENT_LIKES {
+        uuid id PK "Primary key"
+        uuid user_id FK "References users"
+        uuid comment_id FK "References comments"
+        timestamp created_at "Like date"
+    }
+
+    %% Bookmarking System
+    BOOKMARKS {
+        uuid id PK "Primary key"
+        uuid user_id FK "References users"
+        uuid project_id FK "References projects"
+        timestamp created_at "Bookmark date"
+    }
+
+    %% Collections System
+    COLLECTIONS {
+        uuid id PK "Primary key"
+        uuid user_id FK "References users"
+        text name "Collection name"
+        text description "Collection description"
+        boolean is_public "Public visibility"
+        integer projects_count "Project count"
+        timestamp created_at "Creation date"
+        timestamp updated_at "Last update"
+    }
+
+    %% Collection-Project Relationships
+    COLLECTION_PROJECTS {
+        uuid id PK "Primary key"
+        uuid collection_id FK "References collections"
+        uuid project_id FK "References projects"
+        timestamp added_at "Addition date"
+    }
+
+    %% Database Views
+    USER_BOOKMARKS_WITH_PROJECTS {
+        uuid id "Bookmark ID"
+        uuid user_id "User ID"
+        timestamp bookmarked_at "Bookmark date"
+        uuid project_id "Project ID"
+        text project_name "Project name"
+        text tagline "Project tagline"
+        text image_url "Project image"
+        integer upvotes_count "Project votes"
+        text status "Project status"
+        timestamp project_created_at "Project creation"
+        text project_author "Author username"
+        text category_name "Category name"
+        text category_color "Category color"
+    }
+
+    PUBLIC_COLLECTIONS_WITH_STATS {
+        uuid id "Collection ID"
+        text name "Collection name"
+        text description "Collection description"
+        integer projects_count "Project count"
+        timestamp created_at "Creation date"
+        text owner_username "Owner username"
+        text owner_name "Owner full name"
+        text owner_avatar "Owner avatar"
+    }
+
+    %% Relationships
+    USERS ||--o{ PROJECTS : "creates"
+    USERS ||--o{ VOTES : "votes"
+    USERS ||--o{ COMMENTS : "writes"
+    USERS ||--o{ COMMENT_LIKES : "likes"
+    USERS ||--o{ BOOKMARKS : "bookmarks"
+    USERS ||--o{ COLLECTIONS : "owns"
+
+    CATEGORIES ||--o{ PROJECTS : "categorizes"
+
+    PROJECTS ||--o{ VOTES : "receives"
+    PROJECTS ||--o{ COMMENTS : "has"
+    PROJECTS ||--o{ BOOKMARKS : "bookmarked_in"
+    PROJECTS ||--o{ COLLECTION_PROJECTS : "included_in"
+
+    COMMENTS ||--o{ COMMENTS : "replies_to"
+    COMMENTS ||--o{ COMMENT_LIKES : "receives"
+
+    COLLECTIONS ||--o{ COLLECTION_PROJECTS : "contains"
