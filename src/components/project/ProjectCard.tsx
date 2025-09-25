@@ -98,6 +98,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       <div className="p-5 text-gray-900">
         {/* Header */}
         <div className="mb-3">
+          {/* TODO(human) - Implement project name linking */}
           <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-uiuc-blue transition-colors !text-gray-900">
             {sanitizeContent(project.name)}
           </h3>
