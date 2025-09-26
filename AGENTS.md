@@ -20,7 +20,7 @@ illinihunt/
 │   ├── lib/                # Library configurations
 │   │   ├── supabase.ts     # Supabase client setup
 │   │   ├── database.ts     # Database service layer
-│   │   └── supabase-types.ts # Generated TypeScript types
+│   │   └── types/database.ts # Generated TypeScript types
 │   └── pages/              # Page components
 ├── public/                  # Static assets
 ├── supabase/               # Supabase configuration
@@ -77,7 +77,7 @@ npm run dev
 ### Database Changes
 ```bash
 # After any database schema changes:
-npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/lib/supabase-types.ts
+npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/types/database.ts
 
 # Verify types compile:
 npm run type-check
@@ -95,7 +95,7 @@ npm run type-check
 ### Supabase Integration
 - Project ID: `catzwowmxluzwbhdyhnf`
 - Always use Row Level Security (RLS) policies
-- Use generated TypeScript types from `supabase-types.ts`
+- Use generated TypeScript types from `src/types/database.ts`
 - Implement optimistic updates for better UX
 
 ### Query Patterns
@@ -190,7 +190,7 @@ npm run lint         # ESLint check
 npm run lint:fix     # Auto-fix linting issues
 
 # Supabase
-npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/lib/supabase-types.ts
+npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/types/database.ts
 npx supabase db pull --project-id catzwowmxluzwbhdyhnf
 npx supabase migration new <name>
 ```

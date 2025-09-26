@@ -25,7 +25,20 @@ export class ProjectsService {
     let query = supabase
       .from('projects')
       .select(`
-        *,
+        id,
+        name,
+        tagline,
+        description,
+        image_url,
+        website_url,
+        github_url,
+        category_id,
+        user_id,
+        upvotes_count,
+        comments_count,
+        status,
+        created_at,
+        updated_at,
         users (
           id,
           username,
@@ -365,7 +378,20 @@ export class StatsService {
     return supabase
       .from('projects')
       .select(`
-        *,
+        id,
+        name,
+        tagline,
+        description,
+        image_url,
+        website_url,
+        github_url,
+        category_id,
+        user_id,
+        upvotes_count,
+        comments_count,
+        status,
+        created_at,
+        updated_at,
         users (
           id,
           username,

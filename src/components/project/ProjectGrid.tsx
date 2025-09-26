@@ -90,7 +90,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
       })
 
       if (error) throw error
-      setProjects(data || [])
+      setProjects((data as unknown as Project[]) || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load projects')
     } finally {

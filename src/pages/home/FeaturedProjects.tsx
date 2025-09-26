@@ -32,7 +32,7 @@ export function FeaturedProjects() {
     const loadFeaturedProjects = async () => {
       const { data, error } = await StatsService.getFeaturedProjects(3)
       if (data && !error) {
-        setFeaturedProjects(data)
+        setFeaturedProjects((data as unknown as FeaturedProject[]))
       }
       setLoading(false)
     }
