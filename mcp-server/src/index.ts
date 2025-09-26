@@ -7,7 +7,7 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 
 // Load environment variables from parent directory
@@ -20,7 +20,7 @@ interface RateLimitEntry {
 
 class IlliniHuntMCPServer {
   private server: Server;
-  private supabase: any;
+  private supabase: SupabaseClient;
   private rateLimiter: Map<string, RateLimitEntry>;
   private readonly RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
   private readonly RATE_LIMIT_MAX_REQUESTS = 30; // 30 requests per minute
@@ -347,271 +347,247 @@ class IlliniHuntMCPServer {
     });
   }
 
-  private async queryProjects(args: any) {
-    try {
-      let query = this.supabase
-        .from('projects')
-        .select(`
-          *,
-          users (
-            id,
-            username,
-            full_name,
-            avatar_url
-          ),
-          categories (
-            id,
-            name,
-            color,
-            icon
-          )
-        `)
-        .eq('status', 'active');
+  private async queryProjects(args: { category?: string; limit?: number; sortBy?: 'recent' | 'popular' | 'featured'; search?: string }) {
+    let query = this.supabase
+      .from('projects')
+      .select(`
+        *,
+        users (
+          id,
+          username,
+          full_name,
+          avatar_url
+        ),
+        categories (
+          id,
+          name,
+          color,
+          icon
+        )
+      `)
+      .eq('status', 'active');
 
-      // Apply filters
-      if (args.category) {
-        query = query.eq('categories.name', args.category);
-      }
-
-      if (args.search) {
-        query = query.or(`name.ilike.%${args.search}%,tagline.ilike.%${args.search}%`);
-      }
-
-      // Apply sorting
-      switch (args.sortBy) {
-        case 'popular':
-          query = query.order('upvotes_count', { ascending: false });
-          break;
-        case 'featured':
-          query = query.eq('status', 'featured').order('created_at', { ascending: false });
-          break;
-        default:
-          query = query.order('created_at', { ascending: false });
-      }
-
-      // Apply limit
-      const limit = args.limit || 10;
-      query = query.limit(limit);
-
-      const { data, error } = await query;
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify(data, null, 2),
-          },
-        ],
-      };
-    } catch (error) {
-      throw error;
+    // Apply filters
+    if (args.category) {
+      query = query.eq('categories.name', args.category);
     }
+
+    if (args.search) {
+      query = query.or(`name.ilike.%${args.search}%,tagline.ilike.%${args.search}%`);
+    }
+
+    // Apply sorting
+    switch (args.sortBy) {
+      case 'popular':
+        query = query.order('upvotes_count', { ascending: false });
+        break;
+      case 'featured':
+        query = query.eq('status', 'featured').order('created_at', { ascending: false });
+        break;
+      default:
+        query = query.order('created_at', { ascending: false });
+    }
+
+    // Apply limit
+    const limit = args.limit || 10;
+    query = query.limit(limit);
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(data, null, 2),
+        },
+      ],
+    };
   }
 
-  private async getProjectDetails(args: any) {
-    try {
-      const { data, error } = await this.supabase
-        .from('projects')
-        .select(`
-          *,
-          users (
-            id,
-            username,
-            full_name,
-            avatar_url,
-            bio,
-            github_url,
-            linkedin_url
-          ),
-          categories (
-            id,
-            name,
-            color,
-            icon
-          )
-        `)
-        .eq('id', args.projectId)
-        .single();
+  private async getProjectDetails(args: { projectId: string }) {
+    const { data, error } = await this.supabase
+      .from('projects')
+      .select(`
+        *,
+        users (
+          id,
+          username,
+          full_name,
+          avatar_url,
+          bio,
+          github_url,
+          linkedin_url
+        ),
+        categories (
+          id,
+          name,
+          color,
+          icon
+        )
+      `)
+      .eq('id', args.projectId)
+      .single();
 
-      if (error) {
-        throw new Error(error.message);
-      }
+    if (error) {
+      throw new Error(error.message);
+    }
 
-      if (!data) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: 'Project not found',
-            },
-          ],
-        };
-      }
-
+    if (!data) {
       return {
         content: [
           {
             type: 'text',
-            text: JSON.stringify(data, null, 2),
+            text: 'Project not found',
           },
         ],
       };
-    } catch (error) {
-      throw error;
     }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(data, null, 2),
+        },
+      ],
+    };
   }
 
-  private async getUserProjects(args: any) {
-    try {
-      const { data, error } = await this.supabase
-        .from('projects')
-        .select(`
-          *,
-          categories (
-            id,
-            name,
-            color,
-            icon
-          )
-        `)
-        .eq('user_id', args.userId)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
+  private async getUserProjects(args: { userId: string }) {
+    const { data, error } = await this.supabase
+      .from('projects')
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          color,
+          icon
+        )
+      `)
+      .eq('user_id', args.userId)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify(data, null, 2),
-          },
-        ],
-      };
-    } catch (error) {
-      throw error;
+    if (error) {
+      throw new Error(error.message);
     }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(data, null, 2),
+        },
+      ],
+    };
   }
 
   private async getCategories() {
-    try {
-      const { data, error } = await this.supabase
-        .from('categories')
-        .select('*')
-        .eq('is_active', true)
-        .order('name');
+    const { data, error } = await this.supabase
+      .from('categories')
+      .select('*')
+      .eq('is_active', true)
+      .order('name');
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify(data, null, 2),
-          },
-        ],
-      };
-    } catch (error) {
-      throw error;
+    if (error) {
+      throw new Error(error.message);
     }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(data, null, 2),
+        },
+      ],
+    };
   }
 
-  private async getProjectComments(args: any) {
-    try {
-      const { data, error } = await this.supabase
-        .from('comments')
-        .select(`
-          *,
-          users (
-            id,
-            username,
-            full_name,
-            avatar_url
-          )
-        `)
-        .eq('project_id', args.projectId)
-        .eq('is_deleted', false)
-        .order('created_at', { ascending: true });
+  private async getProjectComments(args: { projectId: string }) {
+    const { data, error } = await this.supabase
+      .from('comments')
+      .select(`
+        *,
+        users (
+          id,
+          username,
+          full_name,
+          avatar_url
+        )
+      `)
+      .eq('project_id', args.projectId)
+      .eq('is_deleted', false)
+      .order('created_at', { ascending: true });
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify(data, null, 2),
-          },
-        ],
-      };
-    } catch (error) {
-      throw error;
+    if (error) {
+      throw new Error(error.message);
     }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(data, null, 2),
+        },
+      ],
+    };
   }
 
   private async getPlatformStats() {
-    try {
-      // Get projects count
-      const { count: projectsCount, error: projectsError } = await this.supabase
-        .from('projects')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'active');
+    // Get projects count
+    const { count: projectsCount, error: projectsError } = await this.supabase
+      .from('projects')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'active');
 
-      if (projectsError) {
-        throw new Error(projectsError.message);
-      }
-
-      // Get unique users count
-      const { data: uniqueUsers, error: usersError } = await this.supabase
-        .from('projects')
-        .select('user_id')
-        .eq('status', 'active');
-
-      if (usersError) {
-        throw new Error(usersError.message);
-      }
-
-      const uniqueUsersCount = new Set(uniqueUsers?.map((p: any) => p.user_id)).size;
-
-      // Get categories count
-      const { count: categoriesCount, error: categoriesError } = await this.supabase
-        .from('categories')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_active', true);
-
-      if (categoriesError) {
-        throw new Error(categoriesError.message);
-      }
-
-      const stats = {
-        projects_count: projectsCount || 0,
-        users_count: uniqueUsersCount || 0,
-        categories_count: categoriesCount || 0,
-      };
-
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify(stats, null, 2),
-          },
-        ],
-      };
-    } catch (error) {
-      throw error;
+    if (projectsError) {
+      throw new Error(projectsError.message);
     }
+
+    // Get unique users count
+    const { data: uniqueUsers, error: usersError } = await this.supabase
+      .from('projects')
+      .select('user_id')
+      .eq('status', 'active');
+
+    if (usersError) {
+      throw new Error(usersError.message);
+    }
+
+    const uniqueUsersCount = new Set(uniqueUsers?.map((p: { user_id: string }) => p.user_id)).size;
+
+    // Get categories count
+    const { count: categoriesCount, error: categoriesError } = await this.supabase
+      .from('categories')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true);
+
+    if (categoriesError) {
+      throw new Error(categoriesError.message);
+    }
+
+    const stats = {
+      projects_count: projectsCount || 0,
+      users_count: uniqueUsersCount || 0,
+      categories_count: categoriesCount || 0,
+    };
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(stats, null, 2),
+        },
+      ],
+    };
   }
 
-  private async executeCustomQuery(args: any) {
+  private async executeCustomQuery(args: { query: string }) {
     try {
       // Basic security check - only allow SELECT queries
       const query = args.query.trim().toLowerCase();

@@ -26,6 +26,7 @@ const EditProfilePage = lazy(() => import('@/pages/EditProfilePage').then(module
 const EditProjectPage = lazy(() => import('@/pages/EditProjectPage').then(module => ({ default: module.EditProjectPage })))
 const CollectionsPage = lazy(() => import('@/pages/CollectionsPage').then(module => ({ default: module.CollectionsPage })))
 const CollectionViewPage = lazy(() => import('@/pages/CollectionViewPage').then(module => ({ default: module.CollectionViewPage })))
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(module => ({ default: module.NotFoundPage })))
 
 // Preload critical routes for better UX
 const preloadRoute = (importFn: () => Promise<unknown>) => {
@@ -119,6 +120,8 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-background">
+        {/* Skip to content for accessibility */}
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-uiuc-blue focus:px-3 focus:py-2 focus:rounded shadow">Skip to content</a>
         <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b text-gray-900 p-4 shadow-sm">
           <div className="container mx-auto flex items-center justify-between">
             <div className="flex-shrink-0">
@@ -160,7 +163,7 @@ function AppContent() {
           </div>
         </header>
         
-        <main>
+        <main id="main-content">
           {error && (
             <div className="container mx-auto px-4 pt-4">
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
@@ -216,6 +219,8 @@ function AppContent() {
                 } 
               />
               <Route path="/collections/:id" element={<CollectionViewPage />} />
+              {/* Fallback route */}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
         </main>
