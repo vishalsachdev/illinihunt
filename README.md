@@ -5,8 +5,6 @@
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-illinihunt.vercel.app-blue?style=for-the-badge&logo=vercel)](https://illinihunt.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-View%20Source-black?style=for-the-badge&logo=github)](https://github.com/vishalsachdev/illinihunt)
 
-> 🤖 **NEW**: World's first platform with **AI-to-Production workflow**! Non-technical users can submit ideas that get automatically implemented by Claude Code and reviewed by experienced developers. [Learn more ↓](#-complete-ai-powered-development-workflow)
-
 ## 🎯 What is IlliniHunt?
 
 IlliniHunt is a **problem-solving discovery platform** designed specifically for the Illinois community. Instead of just showcasing technology, we help students, faculty, and staff discover projects that solve real-world problems.
@@ -17,7 +15,6 @@ IlliniHunt is a **problem-solving discovery platform** designed specifically for
 - **🎯 Problem-Centered**: Categories based on what problems projects solve, not just technology used
 - **💬 Community Engagement**: Threaded comments, voting, and project collections
 - **📊 Comprehensive Profiles**: User profiles with project portfolios and academic context
-- **🔍 Smart Discovery**: Advanced filtering and search capabilities
 - **📱 Mobile-First Design**: Responsive UI optimized for all devices
 
 ## 🎨 Problem-Focused Categories
@@ -28,12 +25,12 @@ Our innovative categorization system helps users discover projects by the proble
 |----------|-------------|------|
 | **Learning & Education Tools** | Educational platforms, study aids, tutoring systems | 🎓 |
 | **Social & Communication** | Social networks, messaging, collaboration tools | 👥 |
-| **Productivity & Organization** | Task management, scheduling, workflow automation | 📅 |
-| **Health & Wellness** | Fitness tracking, mental health, medical devices | ❤️ |
-| **Creative & Entertainment** | Games, media platforms, creative tools | 🎨 |
-| **Research & Data Analysis** | Data visualization, research tools, analysis platforms | 📊 |
-| **Business & Entrepreneurship** | Fintech, e-commerce, startup tools | 📈 |
-| **Emerging Technology** | AI/ML, IoT, blockchain, cutting-edge tech | ⚡ |
+| **Productivity & Organization** | Task management, calendars, workflow tools | 📅 |
+| **Health & Wellness** | Fitness apps, mental health, medical tools | ❤️ |
+| **Creative & Entertainment** | Art tools, games, multimedia platforms | 🎨 |
+| **Research & Data Analysis** | Data visualization, research tools, analytics | 📊 |
+| **Business & Entrepreneurship** | Startup tools, business apps, marketplace | 📈 |
+| **Emerging Technology** | AI/ML, blockchain, IoT, cutting-edge tech | ⚡ |
 
 ## 🚀 Live Platform
 
@@ -42,153 +39,62 @@ Our innovative categorization system helps users discover projects by the proble
 - Custom Domain: https://illinihunt.org
 - Status: ✅ **Production Ready**
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack & Architecture
 
-### Frontend
-- **React 18** with TypeScript
-- **Vite** for build tooling and development
-- **Tailwind CSS** with custom UIUC brand colors
-- **shadcn/ui** components built on Radix UI
-- **React Router** for client-side routing
-- **React Hook Form** with Zod validation
-- **Lucide React** for icons
+**Modern, Production-Ready Stack:**
+- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
+- **Backend**: Supabase (PostgreSQL + Auth + Real-time)
+- **UI/UX**: shadcn/ui components, UIUC brand colors (`#FF6B35`, `#13294B`)
+- **Deployment**: Vercel with auto-deploy from GitHub
 
-### Backend & Database
-- **Supabase** for backend-as-a-service
-- **PostgreSQL** with Row Level Security (RLS)
-- **Real-time subscriptions** for live updates
-- **Google OAuth** with domain restrictions
+**✅ Core Features Complete:**
+Project submission, real-time voting, threaded comments, user profiles, collections, admin dashboard
 
-### Deployment & DevOps
-- **Vercel** for frontend hosting with GitHub integration
-- **GitHub Actions** for AI-assisted development workflow
-- **TypeScript** strict mode for type safety
-- **ESLint** for code quality
-
-## 🏗️ Architecture Overview
-
-### Core Features Implemented
-- ✅ **Project Submission & Discovery** - Full CRUD with categories and search
-- ✅ **User Authentication** - Google OAuth restricted to @illinois.edu
-- ✅ **Voting System** - Real-time upvoting with optimistic UI
-- ✅ **Comment System** - Threaded discussions (3 levels deep)
-- ✅ **User Profiles** - Comprehensive profiles with project portfolios
-- ✅ **Project Collections** - Bookmark and organize favorite projects
-- ✅ **Admin Dashboard** - Project management for creators
-- ✅ **Real-time Activity** - Live updates for new submissions
-
-### Database Schema
-```sql
--- Core tables
-users                 -- Extended Supabase auth.users
-categories            -- Problem-focused project categories  
-projects              -- Project submissions with metadata
-votes                 -- User voting system
-comments              -- Threaded comment system
-collections           -- User project collections
-bookmarks             -- Individual project bookmarks
-```
-
-## 🎨 Design System
-
-### Brand Colors
-- **UIUC Orange**: `#FF6B35` - Primary brand color
-- **UIUC Blue**: `#13294B` - Secondary brand color
-- **Supporting Colors**: Complementary palette for categories and UI elements
-
-### Typography
-- **Font Family**: Inter (system font stack fallback)
-- **Consistent Hierarchy**: H1-H6 with proper scaling
-- **Accessibility**: WCAG AA compliant contrast ratios
+**📚 For detailed technical information:**
+- **[Complete Architecture Guide](docs/MENTAL_MODEL.md)** - Full system overview for developers
+- **[Developer Quick Reference](CLAUDE.md)** - Essential commands and troubleshooting
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Node.js 18+ 
-- npm or pnpm
-- Supabase account
-
-### Environment Setup
+### Quick Setup
 ```bash
-# Clone the repository
-git clone https://github.com/vishalsachdev/illinihunt.git
-cd illinihunt
+# Clone & Install
+git clone https://github.com/vishalsachdev/illinihunt.git && cd illinihunt && npm install
 
-# Install dependencies
-npm install
+# Environment (.env.local)
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
 
-# Set up environment variables
-cp .env.example .env.local
-# Add your Supabase credentials to .env.local
+# Start Development
+npm run dev  # http://localhost:5173
 ```
 
-### Development Commands
+### Essential Commands
 ```bash
-# Start development server
-npm run dev              # Vite dev server at http://localhost:5173
-
-# Build for production  
-npm run build           # TypeScript check + Vite build
-
-# Preview production build
-npm run preview         # Test production build locally
-
-# Code quality
-npm run type-check      # TypeScript compilation check
-npm run lint            # ESLint with TypeScript support
+npm run dev          # Development server
+npm run build        # Production build
+npm run type-check   # TypeScript validation
+npm run lint         # Code quality check
 ```
 
-### Database Setup
-```bash
-# Using Supabase CLI (optional)
-npx supabase start      # Start local Supabase
-npx supabase db reset   # Apply all migrations
-```
+**📖 For detailed setup and development workflow, see: [CLAUDE.md](CLAUDE.md)**
 
-## 📁 Project Structure
+## 📋 Current Status & Roadmap
 
-```
-src/
-├── components/         # Reusable UI components
-│   ├── auth/          # Authentication components
-│   ├── comment/       # Comment system components  
-│   ├── project/       # Project-related components
-│   └── ui/            # shadcn/ui primitives
-├── contexts/          # React Context providers
-├── hooks/             # Custom React hooks
-├── lib/               # Utilities and configurations
-│   ├── categoryIcons.tsx  # Icon mapping system
-│   ├── database.ts        # Supabase service layer
-│   ├── supabase.ts        # Supabase client config
-│   └── validations.ts     # Zod schemas
-├── pages/             # Route components
-└── types/             # TypeScript type definitions
+### ✅ Phase 1 Complete: Core Platform
+All essential features implemented and production-ready:
+- Secure authentication (@illinois.edu only)
+- Project submission and discovery
+- Real-time voting and comments
+- User profiles and collections
 
-supabase/
-├── migrations/        # Database migrations
-└── config.toml       # Supabase configuration
-```
+### 🔄 Phase 2 Next: Advanced Features
+- Advanced search and filtering
+- Trending algorithm with analytics
+- Admin moderation tools
+- Testing framework
 
-## 📋 Development Roadmap
-
-### ✅ Recently Completed (January 2025)
-- **Category System Redesign** - Problem-focused categorization
-- **Project Detail Pages** - Individual project pages with full context
-- **Comment System** - Threaded discussions with real-time updates  
-- **User Profiles** - Complete profile system with project portfolios
-- **Collections & Bookmarks** - Project organization features
-- **Enhanced Analytics** - PostHog integration planning
-
-### 🚧 Current Priorities
-- **Project Editing Forms** - Allow creators to update their projects
-- **Advanced Search** - Tag system and enhanced filtering
-- **Admin Panel** - Content moderation and featured project curation
-
-### 🔮 Future Enhancements
-- **Course Integration** - Connect projects to UIUC courses
-- **Faculty Collaboration** - Professor and research mentor features
-- **Industry Partnerships** - Connect projects to career opportunities
-- **Mobile App** - Native iOS/Android applications
+**📅 For detailed implementation plans: [IMPROVEMENT_ROADMAP.md](docs/IMPROVEMENT_ROADMAP.md)**
 
 ## 🤝 Contributing to IlliniHunt
 
@@ -198,7 +104,6 @@ supabase/
 1. **Read our [Contributing Guide](CONTRIBUTING.md)** - Comprehensive guide for Illinois contributors
 2. **Browse [Student-Friendly Issues](https://github.com/vishalsachdev/illinihunt/labels/student-friendly)** - Perfect starting points
 3. **Try AI-Assisted Development** - Use @claude for help and learning
-4. **Connect Course Projects** - Integrate with CS/ECE/BADM coursework
 
 ### 🤖 Complete AI-Powered Development Workflow
 
@@ -216,150 +121,76 @@ IlliniHunt features a **revolutionary automated development pipeline** that take
 6. **👥 Expert Review** - Experienced developers ensure quality
 7. **🚀 Live Deployment** - Your feature goes live automatically!
 
-**Track Your Request:**
-- 🟡 `needs-clarification` - AI is asking questions
-- 🔵 `spec-in-progress` - Creating technical specification
-- 🟢 `spec-ready` - Ready for your approval
-- 🟣 `ready-for-implementation` - Approved, coding begins
-- 🟠 `claude-implementing` - Code being written
-- 🔴 `claude-pr-ready` - Ready for expert review
-
-**Perfect for:** Feature requests, bug reports, UI improvements, new functionality
-
 **🚀 Get Started:** [Submit a Feature Request](https://github.com/vishalsachdev/illinihunt/issues/new?template=feature_request.yml) or [Report a Bug](https://github.com/vishalsachdev/illinihunt/issues/new?template=bug_report.yml)
 
-#### 🛠️ **For Developers** (AI-Assisted Coding)
+#### 🧑‍💻 **For Technical Contributors** (Students with coding experience)
 
-Get AI help with your development work:
+**Want to dive deep into modern web development?** Perfect! You'll get hands-on experience with:
 
-```markdown
-@claude implement user notification system with real-time updates
-@claude review this component for accessibility and performance
-@claude fix the TypeScript error in the ProjectCard component
-```
+- 🏆 **Real-World Impact**: Your code affects real users daily
+- 🎓 **Portfolio Building**: Showcase real-world React/TypeScript/Supabase experience
+- 🧠 **AI-Assisted Coding**: Learn from @claude's guidance and explanations
+- 👥 **Community Building**: Connect with fellow Illinois developers
+- 📈 **Career Growth**: Reference from project maintainers
 
-**Learning Benefits:**
-- 📚 **Code Explanations**: Understand complex patterns and architecture
-- 🏆 **Best Practices**: Learn React, TypeScript, and Supabase through AI guidance
-- 🔍 **Code Reviews**: Get detailed feedback on your contributions
-- 🤝 **Collaborative Learning**: Work alongside AI to tackle challenging features
+**Development Features:**
+- 🔄 **Hot Reload Development** - See changes instantly
+- 🧪 **Type-Safe Development** - TypeScript catches errors early
+- 🎨 **Component Library** - Pre-built UI components
+- 📊 **Real-time Features** - WebSocket subscriptions and optimistic UI
+- 🔒 **Security-First** - Row Level Security (RLS) and domain restrictions
 
-### 🎯 Contribution Opportunities
+**Perfect for:**
+- CS/ECE students learning modern web development
+- Research projects needing real-world deployment
+- Senior design projects and capstone work
+- Students interested in startup experience
 
-#### 🟢 **Beginner-Friendly** (New to web development)
-- UI improvements and visual fixes
-- Documentation updates and examples
-- Simple component modifications
-- Icon and styling enhancements
+### 🎓 **Academic Integration Opportunities**
 
-#### 🟡 **Intermediate** (Some React/JS experience)
-- New feature components and pages
-- Database schema improvements
-- API integration enhancements
-- Performance optimizations
+- **CS 411 (Database Systems)** - Real database optimization and schema design
+- **CS 421 (Programming Languages)** - TypeScript advanced patterns and functional concepts
+- **CS 465 (User Interface Design)** - UI/UX research and A/B testing
+- **ECE 408 (Applied Parallel Programming)** - Performance optimization and caching
+- **BADM 350 (Intro to Information Systems)** - Business analysis and user research
 
-#### 🔴 **Advanced** (Experienced developers)
-- Architecture improvements and refactoring
-- Complex feature implementations
-- Security enhancements and audits
-- DevOps and deployment improvements
+### 🏅 **Recognition & Rewards**
 
-### 🏫 Academic Integration
+- **🌟 Contributor Credits** - Your name featured on the platform
+- **📝 LinkedIn Recommendations** - From project maintainers
+- **🎯 Portfolio Projects** - Real-world examples for internship applications
+- **🚀 Startup Experience** - Learn product development and user feedback cycles
+- **🎓 Academic Credit** - Work with professors to integrate contributions into coursework
 
-**Course Project Opportunities:**
-- **CS 225**: Data structures for search/filtering algorithms
-- **CS 411**: Database optimization and query improvements
-- **CS 465**: UI/UX research and design improvements
-- **CS 519**: Data visualization and analytics features
-- **BADM 350**: Business model analysis and user engagement
+### 📞 Support for Contributors
 
-**Research Opportunities:**
-- Human-computer interaction studies
-- Software engineering methodology research
-- Social computing and community analysis
-- AI-assisted development effectiveness studies
+**Stuck? Need Help?** We've got you covered:
 
-**Getting Academic Credit:**
-1. Use our [Course Project Template](https://github.com/vishalsachdev/illinihunt/issues/new?template=course_project.yml)
-2. Discuss integration with your professor
-3. Document learning outcomes and contributions
-4. Present results in class or research papers
+- 🤖 **AI Assistant (@claude)** - Get coding help and explanations 24/7
+- 💬 **GitHub Discussions** - Community support and feature discussions
+- 📋 **Detailed Issues** - Clear descriptions with acceptance criteria
+- 🎥 **Video Walkthroughs** - Screen recordings for complex features
+- 👥 **Peer Reviews** - Learn from experienced contributor feedback
 
-### 🛠️ Development Workflow
-
-```bash
-# 1. Fork and clone
-git clone https://github.com/YOUR_USERNAME/illinihunt.git
-cd illinihunt
-
-# 2. Install dependencies
-npm install
-
-# 3. Set up environment
-cp .env.example .env.local
-# Add Supabase credentials
-
-# 4. Start development
-npm run dev
-
-# 5. Create feature branch
-git checkout -b feature/your-feature-name
-
-# 6. Use AI assistance
-# Comment on issues with @claude for help
-```
-
-### 🎨 Code Quality Standards
-- **TypeScript**: Strict mode enabled, avoid `any` types
-- **React**: Functional components with hooks
-- **Styling**: Tailwind CSS with design system
-- **AI Review**: Use @claude for code review and suggestions
-- **Testing**: Add tests for new features when applicable
-
-### 🌟 Student Success Stories
-
-*Coming soon: Showcase of Illinois students who have:*
-- Landed tech internships through IlliniHunt contributions
-- Published research papers based on their work
-- Received academic credit for open source contributions
-- Built impressive portfolio projects for career advancement
-
-### 📞 Getting Help
-
-- **GitHub Discussions**: Ask questions and share ideas
-- **Issue Comments**: Tag maintainers or use @claude for AI help
-- **Contributing Guide**: [Detailed instructions](CONTRIBUTING.md)
-- **AI Assistant**: Get coding help and explanations anytime
-
-### 🎊 Recognition
-
-Contributors receive:
-- GitHub contributor recognition
-- LinkedIn recommendations for significant contributions
-- Portfolio project showcase opportunities
-- Potential research collaboration and co-authorship
-- Academic credit coordination with professors
+**New to open source?** No problem! We have [first-contribution](https://github.com/vishalsachdev/illinihunt/labels/first-contribution) issues perfect for beginners.
 
 ## 📊 Platform Analytics
 
-- **Target Users**: Illinois students, faculty, and staff
-- **Authentication**: Google OAuth with @illinois.edu domain restriction
-- **Categories**: 8 problem-focused categories
-- **Features**: 15+ major features implemented
-- **Deployment**: Production-ready with CI/CD pipeline
+- 🎯 **Target Users**: 50,000+ University of Illinois students, faculty, and staff
+- 🚀 **Current Status**: Production-ready with growing user base
+- 📈 **Growth Strategy**: Course integration and faculty partnerships
+- 🔒 **Security**: Enterprise-grade authentication and data protection
 
 ## 📞 Contact & Support
 
-- **Platform**: [illinihunt.vercel.app](https://illinihunt.vercel.app)
-- **GitHub**: [github.com/vishalsachdev/illinihunt](https://github.com/vishalsachdev/illinihunt)
-- **Issues**: Report bugs and feature requests via GitHub Issues
+- **🐛 Bug Reports**: [GitHub Issues](https://github.com/vishalsachdev/illinihunt/issues)
+- **💡 Feature Requests**: [GitHub Discussions](https://github.com/vishalsachdev/illinihunt/discussions)
+- **📧 Direct Contact**: [vishal@illinois.edu](mailto:vishal@illinois.edu)
 
 ## 📄 License
 
-This project is developed for the University of Illinois community. See LICENSE file for details.
+MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**Built with ❤️ for the University of Illinois community**
-
-*Transforming how students discover and showcase innovative projects that solve real-world problems.*
+**Built with ❤️ by Illinois students, for Illinois students** 🎓
