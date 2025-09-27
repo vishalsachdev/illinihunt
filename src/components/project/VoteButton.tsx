@@ -4,7 +4,6 @@ import { useAuthPrompt } from '@/contexts/AuthPromptContext'
 import { useError } from '@/contexts/ErrorContext'
 import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
 import { ProjectsService } from '@/lib/database'
-import { getValidatedVoteCount } from '@/lib/voteSync'
 import { Button } from '@/components/ui/button'
 import { ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -40,21 +39,9 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     }
   }, [getVoteData, projectId, initialVoteCount, isRealtimeConnected])
   
-  // Initialize real-time data with validated values
+  // Initialize real-time data
   useEffect(() => {
-    const initializeVoteCount = async () => {
-      // Validate the initial vote count against database
-      const validatedCount = await getValidatedVoteCount(projectId, initialVoteCount)
-      
-      if (validatedCount !== initialVoteCount) {
-        console.log(`Vote count corrected for project ${projectId}: ${initialVoteCount} → ${validatedCount}`)
-        setVoteCount(validatedCount)
-      }
-      
-      updateVoteCount(projectId, validatedCount)
-    }
-
-    initializeVoteCount()
+    updateVoteCount(projectId, initialVoteCount)
   }, [projectId, initialVoteCount, updateVoteCount])
 
   const checkVoteStatus = useCallback(async () => {

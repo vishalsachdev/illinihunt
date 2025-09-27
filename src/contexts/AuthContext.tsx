@@ -59,7 +59,7 @@ function getCachedProfile(): UserProfile | null {
       return parsedResult.data.profile as UserProfile
     }
   } catch (e) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (import.meta.env.DEV) {
       console.error('Failed to parse cached profile', e)
     }
   }
@@ -184,7 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       if (!mountedRef.current) return
-      if (process.env.NODE_ENV !== 'production') {
+      if (import.meta.env.DEV) {
         console.error('Profile loading error:', err)
       }
       setState(prev => ({

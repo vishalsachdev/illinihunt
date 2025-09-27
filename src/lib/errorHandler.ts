@@ -52,7 +52,7 @@ export class ErrorHandler {
         }
         
         // In development, show actual error for debugging
-        if (process.env.NODE_ENV === 'development') {
+        if (import.meta.env.DEV) {
           return { data: null, error: error.message }
         }
       }
@@ -73,7 +73,7 @@ export class ErrorHandler {
     
     // In production, you might want to send this to an error tracking service
     // like Sentry, LogRocket, etc.
-    if (process.env.NODE_ENV === 'production') {
+    if (import.meta.env.PROD) {
       // Example: Sentry.captureException(error, { tags: { context } })
     }
   }

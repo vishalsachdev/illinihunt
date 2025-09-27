@@ -126,20 +126,10 @@ npm run type-check
 
 ## Security
 
-### Authentication
-- ✅ Google OAuth with @illinois.edu restriction
-- ✅ Session management via Supabase
-- ✅ Protected routes for authenticated features
-
-### Database
-- ✅ Row Level Security (RLS) on all tables
-- ✅ Users can only modify own data
-- ✅ Public read, authenticated write pattern
-
-### Environment
-- ✅ No hardcoded secrets
-- ✅ Vercel manages production env vars
-- ✅ Supabase anon key is RLS-protected
+- ✅ **Auth**: Google OAuth with secure @illinois.edu validation (`is_valid_illinois_email()`)
+- ✅ **Database**: Row Level Security (RLS) enforced on all tables with domain validation
+- ✅ **Environment**: No hardcoded secrets, Vite-compatible env vars (`import.meta.env`)
+- ✅ **Votes**: Atomic counting with database triggers and unique constraints
 
 ## Code Quality
 
@@ -149,25 +139,18 @@ npm run type-check
 - No test framework (yet)
 - Build includes type checking
 
-### Bundle Size
-- Current: 604 kB total
-- React: 140 kB, Supabase: 115 kB, UI: 96 kB, Forms: 77 kB
-- Target: < 800 kB total
-
-### Performance Targets
-- Build time: < 10s (current: 2.67s ✅)
-- TypeScript: < 5s (current: ~1s ✅)
-- FCP: < 1.8s, LCP: < 2.5s, CLS: < 0.1
+### Performance Metrics
+- **Bundle**: 604kB total (React: 140kB, Supabase: 115kB, UI: 96kB) - Target: <800kB ✅
+- **Build**: 3.48s - Target: <5s ✅
+- **TypeScript**: ~1s - Target: <3s ✅
+- **Core Web Vitals**: FCP <1.8s, LCP <2.5s, CLS <0.1
 
 ## Style Guide
 
-Reference: `STYLE_GUIDE.md`
-
 - **Colors**: UIUC Orange `#FF6B35`, Blue `#13294B`
-- **Font**: Inter family
-- **Components**: shadcn/ui patterns
-- **Responsive**: Mobile-first with Tailwind
-- **Accessibility**: ARIA labels, semantic HTML
+- **UI**: shadcn/ui + Radix UI, Inter font, Lucide icons
+- **Responsive**: Mobile-first Tailwind CSS
+- **Accessibility**: ARIA labels, semantic HTML, focus management
 
 ## Troubleshooting
 
@@ -202,16 +185,11 @@ npx kill-port 5173
 npm run dev -- --port 3000
 ```
 
-**Voting system showing -1 votes**
+**Voting system issues**
 ```bash
-# Root cause: Database sync issue (upvotes_count ≠ actual votes)
-# Check for sync issues:
-mcp__supabase__execute_sql project_id:catzwowmxluzwbhdyhnf query:"SELECT p.name, p.upvotes_count, COUNT(v.id) as actual_votes FROM projects p LEFT JOIN votes v ON p.id = v.project_id GROUP BY p.id HAVING p.upvotes_count != COUNT(v.id)"
-
-# Fix database sync:
-mcp__supabase__execute_sql project_id:catzwowmxluzwbhdyhnf query:"UPDATE projects SET upvotes_count = (SELECT COUNT(*) FROM votes WHERE project_id = projects.id)"
-
-# Code fix: VoteButton.tsx should have Math.max(0, voteCount - 1) protection
+# ✅ FIXED: Database triggers now handle vote counting automatically
+# Votes are atomic with unique constraint: votes(user_id, project_id)
+# No manual sync needed - handled by database triggers
 ```
 
 ### Health Check
@@ -221,24 +199,18 @@ npm run type-check && npm run build && npx supabase projects list && echo "✅ A
 
 ## Feature Implementation Status
 
-### ✅ Completed (Priority 1)
-- Project detail pages with voting
-- Threaded comment system
-- User profiles with portfolios
-- Creator dashboard
-- Project submission & editing
-- Google OAuth (@illinois.edu)
-- Real-time voting
-- Category filtering
-- Bookmark system
+### ✅ Phase 1 Complete (Critical Fixes)
+- ✅ **Performance**: Vote sync removed, database triggers implemented
+- ✅ **Security**: Email domain validation secured at database level
+- ✅ **Compatibility**: Vite environment variables fixed
+- ✅ **Core Features**: Project submission, voting, comments, bookmarks, collections
 
-### 🔄 Next Phase (Priority 2)
-- Search & advanced filtering
-- Trending algorithm
-- Analytics & view counts
-- Admin moderation tools
-- Email notifications
-- Testing framework
+### 🔄 Phase 2 Next (Feature Completeness)
+- Search & advanced filtering (text + category + date range)
+- Trending algorithm with view tracking
+- Admin moderation tools and dashboard
+- Analytics & engagement metrics
+- Testing framework (Vitest + React Testing Library)
 
 ## Development Workflow
 
@@ -251,20 +223,18 @@ npm run type-check && npm run build && npx supabase projects list && echo "✅ A
 6. Deploy (auto via Vercel)
 
 ### Before Committing
-1. `npm run type-check` - Must pass
-2. `npm run build` - Must succeed
-3. `npm run lint` - Review warnings
-4. Remove debug code/console.logs
-5. Update CLAUDE.md if architecture changes
-
-### Session Wrap-up Pattern
 ```bash
-# Assessment
-git status && git diff --stat
+# Quality pipeline (all must pass)
+npm run type-check  # TypeScript validation
+npm run build       # Production build test
+npm run lint        # Code style check
 
-# Quality checks
-npm run lint && npm run type-check && npm run build
-
-# Verify production ready
-grep -r "console.log" src/  # Should be minimal
+# Clean up debug code
+grep -r "console.log" src/  # Minimize production logs
 ```
+
+### Phase Implementation Notes
+- **Phase 1 Complete**: Critical security & performance fixes ✅
+- **Phase 2 Target**: Search, trending, admin tools
+- **All changes**: Apply via Supabase migrations with type regeneration
+- **Deployment**: Auto-deploy via Vercel on push to main
