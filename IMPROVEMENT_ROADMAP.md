@@ -239,7 +239,7 @@ export const useAdminAuth = () => {
 
   // Admin users list (could be moved to database)
   const adminEmails = [
-    'admin@illinois.edu',
+    'vishal@illinois.edu',
     'moderator@illinois.edu'
   ]
 
