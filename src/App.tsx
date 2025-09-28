@@ -94,7 +94,58 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 }
 
 function AppContent() {
-  const { user, error } = useAuth()
+  const { user, error, loading, retryAuth } = useAuth()
+
+  // Debug auth state in development
+  if (import.meta.env.DEV) {
+    console.log('App auth state:', { 
+      user: user?.email, 
+      loading, 
+      error: error?.substring(0, 50) 
+    })
+  }
+
+  // Show error state with retry option if auth fails
+  if (error && error.includes('timed out')) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mb-4">
+            <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Authentication Timeout</h2>
+          <p className="text-gray-600 mb-6">
+            The authentication check is taking longer than expected. This might be due to a network issue or server problem.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button 
+              onClick={retryAuth}
+              disabled={loading}
+              className="bg-uiuc-orange hover:bg-uiuc-orange/90 text-white"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  Retrying...
+                </>
+              ) : (
+                'Retry Authentication'
+              )}
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => window.location.reload()}
+              className="border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              Refresh Page
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // Don't block rendering for auth loading
   // The page should render immediately with or without auth
@@ -102,6 +153,15 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-background">
+        {/* Debug panel in development */}
+        {import.meta.env.DEV && (
+          <div className="fixed bottom-4 right-4 bg-black/80 text-white text-xs p-2 rounded z-50 max-w-xs">
+            <div>User: {user?.email || 'None'}</div>
+            <div>Loading: {loading ? 'Yes' : 'No'}</div>
+            <div>Error: {error ? error.substring(0, 30) + '...' : 'None'}</div>
+          </div>
+        )}
+        
         {/* Skip to content for accessibility */}
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-uiuc-blue focus:px-3 focus:py-2 focus:rounded shadow">Skip to content</a>
         <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b text-gray-900 p-4 shadow-sm">

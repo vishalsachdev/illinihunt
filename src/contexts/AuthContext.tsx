@@ -18,6 +18,7 @@ interface AuthState {
   signInWithEmail: (email: string) => Promise<void>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
+  retryAuth: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined)
@@ -78,7 +79,7 @@ function clearCachedProfile() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<Omit<AuthState, 'signInWithGoogle' | 'signInWithEmail' | 'signOut' | 'refreshProfile'>>({
+  const [state, setState] = useState<Omit<AuthState, 'signInWithGoogle' | 'signInWithEmail' | 'signOut' | 'refreshProfile' | 'retryAuth'>>({
     user: null,
     profile: null,
     session: null,
@@ -97,10 +98,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadUserProfile = useCallback(async (user: User, force = false) => {
     if (profileLoadingRef.current && !force) return
     profileLoadingRef.current = true
+    
+    if (import.meta.env.DEV) {
+      console.log('Loading user profile for:', user.email)
+    }
+    
     try {
       const cached = !force ? getCachedProfile() : null
       if (cached) {
-        setState(prev => ({ ...prev, profile: cached, error: null }))
+        setState(prev => ({ ...prev, profile: cached, error: null, loading: false }))
         return
       }
 
@@ -157,7 +163,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setState(prev => ({
             ...prev,
             profile: null,
-            error: `Failed to create profile: ${createError.message}`
+            error: `Failed to create profile: ${createError.message}`,
+            loading: false
           }))
           return
         }
@@ -166,20 +173,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setState(prev => ({
           ...prev,
           profile: createdProfile,
-          error: null
+          error: null,
+          loading: false
         }))
       } else if (error) {
         setState(prev => ({
           ...prev,
           profile: null,
-          error: `Failed to load profile: ${error.message}`
+          error: `Failed to load profile: ${error.message}`,
+          loading: false
         }))
       } else if (data) {
         setCachedProfile(data)
         setState(prev => ({
           ...prev,
           profile: data,
-          error: null
+          error: null,
+          loading: false
         }))
       }
     } catch (err) {
@@ -190,7 +200,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setState(prev => ({
         ...prev,
         profile: null,
-        error: err instanceof Error ? err.message : 'Unknown error'
+        error: err instanceof Error ? err.message : 'Unknown error',
+        loading: false
       }))
     } finally {
       profileLoadingRef.current = false
@@ -255,6 +266,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mountedRef.current) return
+
+      if (import.meta.env.DEV) {
+        console.log('Auth state change:', event, session?.user?.email)
+      }
 
       if (event === 'SIGNED_IN' && session?.user) {
         setState(prev => ({
@@ -337,8 +352,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const retryAuth = async () => {
+    setState(prev => ({ ...prev, loading: true, error: null }))
+    
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession()
+      
+      if (!mountedRef.current) return
+      
+      if (error) {
+        setState(prev => ({ ...prev, error: error.message, loading: false }))
+        return
+      }
+      
+      if (session?.user) {
+        setState(prev => ({
+          ...prev,
+          user: session.user,
+          session,
+          loading: false
+        }))
+        await loadUserProfile(session.user)
+      } else {
+        setState(prev => ({ ...prev, loading: false, user: null, session: null }))
+      }
+    } catch (err) {
+      if (!mountedRef.current) return
+      setState(prev => ({
+        ...prev,
+        error: err instanceof Error ? err.message : 'Failed to retry auth',
+        loading: false
+      }))
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ ...state, signInWithGoogle, signInWithEmail, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ ...state, signInWithGoogle, signInWithEmail, signOut, refreshProfile, retryAuth }}>
       {children}
     </AuthContext.Provider>
   )

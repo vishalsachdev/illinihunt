@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { useWindowSize } from '@/hooks/useWindowSize'
+import { useAuth } from '@/hooks/useAuth'
+import { toast } from 'sonner'
 
 import { Hero } from './home/Hero'
 import { FeaturedProjects } from './home/FeaturedProjects'
@@ -12,6 +14,21 @@ export function HomePage() {
   const windowSize = useWindowSize()
   const [searchParams, setSearchParams] = useSearchParams()
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  // Handle auth redirects
+  useEffect(() => {
+    const state = location.state as { authRedirect?: string; message?: string } | null
+    if (user && state?.authRedirect) {
+      navigate(state.authRedirect, { replace: true })
+    } else if (state?.message) {
+      toast.info(state.message)
+      // Clear the state to prevent showing the message again
+      navigate(location.pathname, { replace: true, state: null })
+    }
+  }, [user, location.state, navigate, location.pathname])
 
   // Handle category from URL query parameter
   useEffect(() => {

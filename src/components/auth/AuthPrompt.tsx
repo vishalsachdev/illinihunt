@@ -22,6 +22,7 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
   const [emailValid, setEmailValid] = useState(true)
   const [linkSent, setLinkSent] = useState(false)
   const [sending, setSending] = useState(false)
+  const [signingIn, setSigningIn] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
   const [cooldown, setCooldown] = useState(0)
 
@@ -64,11 +65,24 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
   }
 
   const handleSignIn = async () => {
+    setSigningIn(true)
+    setLocalError(null)
+    
+    // Add a timeout to prevent getting stuck
+    const timeoutId = setTimeout(() => {
+      setSigningIn(false)
+      setLocalError('Sign-in timed out. Please try again or use the email option.')
+    }, 10000) // 10 second timeout
+    
     try {
       await signInWithGoogle()
+      clearTimeout(timeoutId)
       handleClose()
     } catch (error) {
-      // Sign in errors are handled by the auth hook
+      clearTimeout(timeoutId)
+      setLocalError(error instanceof Error ? error.message : 'Sign-in failed. Please try again.')
+    } finally {
+      setSigningIn(false)
     }
   }
 
@@ -159,11 +173,21 @@ export function AuthPrompt({ actionRequired = 'vote and submit projects', onClos
               </div>
               <Button
                 onClick={handleSignIn}
+                disabled={signingIn}
                 className="w-full bg-uiuc-blue hover:bg-uiuc-blue/90 text-white font-medium py-3 px-6 rounded-lg transition-all hover:shadow-lg flex items-center justify-center gap-3"
                 size="lg"
               >
-                <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
-                <span>Sign in with Google</span>
+                {signingIn ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  <>
+                    <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
+                    <span>Sign in with Google</span>
+                  </>
+                )}
               </Button>
             </div>
 
