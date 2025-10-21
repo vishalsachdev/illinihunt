@@ -1,10 +1,35 @@
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Zap } from 'lucide-react'
+import { StatsService } from '@/lib/database'
 
 export function Hero() {
+  const [stats, setStats] = useState({
+    projectsCount: 0,
+    usersCount: 0,
+    categoriesCount: 0,
+    loading: true
+  })
+
+  useEffect(() => {
+    const loadStats = async () => {
+      const { data, error } = await StatsService.getPlatformStats()
+      if (data && !error) {
+        setStats({
+          projectsCount: data.projectsCount,
+          usersCount: data.usersCount,
+          categoriesCount: data.categoriesCount,
+          loading: false
+        })
+      } else {
+        setStats({ projectsCount: 0, usersCount: 0, categoriesCount: 0, loading: false })
+      }
+    }
+    loadStats()
+  }, [])
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-uiuc-blue via-slate-800 to-slate-900 overflow-hidden">
+    <div className="relative min-h-[500px] sm:min-h-[600px] md:min-h-[70vh] bg-gradient-to-br from-uiuc-blue via-slate-800 to-slate-900 overflow-hidden">
       {/* Background Pattern/Overlay */}
       <div className="absolute inset-0 bg-black/50"></div>
       <div className="absolute inset-0 opacity-20">
@@ -18,7 +43,7 @@ export function Hero() {
       </div>
 
       {/* Hero Content */}
-      <div className="relative z-10 container mx-auto px-4 min-h-screen flex items-center">
+      <div className="relative z-10 container mx-auto px-4 min-h-[500px] sm:min-h-[600px] md:min-h-[70vh] flex items-center">
         <div className="text-center w-full py-20">
           {/* Integrated Tagline */}
           <div className="mb-4 sm:mb-6 pt-8 sm:pt-12">
@@ -71,13 +96,42 @@ export function Hero() {
               Explore Projects
             </Button>
           </div>
-        </div>
-      </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-pulse"></div>
+          {/* Inline Statistics */}
+          <div className="mt-16 pt-8 border-t border-white/20">
+            <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-3xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">
+                  {stats.loading ? (
+                    <div className="animate-pulse bg-white/20 rounded h-10 sm:h-12 lg:h-14 w-16 sm:w-24 mx-auto"></div>
+                  ) : (
+                    `${stats.projectsCount}+`
+                  )}
+                </div>
+                <div className="text-gray-300 text-xs sm:text-sm lg:text-base font-medium">Projects</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">
+                  {stats.loading ? (
+                    <div className="animate-pulse bg-white/20 rounded h-10 sm:h-12 lg:h-14 w-16 sm:w-24 mx-auto"></div>
+                  ) : (
+                    `${stats.usersCount}+`
+                  )}
+                </div>
+                <div className="text-gray-300 text-xs sm:text-sm lg:text-base font-medium">Innovators</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">
+                  {stats.loading ? (
+                    <div className="animate-pulse bg-white/20 rounded h-8 sm:h-10 lg:h-12 w-12 sm:w-16 mx-auto"></div>
+                  ) : (
+                    stats.categoriesCount
+                  )}
+                </div>
+                <div className="text-gray-300 text-xs sm:text-sm lg:text-base font-medium">Categories</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -55,14 +55,14 @@ export function FeaturedProjects() {
   return (
     <div className="mb-16 sm:mb-20">
       <div className="text-center mb-8">
-        <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">🔥 Trending Projects</h3>
-        <p className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto">Discover innovation at Illinois</p>
+        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">🔥 Trending Projects</h3>
+        <p className="text-gray-600 text-sm sm:text-base max-w-2xl mx-auto">Discover innovation at Illinois</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
         {enrichedFeaturedProjects.map((project) => (
           <div
             key={project.id}
-            className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 hover:border-white/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer group shadow-lg hover:shadow-xl"
+            className="bg-white border border-gray-200 rounded-xl p-6 hover:border-uiuc-orange/50 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer group shadow-sm"
             onClick={() => {
               window.location.href = `/project/${project.id}`
             }}
@@ -74,10 +74,10 @@ export function FeaturedProjects() {
                   <img
                     src={project.image_url}
                     alt={project.name}
-                    className="w-16 h-16 rounded-xl object-cover border border-white/20 shadow-sm"
+                    className="w-16 h-16 rounded-xl object-cover border border-gray-200 shadow-sm"
                   />
                 ) : (
-                  <div className="w-16 h-16 bg-gradient-to-br from-uiuc-orange to-uiuc-blue rounded-xl flex items-center justify-center border border-white/20 shadow-sm">
+                  <div className="w-16 h-16 bg-gradient-to-br from-uiuc-orange to-uiuc-blue rounded-xl flex items-center justify-center border border-gray-200 shadow-sm">
                     <span role="img" aria-label="Project placeholder icon">
                       <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
@@ -100,17 +100,17 @@ export function FeaturedProjects() {
 
               {/* Project Info */}
               <div className="space-y-3">
-                <h4 className="font-bold text-white text-lg group-hover:text-uiuc-light-orange transition-colors line-clamp-1">
+                <h4 className="font-bold text-gray-900 text-lg group-hover:text-uiuc-orange transition-colors line-clamp-1">
                   {project.name}
                 </h4>
-                <p className="text-gray-300 text-sm leading-relaxed line-clamp-2">
+                <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
                   {project.tagline || 'An innovative project from the Illinois community.'}
                 </p>
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                <span className="text-gray-400 text-sm font-medium">by {project.users?.full_name || 'Anonymous'}</span>
+              <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                <span className="text-gray-600 text-sm font-medium">by {project.users?.full_name || 'Anonymous'}</span>
                 {project.categories && (
                   <span
                     className="text-xs px-3 py-1.5 rounded-full text-white font-medium shadow-sm"

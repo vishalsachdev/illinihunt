@@ -7,7 +7,6 @@ import { toast } from 'sonner'
 import { Hero } from './home/Hero'
 import { FeaturedProjects } from './home/FeaturedProjects'
 import { CategoryPreview } from './home/CategoryPreview'
-import { Statistics } from './home/Statistics'
 import { ProjectGridSection } from './home/ProjectGridSection'
 
 export function HomePage() {
@@ -51,11 +50,10 @@ export function HomePage() {
   return (
     <div key={`${windowSize.width}-${windowSize.height}`}>
       <Hero />
-      <section className="relative bg-gradient-to-br from-uiuc-blue via-slate-800 to-slate-900 text-white">
+      <section className="relative bg-slate-50">
         <div className="container mx-auto px-4 py-16">
           <FeaturedProjects />
           <CategoryPreview onSelect={handleCategorySelect} />
-          <Statistics />
         </div>
       </section>
       <ProjectGridSection selectedCategory={selectedCategory} />

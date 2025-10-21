@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Search, Filter, Sparkles, Frown, Rocket } from 'lucide-react'
+import { Search, Filter, Sparkles, Frown } from 'lucide-react'
 import { CategoryIcon } from '@/lib/categoryIcons'
 import type { Database } from '@/types/database'
 import { motion } from 'framer-motion'
@@ -150,55 +150,6 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
 
   return (
     <div className="space-y-8">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-uiuc-blue to-uiuc-orange text-white rounded-xl p-8 md:p-12">
-        <div className="relative z-10 max-w-3xl">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">Discover Amazing Projects</h1>
-          <p className="text-lg text-blue-50/90 mb-6">
-            Explore innovative projects from the Illinois community. Vote for your favorites, discover new ideas, and connect with brilliant minds.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button 
-              variant="secondary" 
-              className="bg-white text-uiuc-blue hover:bg-gray-100 font-medium"
-              onClick={() => document.getElementById('search-projects')?.focus()}
-            >
-              <Search className="mr-2 h-4 w-4" />
-              Browse Projects
-            </Button>
-            <Button 
-              variant="outline" 
-              className="bg-transparent border-white/20 text-white hover:bg-white/10"
-              onClick={async () => {
-                try {
-                  const { data: { session } } = await supabase.auth.getSession()
-                  if (session) {
-                    navigate('/submit')
-                  } else {
-                    // If not authenticated, redirect to home with a sign-in prompt
-                    navigate('/', { 
-                      state: { 
-                        authRedirect: '/submit',
-                        message: 'Please sign in to submit a project' 
-                      } 
-                    })
-                  }
-                } catch (error) {
-                  console.error('Auth check failed:', error)
-                  // Fallback to normal navigation
-                  navigate('/submit')
-                }
-              }}
-            >
-              <Rocket className="mr-2 h-4 w-4" />
-              Submit Your Project
-            </Button>
-          </div>
-        </div>
-        <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
-      </div>
-
       {/* Search and Filter Bar */}
       <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
