@@ -63,6 +63,7 @@ export function EditProfilePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [isFormInitialized, setIsFormInitialized] = useState(false)
 
   const {
     register,
@@ -74,9 +75,9 @@ export function EditProfilePage() {
     resolver: zodResolver(profileSchema)
   })
 
-  // Initialize form with current profile data
+  // Initialize form with current profile data only once
   useEffect(() => {
-    if (profile) {
+    if (profile && !isFormInitialized) {
       setValue('username', profile.username || '')
       setValue('full_name', profile.full_name || '')
       setValue('bio', profile.bio || '')
@@ -85,8 +86,9 @@ export function EditProfilePage() {
       setValue('website_url', profile.website_url || '')
       setValue('year_of_study', profile.year_of_study || '')
       setValue('department', profile.department || '')
+      setIsFormInitialized(true)
     }
-  }, [profile, setValue])
+  }, [profile, setValue, isFormInitialized])
 
   const onSubmit = async (data: ProfileFormData) => {
     if (!user?.id) return
