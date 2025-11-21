@@ -21,7 +21,7 @@ export function CategoryPreview({ onSelect }: CategoryPreviewProps) {
     const loadCategories = async () => {
       const { data, error } = await CategoriesService.getCategories()
       if (data && !error) {
-        setCategories(data.slice(0, 6))
+        setCategories(data)
       }
       setLoading(false)
     }
@@ -35,7 +35,7 @@ export function CategoryPreview({ onSelect }: CategoryPreviewProps) {
   return (
     <div className="mb-12 sm:mb-16">
       <h3 className="text-xl sm:text-2xl font-semibold text-white mb-6 text-center">Explore by Category</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 max-w-4xl mx-auto px-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto px-4">
         {categories.map((category) => (
           <button
             key={category.id}
