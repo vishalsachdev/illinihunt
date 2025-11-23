@@ -57,23 +57,50 @@
   
   html {
     overflow-x: hidden;
+    scroll-behavior: smooth;
   }
   
   body {
-    @apply bg-background text-foreground font-['Inter',sans-serif];
+    @apply bg-background text-foreground font-['Inter',sans-serif] antialiased;
     overflow-x: hidden;
     width: 100%;
     min-width: 320px;
+    selection-background-color: hsl(var(--primary) / 0.2);
+    selection-color: hsl(var(--primary));
   }
   
   /* Ensure responsive behavior */
   * {
     box-sizing: border-box;
   }
-  
+
+  /* Improved scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors;
+  }
 }
 
 @layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass {
+    @apply bg-background/60 backdrop-blur-lg border-b border-border/50;
+  }
+
+  .glass-card {
+    @apply bg-card/50 backdrop-blur-sm border border-border/50 shadow-sm hover:shadow-md transition-all duration-300;
+  }
+
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;

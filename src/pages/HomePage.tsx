@@ -49,15 +49,11 @@ export function HomePage() {
   }
 
   return (
-    <div key={`${windowSize.width}-${windowSize.height}`}>
+    <div key={`${windowSize.width}-${windowSize.height}`} className="bg-slate-950 min-h-screen">
       <Hero />
-      <section className="relative bg-gradient-to-br from-uiuc-blue via-slate-800 to-slate-900 text-white">
-        <div className="container mx-auto px-4 py-16">
-          <FeaturedProjects />
-          <CategoryPreview onSelect={handleCategorySelect} />
-          <Statistics />
-        </div>
-      </section>
+      <FeaturedProjects />
+      <CategoryPreview onSelect={handleCategorySelect} />
+      <Statistics />
       <ProjectGridSection selectedCategory={selectedCategory} />
     </div>
   )

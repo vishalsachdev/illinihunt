@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { CategoriesService } from '@/lib/database'
 import { CategoryIcon } from '@/lib/categoryIcons'
+import { motion } from 'framer-motion'
 
 export type Category = {
   id: string
@@ -33,31 +34,40 @@ export function CategoryPreview({ onSelect }: CategoryPreviewProps) {
   }
 
   return (
-    <div className="mb-12 sm:mb-16">
-      <h3 className="text-xl sm:text-2xl font-semibold text-white mb-6 text-center">Explore by Category</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto px-4">
-        {categories.map((category) => (
-          <button
-            key={category.id}
-            onClick={() => {
-              onSelect(category.id)
-              document.getElementById('projects-section')?.scrollIntoView({ behavior: 'smooth' })
-            }}
-            className="group bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 sm:p-4 hover:bg-white/20 transition-all duration-300 text-center"
-          >
-            <div
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full mx-auto mb-2 flex items-center justify-center text-white font-semibold text-sm sm:text-base"
-              style={{ backgroundColor: category.color }}
+    <section className="py-20 bg-slate-900/50">
+      <div className="container px-4 md:px-6">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-white mb-4">Explore by Category</h2>
+          <p className="text-slate-400">Find projects that match your interests</p>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+          {categories.map((category, index) => (
+            <motion.button
+              key={category.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+              onClick={() => {
+                onSelect(category.id)
+                document.getElementById('projects-section')?.scrollIntoView({ behavior: 'smooth' })
+              }}
+              className="group flex items-center gap-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:bg-slate-800 hover:border-uiuc-orange/50 transition-all duration-300 text-left"
             >
-              <CategoryIcon iconName={category.icon} className="w-4 h-4 sm:w-5 sm:h-5" fallback={category.name} />
-            </div>
-            <span className="text-white text-xs sm:text-sm font-medium group-hover:text-uiuc-light-orange transition-colors">
-              {category.name}
-            </span>
-          </button>
-        ))}
+              <div
+                className="w-10 h-10 rounded-lg flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300"
+                style={{ backgroundColor: category.color }}
+              >
+                <CategoryIcon iconName={category.icon} className="w-5 h-5" fallback={category.name} />
+              </div>
+              <span className="text-slate-200 font-medium group-hover:text-white transition-colors">
+                {category.name}
+              </span>
+            </motion.button>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   )
 }
 
