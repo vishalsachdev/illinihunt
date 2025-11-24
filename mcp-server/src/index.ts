@@ -18,6 +18,26 @@ interface RateLimitEntry {
   resetTime: number;
 }
 
+// Define interfaces for tool arguments
+interface QueryProjectsArgs {
+  category?: string;
+  limit?: number;
+  sortBy?: 'recent' | 'popular' | 'featured';
+  search?: string;
+}
+
+interface ProjectIdArgs {
+  projectId: string;
+}
+
+interface UserIdArgs {
+  userId: string;
+}
+
+interface CustomQueryArgs {
+  query: string;
+}
+
 class IlliniHuntMCPServer {
   private server: Server;
   private supabase: SupabaseClient;
@@ -305,25 +325,25 @@ class IlliniHuntMCPServer {
         let result;
         switch (name) {
           case 'query_projects':
-            result = await this.queryProjects(args as any);
+            result = await this.queryProjects(args as unknown as QueryProjectsArgs);
             break;
           case 'get_project_details':
-            result = await this.getProjectDetails(args as any);
+            result = await this.getProjectDetails(args as unknown as ProjectIdArgs);
             break;
           case 'get_user_projects':
-            result = await this.getUserProjects(args as any);
+            result = await this.getUserProjects(args as unknown as UserIdArgs);
             break;
           case 'get_categories':
             result = await this.getCategories();
             break;
           case 'get_project_comments':
-            result = await this.getProjectComments(args as any);
+            result = await this.getProjectComments(args as unknown as ProjectIdArgs);
             break;
           case 'get_platform_stats':
             result = await this.getPlatformStats();
             break;
           case 'execute_custom_query':
-            result = await this.executeCustomQuery(args as any);
+            result = await this.executeCustomQuery(args as unknown as CustomQueryArgs);
             break;
           default:
             throw new Error(`Unknown tool: ${name}`);
@@ -347,7 +367,7 @@ class IlliniHuntMCPServer {
     });
   }
 
-  private async queryProjects(args: { category?: string; limit?: number; sortBy?: 'recent' | 'popular' | 'featured'; search?: string }) {
+  private async queryProjects(args: QueryProjectsArgs) {
     let query = this.supabase
       .from('projects')
       .select(`
@@ -408,7 +428,7 @@ class IlliniHuntMCPServer {
     };
   }
 
-  private async getProjectDetails(args: { projectId: string }) {
+  private async getProjectDetails(args: ProjectIdArgs) {
     const { data, error } = await this.supabase
       .from('projects')
       .select(`
@@ -457,7 +477,7 @@ class IlliniHuntMCPServer {
     };
   }
 
-  private async getUserProjects(args: { userId: string }) {
+  private async getUserProjects(args: UserIdArgs) {
     const { data, error } = await this.supabase
       .from('projects')
       .select(`
@@ -508,7 +528,7 @@ class IlliniHuntMCPServer {
     };
   }
 
-  private async getProjectComments(args: { projectId: string }) {
+  private async getProjectComments(args: ProjectIdArgs) {
     const { data, error } = await this.supabase
       .from('comments')
       .select(`
@@ -587,7 +607,7 @@ class IlliniHuntMCPServer {
     };
   }
 
-  private async executeCustomQuery(args: { query: string }) {
+  private async executeCustomQuery(args: CustomQueryArgs) {
     try {
       // Basic security check - only allow SELECT queries
       const query = args.query.trim().toLowerCase();

@@ -33,3 +33,6 @@ dist-ssr
 # Supabase
 .supabase
 .vercel
+
+# NPM package tarballs
+*.tgz
