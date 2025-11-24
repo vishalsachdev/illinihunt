@@ -1,6 +1,8 @@
-# IlliniHunt MCP Server
+# IlliniHunt MCP Server (pmat-agent)
 
 This is a Model Context Protocol (MCP) server that provides database access to the IlliniHunt application. It allows AI assistants to query the Supabase PostgreSQL database safely and efficiently.
+
+The package is available as `pmat-agent` (Project Management Agent Tool) for global installation.
 
 ## Features
 
@@ -12,7 +14,22 @@ This is a Model Context Protocol (MCP) server that provides database access to t
 - **Platform Stats**: Retrieve platform statistics
 - **Custom Queries**: Execute read-only SQL queries (SELECT only)
 
-## Installation
+## Global Installation
+
+To install the MCP server globally as a command-line tool:
+
+```bash
+npm install -g pmat-agent
+```
+
+Once installed, you can run it using:
+```bash
+pmat-agent
+```
+
+Note: You need to have the required environment variables set (see Configuration section below).
+
+## Local Development Installation
 
 1. Navigate to the mcp-server directory:
    ```bash
@@ -30,6 +47,14 @@ This is a Model Context Protocol (MCP) server that provides database access to t
    ```bash
    npm run build
    ```
+
+## Configuration
+
+The server requires the following environment variables:
+- `VITE_SUPABASE_URL`: Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+
+These can be set in a `.env.local` file in the parent directory or as system environment variables.
 
 ## Usage
 

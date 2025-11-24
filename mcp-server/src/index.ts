@@ -305,25 +305,25 @@ class IlliniHuntMCPServer {
         let result;
         switch (name) {
           case 'query_projects':
-            result = await this.queryProjects(args);
+            result = await this.queryProjects(args as any);
             break;
           case 'get_project_details':
-            result = await this.getProjectDetails(args);
+            result = await this.getProjectDetails(args as any);
             break;
           case 'get_user_projects':
-            result = await this.getUserProjects(args);
+            result = await this.getUserProjects(args as any);
             break;
           case 'get_categories':
             result = await this.getCategories();
             break;
           case 'get_project_comments':
-            result = await this.getProjectComments(args);
+            result = await this.getProjectComments(args as any);
             break;
           case 'get_platform_stats':
             result = await this.getPlatformStats();
             break;
           case 'execute_custom_query':
-            result = await this.executeCustomQuery(args);
+            result = await this.executeCustomQuery(args as any);
             break;
           default:
             throw new Error(`Unknown tool: ${name}`);

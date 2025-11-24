@@ -1,9 +1,12 @@
 {
-  "name": "illinihunt-mcp-server",
+  "name": "pmat-agent",
   "version": "1.0.0",
-  "description": "MCP Server for IlliniHunt Database",
+  "description": "MCP Server for IlliniHunt Database - Project Management Agent Tool",
   "main": "dist/index.js",
   "type": "module",
+  "bin": {
+    "pmat-agent": "./dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
@@ -20,7 +23,7 @@
     "tsx": "^4.15.0",
     "typescript": "^5.5.0"
   },
-  "keywords": ["mcp", "database", "supabase", "postgresql"],
+  "keywords": ["mcp", "database", "supabase", "postgresql", "pmat", "agent", "illinihunt"],
   "author": "IlliniHunt Team",
   "license": "MIT"
 }
