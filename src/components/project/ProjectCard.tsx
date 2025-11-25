@@ -215,10 +215,10 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
 }
 
 // Memoize the component to prevent unnecessary re-renders
-// Component will only re-render when project.id or project.upvotes_count changes
+// Custom comparison: returns true if props are equal (skip re-render), false if different (re-render)
+// Only re-renders when project ID, vote count, or comment count changes
 export const ProjectCard = memo(ProjectCardComponent, (prevProps, nextProps) => {
-  // Custom comparison function for optimal performance
-  // Only re-render if project ID or vote count changes
+  // Return true (skip re-render) if all values are the same
   return (
     prevProps.project.id === nextProps.project.id &&
     prevProps.project.upvotes_count === nextProps.project.upvotes_count &&

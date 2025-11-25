@@ -15,7 +15,7 @@ export function useWindowSize(debounceMs: number = 150): WindowSize {
     height: typeof window !== 'undefined' ? window.innerHeight : 0,
   })
   
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>()
 
   useEffect(() => {
     function handleResize() {

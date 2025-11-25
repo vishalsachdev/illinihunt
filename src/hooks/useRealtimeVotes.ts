@@ -38,6 +38,7 @@ export function useRealtimeVotes({
   const isConnectedRef = useRef(false)
 
   // Store callbacks in refs to avoid dependency issues while maintaining stable references
+  // Using mutable refs that can be updated
   const onVoteCountChangeRef = useRef(onVoteCountChange)
   const onUserVoteChangeRef = useRef(onUserVoteChange)
   const onProjectDeletedRef = useRef(onProjectDeleted)
