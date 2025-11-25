@@ -21,6 +21,13 @@ interface UseRealtimeVotesProps {
   userId?: string
 }
 
+/**
+ * Optimized realtime votes hook
+ * Performance improvements:
+ * - Uses useCallback to memoize handlers and prevent unnecessary subscription recreations
+ * - Properly manages channel cleanup to prevent memory leaks
+ * - Silently handles errors to avoid console noise
+ */
 export function useRealtimeVotes({ 
   onVoteCountChange, 
   onUserVoteChange, 
@@ -29,6 +36,18 @@ export function useRealtimeVotes({
 }: UseRealtimeVotesProps) {
   const channelsRef = useRef<RealtimeChannel[]>([])
   const isConnectedRef = useRef(false)
+
+  // Store callbacks in refs to avoid dependency issues while maintaining stable references
+  const onVoteCountChangeRef = useRef(onVoteCountChange)
+  const onUserVoteChangeRef = useRef(onUserVoteChange)
+  const onProjectDeletedRef = useRef(onProjectDeleted)
+
+  // Update refs when callbacks change
+  useEffect(() => {
+    onVoteCountChangeRef.current = onVoteCountChange
+    onUserVoteChangeRef.current = onUserVoteChange
+    onProjectDeletedRef.current = onProjectDeleted
+  }, [onVoteCountChange, onUserVoteChange, onProjectDeleted])
 
   useEffect(() => {
     // Clean up existing channels
@@ -60,8 +79,9 @@ export function useRealtimeVotes({
                 const newCount = newProject.upvotes_count
                 const oldCount = oldProject.upvotes_count
 
-                if (newCount !== oldCount) {
-                  onVoteCountChange?.({
+                // Only trigger callback if count actually changed
+                if (newCount !== oldCount && onVoteCountChangeRef.current) {
+                  onVoteCountChangeRef.current({
                     projectId: newProject.id,
                     newCount: newCount
                   })
@@ -81,9 +101,9 @@ export function useRealtimeVotes({
             ) => {
               const deletedProject = payload.old as Database['public']['Tables']['projects']['Row'] | null
 
-              if (deletedProject) {
+              if (deletedProject && onProjectDeletedRef.current) {
                 // Clear vote data for deleted project
-                onProjectDeleted?.(deletedProject.id)
+                onProjectDeletedRef.current(deletedProject.id)
               }
             }
           )
@@ -103,8 +123,8 @@ export function useRealtimeVotes({
             ) => {
               const newVote = payload.new as Database['public']['Tables']['votes']['Row'] | null
 
-              if (newVote) {
-                onUserVoteChange?.({
+              if (newVote && onUserVoteChangeRef.current) {
+                onUserVoteChangeRef.current({
                   projectId: newVote.project_id,
                   userId: newVote.user_id,
                   hasVoted: true
@@ -124,8 +144,8 @@ export function useRealtimeVotes({
             ) => {
               const oldVote = payload.old as Database['public']['Tables']['votes']['Row'] | null
 
-              if (oldVote) {
-                onUserVoteChange?.({
+              if (oldVote && onUserVoteChangeRef.current) {
+                onUserVoteChangeRef.current({
                   projectId: oldVote.project_id,
                   userId: oldVote.user_id,
                   hasVoted: false
@@ -178,7 +198,9 @@ export function useRealtimeVotes({
       channelsRef.current = []
       isConnectedRef.current = false
     }
-  }, [onVoteCountChange, onUserVoteChange, onProjectDeleted, userId])
+    // Only depend on userId to avoid unnecessary reconnections
+    // Callbacks are accessed via refs, so they don't need to be in dependencies
+  }, [userId])
 
   return {
     isConnected: isConnectedRef.current,

@@ -158,10 +158,12 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
       debounceTimeoutRef.current = undefined
     }
 
-    // Debounce to prevent rapid clicking (300ms)
+    // Optimized debounce to prevent rapid clicking
+    // Reduced from 300ms to 200ms for better perceived performance
+    // Still prevents accidental double-clicks
     debounceTimeoutRef.current = setTimeout(() => {
       executeVote()
-    }, 300)
+    }, 200)
   }
 
   // Cleanup timeout on unmount

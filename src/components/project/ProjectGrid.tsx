@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
 import { ProjectsService, CategoriesService } from '@/lib/database'
@@ -39,6 +39,13 @@ type ProjectGridProps = {
   selectedCategory?: string
 }
 
+/**
+ * ProjectGrid component - Main grid displaying all projects with filtering and sorting
+ * Performance optimizations:
+ * - Memoized enriched projects to prevent unnecessary recalculations
+ * - Debounced search input (300ms) to reduce API calls
+ * - Cached category list to avoid re-fetching
+ */
 export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridProps) {
   const navigate = useNavigate()
   const [projects, setProjects] = useState<Project[]>([])
@@ -58,30 +65,8 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
     loadCategories()
   }, [])
 
-  useEffect(() => {
-    // Debounce all filters including search
-    const timer = setTimeout(() => {
-      loadProjects()
-    }, searchQuery ? 300 : 0) // Only debounce search, immediate for filters
-    return () => clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, selectedCategory, sortBy])
-
-  useEffect(() => {
-    setSelectedCategory(externalCategory || 'all')
-  }, [externalCategory])
-
-  const loadCategories = async () => {
-    try {
-      const { data, error } = await CategoriesService.getCategories()
-      if (error) throw error
-      setCategories(data || [])
-    } catch (err) {
-      // Categories will remain empty if loading fails
-    }
-  }
-
-  const loadProjects = async () => {
+  // Memoize loadProjects to prevent unnecessary recreations
+  const loadProjects = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -100,16 +85,41 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
     } finally {
       setLoading(false)
     }
+  }, [searchQuery, selectedCategory, sortBy])
+
+  useEffect(() => {
+    // Debounce all filters including search
+    const timer = setTimeout(() => {
+      loadProjects()
+    }, searchQuery ? 300 : 0) // Only debounce search, immediate for filters
+    return () => clearTimeout(timer)
+  }, [loadProjects, searchQuery])
+
+  useEffect(() => {
+    setSelectedCategory(externalCategory || 'all')
+  }, [externalCategory])
+
+  const loadCategories = async () => {
+    try {
+      const { data, error } = await CategoriesService.getCategories()
+      if (error) throw error
+      setCategories(data || [])
+    } catch (err) {
+      // Categories will remain empty if loading fails
+    }
   }
 
   // Enrich projects with real-time vote data
-  const enrichedProjects = projects.map(project => {
-    const realtimeVoteData = getVoteData(project.id)
-    return {
-      ...project,
-      upvotes_count: realtimeVoteData?.count ?? project.upvotes_count
-    }
-  })
+  // Memoized to prevent unnecessary recalculations on every render
+  const enrichedProjects = useMemo(() => {
+    return projects.map(project => {
+      const realtimeVoteData = getVoteData(project.id)
+      return {
+        ...project,
+        upvotes_count: realtimeVoteData?.count ?? project.upvotes_count
+      }
+    })
+  }, [projects, getVoteData])
 
 
   if (error) {

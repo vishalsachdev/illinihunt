@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom'
-import { useWindowSize } from '@/hooks/useWindowSize'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 
@@ -10,8 +9,11 @@ import { CategoryPreview } from './home/CategoryPreview'
 import { Statistics } from './home/Statistics'
 import { ProjectGridSection } from './home/ProjectGridSection'
 
+/**
+ * HomePage component - Main landing page for IlliniHunt
+ * Optimized to prevent unnecessary re-renders by removing window size dependency
+ */
 export function HomePage() {
-  const windowSize = useWindowSize()
   const [searchParams, setSearchParams] = useSearchParams()
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const { user } = useAuth()
@@ -49,7 +51,7 @@ export function HomePage() {
   }
 
   return (
-    <div key={`${windowSize.width}-${windowSize.height}`} className="bg-slate-950 min-h-screen">
+    <div className="bg-slate-950 min-h-screen">
       <Hero />
       <FeaturedProjects />
       <CategoryPreview onSelect={handleCategorySelect} />
