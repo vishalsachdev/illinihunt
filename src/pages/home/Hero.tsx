@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Zap, Sparkles } from 'lucide-react'
+import { ArrowRight, Zap } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export function Hero() {

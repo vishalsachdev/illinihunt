@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { formatDistance } from 'date-fns'
 import { ExternalLink, Github, MessageCircle } from 'lucide-react'
 import { CategoryIcon } from '@/lib/categoryIcons'
@@ -39,7 +39,12 @@ interface ProjectCardProps {
   project: ProjectData
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+/**
+ * ProjectCard component - Displays project information in a card format
+ * Memoized to prevent unnecessary re-renders when parent component updates
+ * Only re-renders when project data changes
+ */
+const ProjectCardComponent = ({ project }: ProjectCardProps) => {
   const [imageError, setImageError] = useState(false)
   const user = project.users
   const category = project.categories
@@ -208,3 +213,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
     </div>
   )
 }
+
+// Memoize the component to prevent unnecessary re-renders
+// Custom comparison: returns true if props are equal (skip re-render), false if different (re-render)
+// Only re-renders when project ID, vote count, or comment count changes
+export const ProjectCard = memo(ProjectCardComponent, (prevProps, nextProps) => {
+  // Return true (skip re-render) if all values are the same
+  return (
+    prevProps.project.id === nextProps.project.id &&
+    prevProps.project.upvotes_count === nextProps.project.upvotes_count &&
+    prevProps.project.comments_count === nextProps.project.comments_count
+  )
+})
