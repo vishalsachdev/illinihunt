@@ -310,7 +310,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           hd: 'illinois.edu'
         },
         redirectTo: import.meta.env.PROD
-          ? 'https://illinihunt.com'
+          ? 'https://illinihunt.org'
           : window.location.origin
       }
     })
@@ -327,7 +327,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       options: {
         emailRedirectTo: import.meta.env.PROD
-          ? 'https://illinihunt.com'
+          ? 'https://illinihunt.org'
           : window.location.origin
       }
     })
