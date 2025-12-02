@@ -27,10 +27,10 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" aria-label="User menu" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
+        <Button variant="ghost" aria-label="User menu" className="relative h-10 w-10 rounded-full hover:bg-white/10 ring-2 ring-white/10 hover:ring-neon-orange/50 transition-all duration-300">
+          <Avatar className="h-9 w-9">
             <AvatarImage src={profile.avatar_url || ''} alt={profile.full_name || ''} />
-            <AvatarFallback>
+            <AvatarFallback className="bg-gradient-to-br from-neon-orange to-neon-blue text-white font-bold text-sm">
               {profile.full_name ? profile.full_name.slice(0, 2).toUpperCase() : 'U'}
             </AvatarFallback>
           </Avatar>
