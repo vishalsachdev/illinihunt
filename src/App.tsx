@@ -245,6 +245,15 @@ function AppContent() {
                 } 
               />
               <Route 
+                path="/project/:id/edit" 
+                element={
+                  <ProtectedRoute>
+                    <EditProjectPage />
+                  </ProtectedRoute>
+                } 
+              />
+              {/* Backwards compatibility for older edit links */}
+              <Route 
                 path="/edit-project/:id" 
                 element={
                   <ProtectedRoute>
