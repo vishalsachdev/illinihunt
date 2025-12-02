@@ -23,6 +23,18 @@ export default {
         'uiuc-blue': '#13294B',
         'uiuc-light-orange': '#FFB577',
         'uiuc-light-blue': '#4B7BA8',
+
+        // Design Refresh Palette
+        midnight: {
+          DEFAULT: '#050A14', // Deepest Navy
+          900: '#0A1428',
+          800: '#142850',
+        },
+        neon: {
+          orange: '#FF6B35', // UIUC Orange (Base)
+          blue: '#4B9CD3',   // Brighter Electric Blue
+          purple: '#8B5CF6', // Accent
+        },
         
         // shadcn/ui variables
         border: "hsl(var(--border))",

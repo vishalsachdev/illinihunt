@@ -1,30 +1,37 @@
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Zap } from 'lucide-react'
+import { ArrowRight, Zap, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export function Hero() {
   return (
-    <div className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-slate-950">
+    <div className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-midnight text-white">
       {/* Dynamic Background */}
-      <div className="absolute inset-0 w-full h-full">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
+      <div className="absolute inset-0 w-full h-full overflow-hidden">
+        {/* Deep Midnight Gradients */}
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-midnight-900 via-midnight to-midnight-800 opacity-80"></div>
+
+        {/* Neon Glow Orbs */}
+        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-neon-blue/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-[4000ms]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-neon-orange/10 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-[5000ms]"></div>
+
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10 [mask-image:radial-gradient(ellipse_at_center,white,transparent_70%)]"></div>
       </div>
 
       <div className="container relative z-10 px-4 md:px-6">
-        <div className="flex flex-col items-center text-center space-y-8">
+        <div className="flex flex-col items-center text-center space-y-10">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900/50 px-3 py-1 text-sm text-slate-300 backdrop-blur-xl"
+            className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-slate-300 backdrop-blur-md shadow-[0_0_15px_rgba(255,255,255,0.05)]"
           >
-            <span className="flex h-2 w-2 rounded-full bg-uiuc-orange mr-2 animate-pulse"></span>
-            <span className="text-xs font-medium uppercase tracking-wider">The Hub for Illini Innovation</span>
+            <Sparkles className="w-4 h-4 mr-2 text-neon-orange" />
+            <span className="text-xs font-semibold uppercase tracking-widest bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+              The Hub for Illini Innovation
+            </span>
           </motion.div>
 
           {/* Main Heading */}
@@ -32,14 +39,14 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="max-w-4xl"
+            className="max-w-5xl relative"
           >
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6 text-balance">
-              Where <span className="text-transparent bg-clip-text bg-gradient-to-r from-uiuc-orange to-orange-400">Illini Ideas</span>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 leading-tight">
+              Where <span className="text-neon-orange text-glow">Illini Ideas</span>
               <br />
-              Come to Life
+              Come to <span className="text-neon-blue text-glow-blue">Life</span>
             </h1>
-            <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed text-balance">
+            <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed text-balance font-light">
               Discover cutting-edge research, innovative apps, and transformative solutions from the University of Illinois community.
             </p>
           </motion.div>
@@ -49,51 +56,53 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
+            className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto pt-4"
           >
             <Button
               asChild
               size="lg"
-              className="bg-uiuc-orange hover:bg-uiuc-orange/90 text-white px-8 h-12 text-base rounded-full shadow-lg shadow-orange-500/20 transition-all hover:scale-105"
+              className="bg-neon-orange hover:bg-neon-orange/90 text-white px-10 h-14 text-lg rounded-full shadow-[0_0_30px_-5px_rgba(255,107,53,0.6)] hover:shadow-[0_0_40px_-5px_rgba(255,107,53,0.8)] transition-all hover:scale-105 border border-white/10"
             >
-              <Link to="/submit" className="flex items-center gap-2">
-                <Zap className="w-4 h-4" />
+              <Link to="/submit" className="flex items-center gap-2 font-semibold">
+                <Zap className="w-5 h-5 fill-current" />
                 Submit Project
               </Link>
             </Button>
-            
+
             <Button
               size="lg"
               variant="outline"
-              className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white px-8 h-12 text-base rounded-full backdrop-blur-sm transition-all hover:scale-105"
+              className="glass-premium text-white hover:bg-white/10 px-10 h-14 text-lg rounded-full transition-all hover:scale-105 border-white/10 hover:border-white/20"
               onClick={() => {
                 document.getElementById('projects-section')?.scrollIntoView({
                   behavior: 'smooth'
                 })
               }}
             >
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 font-medium">
                 Explore Projects
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-5 h-5" />
               </span>
             </Button>
           </motion.div>
 
-          {/* Stats Preview */}
+          {/* Stats Preview - Glass Cards */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="pt-12 grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-16 text-center border-t border-slate-800/50 mt-12"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="pt-16 grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12 w-full max-w-4xl"
           >
             {[
-              { label: 'Active Projects', value: '50+' },
-              { label: 'Contributors', value: '120+' },
-              { label: 'Departments', value: '15+' },
+              { label: 'Active Projects', value: '50+', color: 'text-neon-orange' },
+              { label: 'Contributors', value: '120+', color: 'text-neon-blue' },
+              { label: 'Departments', value: '15+', color: 'text-neon-purple' },
             ].map((stat, index) => (
-              <div key={index} className="space-y-1">
-                <div className="text-2xl md:text-3xl font-bold text-white">{stat.value}</div>
-                <div className="text-sm text-slate-500 font-medium uppercase tracking-wider">{stat.label}</div>
+              <div key={index} className="glass-premium rounded-2xl p-6 flex flex-col items-center justify-center space-y-2 hover:bg-white/5 transition-colors group">
+                <div className={`text-4xl md:text-5xl font-bold ${stat.color} drop-shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  {stat.value}
+                </div>
+                <div className="text-sm text-slate-400 font-medium uppercase tracking-widest">{stat.label}</div>
               </div>
             ))}
           </motion.div>
