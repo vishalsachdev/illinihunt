@@ -111,7 +111,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
         </div>
 
         {/* Description */}
-        <p className="text-muted-foreground text-sm mb-4 line-clamp-3 leading-relaxed">
+        <p className="text-foreground/90 text-sm mb-4 line-clamp-3 leading-relaxed">
           {sanitizeContent(project.description)}
         </p>
 

@@ -200,7 +200,7 @@ export function ProjectDetailPage() {
               <div className="prose prose-invert max-w-none">
                 <h2 className="text-2xl font-semibold text-foreground mb-4">About this project</h2>
                 <div
-                  className="text-muted-foreground leading-relaxed whitespace-pre-wrap"
+                  className="text-foreground/90 leading-relaxed whitespace-pre-wrap"
                   dangerouslySetInnerHTML={{
                     __html: linkifyText(sanitizeContent(project.description))
                   }}
