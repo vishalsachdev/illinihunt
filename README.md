@@ -50,9 +50,12 @@ Our innovative categorization system helps users discover projects by the proble
 **✅ Core Features Complete:**
 Project submission, real-time voting, threaded comments, user profiles, collections, admin dashboard
 
-**📚 For detailed technical information:**
-- **[Complete Architecture Guide](docs/MENTAL_MODEL.md)** - Full system overview for developers
-- **[Developer Quick Reference](CLAUDE.md)** - Essential commands and troubleshooting
+**📚 Documentation:**
+- **[📖 Documentation Index](docs/INDEX.md)** - Complete documentation guide
+- **[🏗️ Architecture Overview](docs/MENTAL_MODEL.md)** - Full system design
+- **[🔧 Developer Guide](CLAUDE.md)** - Quick reference and commands
+- **[🎨 Design System](docs/design/DESIGN_REFRESH_SUMMARY.md)** - Neon Glass aesthetic
+- **[🔐 OAuth Setup](docs/setup/OAUTH_REDIRECT_FIX.md)** - Authentication configuration
 
 ## 🚀 Getting Started
 
@@ -94,7 +97,7 @@ All essential features implemented and production-ready:
 - Admin moderation tools
 - Testing framework
 
-**📅 For detailed implementation plans: [IMPROVEMENT_ROADMAP.md](docs/IMPROVEMENT_ROADMAP.md)**
+**📅 For detailed implementation plans: [docs/IMPROVEMENT_ROADMAP.md](docs/IMPROVEMENT_ROADMAP.md)**
 
 ## 🤝 Contributing to IlliniHunt
 
