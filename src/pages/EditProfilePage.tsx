@@ -29,7 +29,7 @@ type ProfileFormData = z.infer<typeof profileSchema>
 
 const YEAR_OPTIONS = [
   'Freshman',
-  'Sophomore', 
+  'Sophomore',
   'Junior',
   'Senior',
   'Graduate',
@@ -127,7 +127,7 @@ export function EditProfilePage() {
   // Show loading screen while auth is being checked
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
           <p className="text-gray-600">Loading profile...</p>
@@ -141,7 +141,7 @@ export function EditProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-midnight text-foreground dark">
       <div className="container mx-auto px-4 pt-24 pb-8">
         {/* Navigation */}
         <Button variant="ghost" asChild className="mb-6">
@@ -154,7 +154,7 @@ export function EditProfilePage() {
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Profile</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Edit Profile</h1>
             <p className="text-gray-600">
               Update your public profile information
             </p>
@@ -190,14 +190,14 @@ export function EditProfilePage() {
                   <Avatar className="w-16 h-16">
                     <AvatarImage src={profile?.avatar_url || undefined} />
                     <AvatarFallback>
-                      {profile?.full_name?.charAt(0) || 
-                       profile?.username?.charAt(0) || 
-                       user.email?.charAt(0) || 
-                       '?'}
+                      {profile?.full_name?.charAt(0) ||
+                        profile?.username?.charAt(0) ||
+                        user.email?.charAt(0) ||
+                        '?'}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Profile Photo</p>
+                    <p className="text-sm font-medium text-foreground">Profile Photo</p>
                     <p className="text-sm text-gray-600">
                       Avatar is synced with your Google account
                     </p>
@@ -249,8 +249,8 @@ export function EditProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="year_of_study">Year of Study</Label>
-                    <Select 
-                      value={watch('year_of_study') || ''} 
+                    <Select
+                      value={watch('year_of_study') || ''}
                       onValueChange={(value) => setValue('year_of_study', value)}
                     >
                       <SelectTrigger>
@@ -268,8 +268,8 @@ export function EditProfilePage() {
 
                   <div>
                     <Label htmlFor="department">Department</Label>
-                    <Select 
-                      value={watch('department') || ''} 
+                    <Select
+                      value={watch('department') || ''}
                       onValueChange={(value) => setValue('department', value)}
                     >
                       <SelectTrigger>
@@ -288,8 +288,8 @@ export function EditProfilePage() {
 
                 {/* Social Links */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-gray-900">Social Links</h3>
-                  
+                  <h3 className="text-lg font-medium text-foreground">Social Links</h3>
+
                   <div>
                     <Label htmlFor="website_url">Personal Website</Label>
                     <Input
@@ -337,7 +337,7 @@ export function EditProfilePage() {
                       Cancel
                     </Link>
                   </Button>
-                  
+
                   <Button type="submit" disabled={loading}>
                     {loading ? (
                       <>

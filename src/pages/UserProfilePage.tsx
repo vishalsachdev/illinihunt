@@ -56,36 +56,36 @@ export function UserProfilePage() {
   useEffect(() => {
     const loadUserProfile = async () => {
       if (!id) return
-      
+
       setLoading(true)
       const { data, error } = await ProjectsService.getUserProfile(id)
-      
+
       if (error) {
         setError('Failed to load user profile')
         setLoading(false)
         return
       }
-      
+
       if (!data) {
         setError('User not found')
         setLoading(false)
         return
       }
-      
+
       setProfile(data)
       setLoading(false)
     }
 
     const loadUserProjects = async () => {
       if (!id) return
-      
+
       setProjectsLoading(true)
       const { data, error } = await ProjectsService.getUserProjects(id)
-      
+
       if (!error && data) {
         setProjects(data)
       }
-      
+
       setProjectsLoading(false)
     }
 
@@ -99,7 +99,7 @@ export function UserProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
           <p className="text-gray-600">Loading profile...</p>
@@ -110,9 +110,9 @@ export function UserProfilePage() {
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">User Not Found</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">User Not Found</h1>
           <p className="text-gray-600 mb-6">{error || 'The requested user could not be found.'}</p>
           <Button asChild>
             <Link to="/">
@@ -126,7 +126,7 @@ export function UserProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-midnight text-foreground dark">
       {/* Navigation */}
       <div className="container mx-auto px-4 pt-24 pb-8">
         <Button variant="ghost" asChild className="mb-6">
@@ -143,16 +143,16 @@ export function UserProfilePage() {
           {/* Main Profile Content */}
           <div className="lg:col-span-2">
             {/* Profile Header */}
-            <div className="bg-white border rounded-lg p-8 mb-8">
+            <div className="glass-card border border-white/10 rounded-lg p-8 mb-8">
               <div className="flex flex-col md:flex-row items-start gap-6">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
                   <Avatar className="w-24 h-24 md:w-32 md:h-32">
                     <AvatarImage src={profile.avatar_url || undefined} />
                     <AvatarFallback className="text-2xl">
-                      {profile.full_name?.charAt(0) || 
-                       profile.username?.charAt(0) || 
-                       '?'}
+                      {profile.full_name?.charAt(0) ||
+                        profile.username?.charAt(0) ||
+                        '?'}
                     </AvatarFallback>
                   </Avatar>
                 </div>
@@ -161,7 +161,7 @@ export function UserProfilePage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                      <h1 className="text-3xl font-bold text-foreground mb-1">
                         {profile.full_name || profile.username || 'Anonymous User'}
                       </h1>
                       {profile.username && profile.full_name && (
@@ -174,7 +174,7 @@ export function UserProfilePage() {
                         </Badge>
                       )}
                     </div>
-                    
+
                     {isOwnProfile && (
                       <Button asChild variant="outline">
                         <Link to="/profile/edit">
@@ -243,7 +243,7 @@ export function UserProfilePage() {
             {/* User Projects */}
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-foreground">
                   Projects ({projects.length})
                 </h2>
               </div>
@@ -256,8 +256,8 @@ export function UserProfilePage() {
               ) : projects.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {projects.map((project) => (
-                    <ProjectCard 
-                      key={project.id} 
+                    <ProjectCard
+                      key={project.id}
                       project={{
                         ...project,
                         users: profile
@@ -268,11 +268,11 @@ export function UserProfilePage() {
               ) : (
                 <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
                   <div className="max-w-md mx-auto">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    <h3 className="text-lg font-medium text-foreground mb-2">
                       {isOwnProfile ? "You haven't submitted any projects yet" : "No projects yet"}
                     </h3>
                     <p className="text-gray-600 mb-4">
-                      {isOwnProfile 
+                      {isOwnProfile
                         ? "Share your work with the Illinois community by submitting your first project."
                         : "This user hasn't submitted any projects to IlliniHunt yet."
                       }
@@ -294,8 +294,8 @@ export function UserProfilePage() {
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
               {/* User Stats */}
-              <div className="bg-white border rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Stats</h3>
+              <div className="glass-card border border-white/10 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Stats</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Projects</span>
@@ -317,8 +317,8 @@ export function UserProfilePage() {
               </div>
 
               {/* Recent Activity */}
-              <div className="bg-white border rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+              <div className="glass-card border border-white/10 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Recent Activity</h3>
                 {projects.length > 0 ? (
                   <div className="space-y-3">
                     {projects
@@ -326,7 +326,7 @@ export function UserProfilePage() {
                       .slice(0, 3)
                       .map((project) => (
                         <div key={project.id} className="text-sm">
-                          <p className="text-gray-900 font-medium truncate">
+                          <p className="text-foreground font-medium truncate">
                             {project.name}
                           </p>
                           <p className="text-gray-600">

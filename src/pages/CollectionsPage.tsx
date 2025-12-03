@@ -4,11 +4,11 @@ import { useAuth } from '@/hooks/useAuth'
 import { CollectionService, BookmarkService } from '@/lib/database'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { 
-  Plus, 
-  FolderOpen, 
-  Bookmark, 
-  Eye, 
+import {
+  Plus,
+  FolderOpen,
+  Bookmark,
+  Eye,
   Edit3,
   Trash2,
   Calendar,
@@ -53,17 +53,17 @@ export function CollectionsPage() {
       try {
         // Load user's collections
         const { data: collectionsData, error: collectionsError } = await CollectionService.getUserCollections()
-        
+
         // Load bookmark count
         const { count: bookmarksCount } = await BookmarkService.getUserBookmarksCount()
-        
+
         if (!collectionsError && collectionsData) {
           setCollections(collectionsData)
-          
+
           // Calculate stats
           const publicCount = collectionsData.filter(c => c.is_public).length
           const privateCount = collectionsData.length - publicCount
-          
+
           setStats({
             totalCollections: collectionsData.length,
             totalBookmarks: bookmarksCount || 0,
@@ -101,9 +101,9 @@ export function CollectionsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">Access Denied</h1>
           <p className="text-gray-600 mb-6">You need to be logged in to access your collections.</p>
           <Button asChild>
             <Link to="/">Go to Home</Link>
@@ -114,20 +114,20 @@ export function CollectionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-midnight text-foreground dark">
       <div className="container mx-auto px-4 pt-24 pb-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 My Collections
               </h1>
               <p className="text-gray-600">
                 Organize and save your favorite projects into custom collections
               </p>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <Button asChild variant="outline">
                 <Link to="/collections/discover">
@@ -158,7 +158,7 @@ export function CollectionsPage() {
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Bookmarked Projects</CardTitle>
@@ -171,7 +171,7 @@ export function CollectionsPage() {
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Public Collections</CardTitle>
@@ -184,7 +184,7 @@ export function CollectionsPage() {
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Private Collections</CardTitle>
@@ -206,7 +206,7 @@ export function CollectionsPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Quick Actions</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Quick Actions</h3>
                   <p className="text-gray-600 text-sm">Common collection management tasks</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -231,7 +231,7 @@ export function CollectionsPage() {
         {/* Collections Section */}
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Your Collections</h2>
+            <h2 className="text-2xl font-bold text-foreground">Your Collections</h2>
           </div>
 
           {loading ? (
@@ -247,7 +247,7 @@ export function CollectionsPage() {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900 truncate">
+                          <h3 className="text-lg font-semibold text-foreground truncate">
                             {collection.name}
                           </h3>
                           {collection.is_public ? (
@@ -256,7 +256,7 @@ export function CollectionsPage() {
                             <Lock className="w-4 h-4 text-gray-500 flex-shrink-0" />
                           )}
                         </div>
-                        
+
                         {collection.description && (
                           <p className="text-gray-600 text-sm line-clamp-2 mb-3">
                             {collection.description}
@@ -285,15 +285,15 @@ export function CollectionsPage() {
                           View
                         </Link>
                       </Button>
-                      
+
                       <Button asChild variant="outline" size="sm">
                         <Link to={`/collections/${collection.id}/edit`}>
                           <Edit3 className="w-4 h-4" />
                         </Link>
                       </Button>
-                      
-                      <Button 
-                        variant="outline" 
+
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => handleDeleteCollection(collection.id)}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -306,10 +306,10 @@ export function CollectionsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-200">
+            <div className="text-center py-12 bg-muted/10 rounded-lg border-2 border-dashed border-border/50">
               <div className="max-w-md mx-auto">
                 <FolderOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <h3 className="text-lg font-medium text-foreground mb-2">
                   No collections yet
                 </h3>
                 <p className="text-gray-600 mb-6">

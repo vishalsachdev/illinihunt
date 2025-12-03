@@ -6,7 +6,7 @@ import { ProjectCard } from '@/components/project/ProjectCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { 
+import {
   ArrowLeft,
   Edit3,
   Trash2,
@@ -80,7 +80,7 @@ export function CollectionViewPage() {
 
       try {
         const { data, error: collectionError } = await CollectionService.getCollection(id, true)
-        
+
         if (collectionError) {
           setError('Collection not found or access denied')
           return
@@ -111,7 +111,7 @@ export function CollectionViewPage() {
 
   const handleDeleteCollection = async () => {
     if (!collection || !user || collection.user_id !== user.id) return
-    
+
     if (!confirm('Are you sure you want to delete this collection? This action cannot be undone.')) {
       return
     }
@@ -143,7 +143,7 @@ export function CollectionViewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
           <p className="text-gray-600">Loading collection...</p>
@@ -154,9 +154,9 @@ export function CollectionViewPage() {
 
   if (error || !collection) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-foreground mb-4">
             {error || 'Collection Not Found'}
           </h1>
           <p className="text-gray-600 mb-6">
@@ -179,7 +179,7 @@ export function CollectionViewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-midnight text-foreground dark">
       <div className="container mx-auto px-4 pt-24 pb-8">
         {/* Back Button */}
         <div className="mb-6">
@@ -198,7 +198,7 @@ export function CollectionViewPage() {
               <div className="flex items-start justify-between mb-6">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-4">
-                    <h1 className="text-3xl font-bold text-gray-900">
+                    <h1 className="text-3xl font-bold text-foreground">
                       {collection.name}
                     </h1>
                     {collection.is_public ? (
@@ -226,12 +226,12 @@ export function CollectionViewPage() {
                       <Avatar className="w-6 h-6">
                         <AvatarImage src={collection.users.avatar_url || ''} />
                         <AvatarFallback className="text-xs">
-                          {collection.users.full_name ? 
-                            collection.users.full_name.slice(0, 2).toUpperCase() : 
+                          {collection.users.full_name ?
+                            collection.users.full_name.slice(0, 2).toUpperCase() :
                             collection.users.username?.slice(0, 2).toUpperCase() || 'U'}
                         </AvatarFallback>
                       </Avatar>
-                      <Link 
+                      <Link
                         to={`/user/${collection.users.id}`}
                         className="hover:text-uiuc-blue transition-colors"
                       >
@@ -264,8 +264,8 @@ export function CollectionViewPage() {
                         Edit
                       </Link>
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={handleDeleteCollection}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
@@ -281,7 +281,7 @@ export function CollectionViewPage() {
         {/* Projects Section */}
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-foreground">
               Projects ({collection.projects_count})
             </h2>
           </div>
@@ -291,14 +291,14 @@ export function CollectionViewPage() {
               {collection.projects.map((collectionProject) => (
                 <div key={collectionProject.id} className="relative">
                   <ProjectCard project={collectionProject.projects} />
-                  
+
                   {/* Remove button for collection owner */}
                   {isOwner && (
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleRemoveProject(collectionProject.projects.id)}
-                      className="absolute top-2 left-2 bg-white/95 backdrop-blur-sm hover:bg-white shadow-md text-red-600 hover:text-red-700 hover:bg-red-50 z-10"
+                      className="absolute top-2 left-2 bg-midnight/90 backdrop-blur-sm hover:bg-midnight shadow-md border border-white/10 text-red-500 hover:text-red-400 hover:bg-red-900/20 z-10"
                       title="Remove from collection"
                     >
                       <Trash2 className="w-3 h-3" />
@@ -308,14 +308,14 @@ export function CollectionViewPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-200">
+            <div className="text-center py-12 bg-muted/10 rounded-lg border-2 border-dashed border-border/50">
               <div className="max-w-md mx-auto">
                 <Grid3X3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <h3 className="text-lg font-medium text-foreground mb-2">
                   No projects in this collection
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  {isOwner 
+                  {isOwner
                     ? "Start building your collection by adding some projects."
                     : "This collection doesn't have any projects yet."
                   }
