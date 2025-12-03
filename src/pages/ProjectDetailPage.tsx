@@ -128,7 +128,7 @@ export function ProjectDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-midnight text-foreground">
+    <div className="min-h-screen bg-midnight text-foreground dark">
       {/* Navigation */}
       <div className="container mx-auto px-4 pt-24 pb-8">
         <Button variant="ghost" asChild className="mb-6 text-muted-foreground hover:text-foreground hover:bg-white/5">

@@ -8,13 +8,13 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DeleteProjectModal } from '@/components/project/DeleteProjectModal'
 import { showToast } from '@/components/ui/toast'
-import { 
-  Plus, 
-  BarChart3, 
-  MessageCircle, 
-  ArrowUp, 
-  ExternalLink, 
-  Github, 
+import {
+  Plus,
+  BarChart3,
+  MessageCircle,
+  ArrowUp,
+  ExternalLink,
+  Github,
   Edit3,
   Eye,
   Calendar,
@@ -65,17 +65,17 @@ export function DashboardPage() {
 
   const loadUserProjects = useCallback(async () => {
     if (!user?.id) return
-    
+
     setLoading(true)
     const { data, error } = await ProjectsService.getUserProjects(user.id)
-    
+
     if (!error && data) {
       setProjects(data)
-      
+
       // Calculate stats
       const totalUpvotes = data.reduce((sum, p) => sum + p.upvotes_count, 0)
       const totalComments = data.reduce((sum, p) => sum + p.comments_count, 0)
-      
+
       setStats({
         totalProjects: data.length,
         totalUpvotes,
@@ -83,7 +83,7 @@ export function DashboardPage() {
         totalViews: 0 // Placeholder
       })
     }
-    
+
     setLoading(false)
   }, [user?.id])
 
@@ -105,14 +105,14 @@ export function DashboardPage() {
     setDeleting(true)
     try {
       const { error } = await ProjectsService.deleteProject(deleteModal.project.id)
-      
+
       if (error) {
         throw new Error(error.message)
       }
 
       // Remove project from local state
       setProjects(prev => prev.filter(p => p.id !== deleteModal.project!.id))
-      
+
       // Update stats
       setStats(prev => ({
         ...prev,
@@ -129,7 +129,7 @@ export function DashboardPage() {
       console.error('Error deleting project:', error)
       showToast.error(
         'Failed to delete project',
-        { 
+        {
           description: error instanceof Error ? error.message : 'An unexpected error occurred'
         }
       )
@@ -173,20 +173,20 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-midnight text-foreground dark">
       <div className="container mx-auto px-4 pt-24 pb-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 Welcome back, {profile?.full_name || profile?.username || 'there'}!
               </h1>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Manage your projects and track your community impact
               </p>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <Button asChild>
                 <Link to="/submit">
@@ -194,14 +194,14 @@ export function DashboardPage() {
                   New Project
                 </Link>
               </Button>
-              
+
               <Avatar>
                 <AvatarImage src={profile?.avatar_url || undefined} />
                 <AvatarFallback>
-                  {profile?.full_name?.charAt(0) || 
-                   profile?.username?.charAt(0) || 
-                   user.email?.charAt(0) || 
-                   '?'}
+                  {profile?.full_name?.charAt(0) ||
+                    profile?.username?.charAt(0) ||
+                    user.email?.charAt(0) ||
+                    '?'}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -221,7 +221,7 @@ export function DashboardPage() {
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Upvotes</CardTitle>
@@ -234,7 +234,7 @@ export function DashboardPage() {
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Comments</CardTitle>
@@ -247,7 +247,7 @@ export function DashboardPage() {
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Profile Views</CardTitle>
@@ -266,9 +266,9 @@ export function DashboardPage() {
         {/* Projects Section */}
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Your Projects</h2>
+            <h2 className="text-2xl font-bold text-foreground">Your Projects</h2>
             <div className="flex items-center gap-2">
-              <Button 
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => loadUserProjects()}
@@ -289,7 +289,7 @@ export function DashboardPage() {
           {loading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading your projects...</p>
+              <p className="text-muted-foreground">Loading your projects...</p>
             </div>
           ) : projects.length > 0 ? (
             <div className="space-y-6">
@@ -314,24 +314,24 @@ export function DashboardPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                              <Link 
+                            <h3 className="text-lg font-semibold text-foreground mb-1">
+                              <Link
                                 to={`/project/${project.id}`}
                                 className="hover:text-uiuc-orange transition-colors cursor-pointer"
                               >
                                 {project.name}
                               </Link>
                             </h3>
-                            <p className="text-gray-600 mb-2 line-clamp-2">
+                            <p className="text-muted-foreground mb-2 line-clamp-2">
                               {project.tagline}
                             </p>
-                            
+
                             {/* Category & Status */}
                             <div className="flex items-center gap-2 mb-3">
                               {project.categories && (
-                                <Badge 
+                                <Badge
                                   variant="secondary"
-                                  style={{ 
+                                  style={{
                                     backgroundColor: `${project.categories.color}20`,
                                     color: project.categories.color,
                                     borderColor: `${project.categories.color}40`
@@ -343,7 +343,7 @@ export function DashboardPage() {
                                   {project.categories.name}
                                 </Badge>
                               )}
-                              
+
                               <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
                                 {project.status}
                               </Badge>
@@ -352,7 +352,7 @@ export function DashboardPage() {
                         </div>
 
                         {/* Stats */}
-                        <div className="flex items-center gap-6 mb-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-6 mb-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <ArrowUp className="w-4 h-4" />
                             <span>{project.upvotes_count} upvotes</span>
@@ -375,16 +375,16 @@ export function DashboardPage() {
                               View
                             </Link>
                           </Button>
-                          
+
                           <Button asChild variant="outline" size="sm">
                             <Link to={`/project/${project.id}/edit`}>
                               <Edit3 className="w-4 h-4 mr-1" />
                               Edit
                             </Link>
                           </Button>
-                          
-                          <Button 
-                            variant="outline" 
+
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => handleDeleteProject(project)}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -392,7 +392,7 @@ export function DashboardPage() {
                             <Trash2 className="w-4 h-4 mr-1" />
                             Delete
                           </Button>
-                          
+
                           {project.website_url && (
                             <Button asChild variant="outline" size="sm">
                               <a href={project.website_url} target="_blank" rel="noopener noreferrer">
@@ -401,7 +401,7 @@ export function DashboardPage() {
                               </a>
                             </Button>
                           )}
-                          
+
                           {project.github_url && (
                             <Button asChild variant="outline" size="sm">
                               <a href={project.github_url} target="_blank" rel="noopener noreferrer">
@@ -418,13 +418,13 @@ export function DashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-200">
+            <div className="text-center py-12 bg-muted/10 rounded-lg border-2 border-dashed border-border/50">
               <div className="max-w-md mx-auto">
-                <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <TrendingUp className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
                   No projects yet
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-muted-foreground mb-6">
                   Start building your presence on IlliniHunt by submitting your first project.
                 </p>
                 <Button asChild>
