@@ -75,6 +75,20 @@ npx kill-port 5173
 npm run type-check && npm run build && echo "✅ Ready"
 ```
 
+### Cloudflare + Vercel Issues
+
+**Symptom**: Site works on Firefox but Chrome/Safari show "Expected JavaScript but got text/html" errors
+
+**Cause**: Cloudflare CDN caches responses for up to 1 year (`max-age=31536000`). If you deploy a fix for routing issues, Cloudflare still serves old broken responses.
+
+**Solution**: Purge Cloudflare cache after Vercel deployments
+1. Login to Cloudflare dashboard
+2. Select `illinihunt.org` domain
+3. Go to: Caching → Configuration → Purge Everything
+4. Wait 30 seconds, then hard refresh browser
+
+**Prevention**: The `vercel.json` rewrite pattern `/:path((?!.*\\.).*)` excludes files with dots from SPA routing. Don't change this pattern without testing - Vercel has limited regex support and Cloudflare proxying breaks auto-detection.
+
 ## Documentation Structure
 
 - **[CLAUDE.md](CLAUDE.md)** - This quick reference
