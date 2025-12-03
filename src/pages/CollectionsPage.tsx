@@ -104,7 +104,7 @@ export function CollectionsPage() {
       <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-6">You need to be logged in to access your collections.</p>
+          <p className="text-muted-foreground mb-6">You need to be logged in to access your collections.</p>
           <Button asChild>
             <Link to="/">Go to Home</Link>
           </Button>
@@ -123,7 +123,7 @@ export function CollectionsPage() {
               <h1 className="text-3xl font-bold text-foreground mb-2">
                 My Collections
               </h1>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Organize and save your favorite projects into custom collections
               </p>
             </div>
@@ -207,7 +207,7 @@ export function CollectionsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">Quick Actions</h3>
-                  <p className="text-gray-600 text-sm">Common collection management tasks</p>
+                  <p className="text-muted-foreground text-sm">Common collection management tasks</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <Button asChild variant="outline" size="sm">
@@ -237,7 +237,7 @@ export function CollectionsPage() {
           {loading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading your collections...</p>
+              <p className="text-muted-foreground">Loading your collections...</p>
             </div>
           ) : collections.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -258,7 +258,7 @@ export function CollectionsPage() {
                         </div>
 
                         {collection.description && (
-                          <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+                          <p className="text-foreground/80 text-sm line-clamp-2 mb-3">
                             {collection.description}
                           </p>
                         )}
@@ -266,7 +266,7 @@ export function CollectionsPage() {
                     </div>
 
                     {/* Stats */}
-                    <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Grid3X3 className="w-4 h-4" />
                         <span>{collection.projects_count} projects</span>
@@ -312,7 +312,7 @@ export function CollectionsPage() {
                 <h3 className="text-lg font-medium text-foreground mb-2">
                   No collections yet
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-muted-foreground mb-6">
                   Start organizing your favorite projects by creating your first collection.
                 </p>
                 <div className="flex items-center gap-3 justify-center">

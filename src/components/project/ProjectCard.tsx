@@ -107,7 +107,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
           <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-uiuc-orange transition-colors">
             {sanitizeContent(project.name)}
           </h3>
-          <p className="text-muted-foreground text-sm line-clamp-1">{sanitizeContent(project.tagline)}</p>
+          <p className="text-foreground/80 text-sm line-clamp-1">{sanitizeContent(project.tagline)}</p>
         </div>
 
         {/* Description */}

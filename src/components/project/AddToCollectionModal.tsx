@@ -280,7 +280,7 @@ export function AddToCollectionModal({
                               )}
                             </div>
                             {collection.description && (
-                              <p className="text-xs text-gray-600 line-clamp-1">
+                              <p className="text-xs text-foreground/80 line-clamp-1">
                                 {collection.description}
                               </p>
                             )}

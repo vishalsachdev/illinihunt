@@ -100,7 +100,7 @@ export function RecentActivityFeed() {
                     {activity.name}
                   </h4>
                 </Link>
-                <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed mt-1">
+                <p className="text-xs text-slate-200/90 line-clamp-2 leading-relaxed mt-1">
                   {activity.tagline}
                 </p>
               </div>

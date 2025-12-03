@@ -146,7 +146,7 @@ export function CollectionViewPage() {
       <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading collection...</p>
+          <p className="text-muted-foreground">Loading collection...</p>
         </div>
       </div>
     )
@@ -159,7 +159,7 @@ export function CollectionViewPage() {
           <h1 className="text-2xl font-bold text-foreground mb-4">
             {error || 'Collection Not Found'}
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             The collection you're looking for doesn't exist or you don't have permission to view it.
           </p>
           <div className="flex items-center gap-3 justify-center">
@@ -215,13 +215,13 @@ export function CollectionViewPage() {
                   </div>
 
                   {collection.description && (
-                    <p className="text-gray-700 text-lg mb-6 leading-relaxed">
+                    <p className="text-foreground/90 text-lg mb-6 leading-relaxed">
                       {collection.description}
                     </p>
                   )}
 
                   {/* Collection Metadata */}
-                  <div className="flex items-center gap-6 text-sm text-gray-600">
+                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Avatar className="w-6 h-6">
                         <AvatarImage src={collection.users.avatar_url || ''} />
@@ -314,7 +314,7 @@ export function CollectionViewPage() {
                 <h3 className="text-lg font-medium text-foreground mb-2">
                   No projects in this collection
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-muted-foreground mb-6">
                   {isOwner
                     ? "Start building your collection by adding some projects."
                     : "This collection doesn't have any projects yet."

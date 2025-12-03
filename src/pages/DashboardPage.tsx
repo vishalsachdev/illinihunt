@@ -322,7 +322,7 @@ export function DashboardPage() {
                                 {project.name}
                               </Link>
                             </h3>
-                            <p className="text-muted-foreground mb-2 line-clamp-2">
+                            <p className="text-foreground/80 mb-2 line-clamp-2">
                               {project.tagline}
                             </p>
 

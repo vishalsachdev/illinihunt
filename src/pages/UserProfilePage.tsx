@@ -102,7 +102,7 @@ export function UserProfilePage() {
       <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading profile...</p>
+          <p className="text-muted-foreground">Loading profile...</p>
         </div>
       </div>
     )
@@ -113,7 +113,7 @@ export function UserProfilePage() {
       <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">User Not Found</h1>
-          <p className="text-gray-600 mb-6">{error || 'The requested user could not be found.'}</p>
+          <p className="text-muted-foreground mb-6">{error || 'The requested user could not be found.'}</p>
           <Button asChild>
             <Link to="/">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -165,7 +165,7 @@ export function UserProfilePage() {
                         {profile.full_name || profile.username || 'Anonymous User'}
                       </h1>
                       {profile.username && profile.full_name && (
-                        <p className="text-lg text-gray-600 mb-2">@{profile.username}</p>
+                        <p className="text-lg text-muted-foreground mb-2">@{profile.username}</p>
                       )}
                       {profile.is_verified && (
                         <Badge variant="secondary" className="mb-3">
@@ -187,7 +187,7 @@ export function UserProfilePage() {
 
                   {/* Bio */}
                   {profile.bio && (
-                    <p className="text-gray-700 mb-4 leading-relaxed">
+                    <p className="text-foreground/90 mb-4 leading-relaxed">
                       {profile.bio}
                     </p>
                   )}
@@ -195,7 +195,7 @@ export function UserProfilePage() {
                   {/* Profile Details */}
                   <div className="space-y-2 mb-4">
                     {profile.department && (
-                      <div className="flex items-center gap-2 text-gray-600">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <MapPin className="w-4 h-4" />
                         <span>{profile.department}</span>
                         {profile.year_of_study && (
@@ -203,7 +203,7 @@ export function UserProfilePage() {
                         )}
                       </div>
                     )}
-                    <div className="flex items-center gap-2 text-gray-600">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <Calendar className="w-4 h-4" />
                       <span>Joined {new Date(profile.created_at).toLocaleDateString()}</span>
                     </div>
@@ -251,7 +251,7 @@ export function UserProfilePage() {
               {projectsLoading ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading projects...</p>
+                  <p className="text-muted-foreground">Loading projects...</p>
                 </div>
               ) : projects.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -271,7 +271,7 @@ export function UserProfilePage() {
                     <h3 className="text-lg font-medium text-foreground mb-2">
                       {isOwnProfile ? "You haven't submitted any projects yet" : "No projects yet"}
                     </h3>
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-muted-foreground mb-4">
                       {isOwnProfile
                         ? "Share your work with the Illinois community by submitting your first project."
                         : "This user hasn't submitted any projects to IlliniHunt yet."
@@ -298,17 +298,17 @@ export function UserProfilePage() {
                 <h3 className="text-lg font-semibold text-foreground mb-4">Stats</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Projects</span>
+                    <span className="text-muted-foreground">Projects</span>
                     <span className="font-medium">{projects.length}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Total Upvotes</span>
+                    <span className="text-muted-foreground">Total Upvotes</span>
                     <span className="font-medium">
                       {projects.reduce((sum, p) => sum + p.upvotes_count, 0)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Total Comments</span>
+                    <span className="text-muted-foreground">Total Comments</span>
                     <span className="font-medium">
                       {projects.reduce((sum, p) => sum + p.comments_count, 0)}
                     </span>
@@ -329,14 +329,14 @@ export function UserProfilePage() {
                           <p className="text-foreground font-medium truncate">
                             {project.name}
                           </p>
-                          <p className="text-gray-600">
+                          <p className="text-muted-foreground">
                             {new Date(project.created_at).toLocaleDateString()}
                           </p>
                         </div>
                       ))}
                   </div>
                 ) : (
-                  <p className="text-gray-600 text-sm">No recent activity</p>
+                  <p className="text-muted-foreground text-sm">No recent activity</p>
                 )}
               </div>
             </div>
