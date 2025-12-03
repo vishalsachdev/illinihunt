@@ -77,7 +77,7 @@ npm run dev
 ### Database Changes
 ```bash
 # After any database schema changes:
-npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/types/database.ts
+npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/lib/types/database.ts
 
 # Verify types compile:
 npm run type-check
@@ -95,7 +95,7 @@ npm run type-check
 ### Supabase Integration
 - Project ID: `catzwowmxluzwbhdyhnf`
 - Always use Row Level Security (RLS) policies
-- Use generated TypeScript types from `src/types/database.ts`
+- Use generated TypeScript types from `src/lib/types/database.ts`
 - Implement optimistic updates for better UX
 
 ### Query Patterns
@@ -155,9 +155,20 @@ if (error) {
 ## Deployment
 
 ### Production Deployment
+- **Primary**: https://illinihunt.org (Cloudflare CDN + Vercel)
+- **Vercel Direct**: https://illinihunt.vercel.app
 - Automatic deployment via Vercel on `main` branch push
+- Cloudflare proxy enabled for caching and DDoS protection
 - Environment variables managed in Vercel dashboard
-- Domain: https://illinihunt.vercel.app
+
+### Post-deployment Steps
+1. **Purge Cloudflare cache** after deployments (critical!)
+   - Login to Cloudflare dashboard
+   - Select `illinihunt.org` domain
+   - Go to: Caching → Configuration → Purge Everything
+   - Wait 30 seconds for propagation
+2. Test on all browsers (Chrome, Firefox, Safari)
+3. Verify no MIME type errors in browser console
 
 ### Pre-deployment Checklist
 1. Run `npm run type-check`
@@ -166,6 +177,7 @@ if (error) {
 4. Verify no hardcoded secrets
 5. Test authentication flow
 6. Check responsive design
+7. Don't modify `vercel.json` rewrite pattern without testing
 
 ## PR Message Guidelines
 
@@ -191,7 +203,7 @@ npm run lint         # ESLint check
 npm run lint:fix     # Auto-fix linting issues
 
 # Supabase
-npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/types/database.ts
+npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/lib/types/database.ts
 npx supabase db pull --project-id catzwowmxluzwbhdyhnf
 npx supabase migration new <name>
 ```
@@ -200,26 +212,36 @@ npx supabase migration new <name>
 
 ### Common Issues
 
-1. **Port already in use**
+1. **Site works in Firefox but fails in Chrome/Safari**
+   - **Symptom**: "Expected JavaScript but got text/html" MIME type errors
+   - **Cause**: Cloudflare CDN caching old broken responses
+   - **Solution**: Purge Cloudflare cache (see Post-deployment Steps above)
+   - **Prevention**: Always purge cache after Vercel deployments
+   - **Note**: The `vercel.json` rewrite pattern `/:path((?!.*\\.).*)` is critical for Cloudflare compatibility
+
+2. **Port already in use**
    ```bash
    npx kill-port 5173
    # or
    npm run dev -- --port 3000
    ```
 
-2. **Type errors after schema change**
-   - Regenerate types using the command above
+3. **Type errors after schema change**
+   - Regenerate types: `npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/lib/types/database.ts`
    - Clear TypeScript cache: `rm -rf node_modules/.cache`
+   - Run `npm run type-check` to verify
 
-3. **Authentication failures**
+4. **Authentication failures**
    - Verify @illinois.edu email restriction
    - Check Supabase environment variables
    - Ensure Google OAuth is configured
+   - Check redirect URLs in Google Cloud Console and Supabase dashboard
 
-4. **Build failures**
+5. **Build failures**
    - Clear node_modules and reinstall
    - Check for missing dependencies
    - Verify all imports resolve correctly
+   - Ensure `vercel.json` routing pattern hasn't been modified
 
 ## Additional Resources
 

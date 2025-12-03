@@ -5,9 +5,9 @@
 ## Project Essentials
 
 **IlliniHunt V2** - Product Hunt for University of Illinois
-**Live**: https://illinihunt.vercel.app | https://illinihunt.org
+**Live**: https://illinihunt.org (Cloudflare CDN) | https://illinihunt.vercel.app
 **Supabase Project**: `catzwowmxluzwbhdyhnf`
-**Stack**: React 18 + TypeScript + Supabase + Vercel
+**Stack**: React 18 + TypeScript + Supabase + Vercel + Cloudflare CDN
 
 ## Quick Setup
 
@@ -17,8 +17,8 @@ git clone <repo> && cd illinihunt && npm install
 
 # Environment (.env.local)
 VITE_SUPABASE_URL=https://catzwowmxluzwbhdyhnf.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-SUPABASE_ACCESS_TOKEN=sbp_53e258dade59eae29159f842b50f049327e3e6eb
+VITE_SUPABASE_ANON_KEY=<get_from_supabase_dashboard>
+SUPABASE_ACCESS_TOKEN=<get_from_supabase_settings>
 
 # Verify & Run
 npm run type-check && npm run build && npm run dev
@@ -46,21 +46,27 @@ mcp__supabase__apply_migration({ project_id: "catzwowmxluzwbhdyhnf", name: "..."
 - **Auth**: Google OAuth with @illinois.edu restriction + secure RLS policies
 - **Database**: PostgreSQL with Row Level Security, database triggers for vote counting
 - **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui
-- **Deployment**: Auto-deploy to Vercel on push to main
+- **Deployment**: Vercel (auto-deploy on push) → Cloudflare CDN (caching, DDoS protection)
+  - Custom domain: illinihunt.org (Cloudflare proxy enabled)
+  - After deployments, purge Cloudflare cache to clear stale assets
+  - See: [Cloudflare + Vercel Issues](#cloudflare--vercel-issues) below
 
 ## Current Status
 
-### ✅ Phase 1 Complete (Critical Fixes)
-- Performance: Vote sync removed, database triggers active
-- Security: Email validation secured (`is_valid_illinois_email()`)
-- Compatibility: Vite environment variables fixed
-- Quality: TypeScript 0 errors, 604kB bundle, 3.19s build
+### ✅ Recently Completed
+- **Deployment**: Cloudflare CDN integration with custom domain (illinihunt.org)
+- **Routing**: Fixed SPA routing pattern for Cloudflare compatibility
+- **Performance**: Vote sync removed, database triggers active
+- **Security**: Email validation secured (`is_valid_illinois_email()`)
+- **Quality**: TypeScript 0 errors, ~600kB bundle
 
-### 🔄 Phase 2 Next
+### 🔄 Next Priorities
 - Search & filtering system
 - Trending algorithm with analytics
 - Admin moderation tools
 - Testing framework
+
+**See**: [Full documentation index](docs/INDEX.md) | [Improvement Roadmap](docs/IMPROVEMENT_ROADMAP.md)
 
 ## Quick Troubleshooting
 
@@ -91,11 +97,16 @@ npm run type-check && npm run build && echo "✅ Ready"
 
 ## Documentation Structure
 
-- **[CLAUDE.md](CLAUDE.md)** - This quick reference
-- **[docs/MENTAL_MODEL.md](docs/MENTAL_MODEL.md)** - Complete architecture guide
-- **[IMPROVEMENT_ROADMAP.md](docs/IMPROVEMENT_ROADMAP.md)** - Implementation phases
-- **[src/docs/DESIGN_SYSTEM.md](src/docs/DESIGN_SYSTEM.md)** - Frontend design specifications
-- **[README.md](README.md)** - Project overview and setup
+**Quick Access:**
+- **[CLAUDE.md](CLAUDE.md)** - This quick reference (start here!)
+- **[docs/INDEX.md](docs/INDEX.md)** - Complete documentation index
+- **[README.md](README.md)** - Project overview
+
+**Key Guides:**
+- **[docs/MENTAL_MODEL.md](docs/MENTAL_MODEL.md)** - Architecture deep dive
+- **[docs/IMPROVEMENT_ROADMAP.md](docs/IMPROVEMENT_ROADMAP.md)** - Planned enhancements
+- **[docs/setup/CUSTOM_DOMAIN_SETUP.md](docs/setup/CUSTOM_DOMAIN_SETUP.md)** - Cloudflare domain config
+- **[docs/setup/OAUTH_REDIRECT_FIX.md](docs/setup/OAUTH_REDIRECT_FIX.md)** - OAuth configuration
 
 ## Before Committing
 
