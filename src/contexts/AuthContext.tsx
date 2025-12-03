@@ -309,9 +309,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         queryParams: {
           hd: 'illinois.edu'
         },
-        redirectTo: import.meta.env.PROD
-          ? 'https://illinihunt.org'
-          : window.location.origin
+        redirectTo: window.location.origin
       }
     })
     if (error) throw error
@@ -326,9 +324,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: import.meta.env.PROD
-          ? 'https://illinihunt.org'
-          : window.location.origin
+        emailRedirectTo: window.location.origin
       }
     })
 
