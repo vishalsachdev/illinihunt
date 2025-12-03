@@ -43,7 +43,7 @@ if (typeof window !== 'undefined') {
       preloadRoute(() => import('@/pages/ProjectDetailPage'))
     }
   }
-  
+
   // Preload on first user interaction instead of timeout
   document.addEventListener('click', preloadOnInteraction, { once: true })
   document.addEventListener('scroll', preloadOnInteraction, { once: true })
@@ -98,10 +98,10 @@ function AppContent() {
 
   // Debug auth state in development
   if (import.meta.env.DEV) {
-    console.log('App auth state:', { 
-      user: user?.email, 
-      loading, 
-      error: error?.substring(0, 50) 
+    console.log('App auth state:', {
+      user: user?.email,
+      loading,
+      error: error?.substring(0, 50)
     })
   }
 
@@ -120,7 +120,7 @@ function AppContent() {
             The authentication check is taking longer than expected. This might be due to a network issue or server problem.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button 
+            <Button
               onClick={retryAuth}
               disabled={loading}
               className="bg-uiuc-orange hover:bg-uiuc-orange/90 text-white"
@@ -134,7 +134,7 @@ function AppContent() {
                 'Retry Authentication'
               )}
             </Button>
-            <Button 
+            <Button
               variant="outline"
               onClick={() => window.location.reload()}
               className="border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -149,133 +149,145 @@ function AppContent() {
 
   // Don't block rendering for auth loading
   // The page should render immediately with or without auth
-  
+
 
   return (
     <div className="min-h-screen bg-background">
-        {/* Debug panel in development */}
-        {import.meta.env.DEV && (
-          <div className="fixed bottom-4 right-4 bg-black/80 text-white text-xs p-2 rounded z-50 max-w-xs">
-            <div>User: {user?.email || 'None'}</div>
-            <div>Loading: {loading ? 'Yes' : 'No'}</div>
-            <div>Error: {error ? error.substring(0, 30) + '...' : 'None'}</div>
-          </div>
-        )}
-        
-        {/* Skip to content for accessibility */}
-        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-uiuc-blue focus:px-3 focus:py-2 focus:rounded shadow">Skip to content</a>
-        <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b text-gray-900 p-4 shadow-sm">
-          <div className="container mx-auto flex items-center justify-between">
-            <div className="flex-shrink-0">
-              <Link to="/" className="block">
-                <h1 className="text-xl sm:text-2xl font-bold text-uiuc-blue hover:text-uiuc-orange transition-colors">
+      {/* Debug panel in development */}
+      {import.meta.env.DEV && (
+        <div className="fixed bottom-4 right-4 bg-black/80 text-white text-xs p-2 rounded z-50 max-w-xs">
+          <div>User: {user?.email || 'None'}</div>
+          <div>Loading: {loading ? 'Yes' : 'No'}</div>
+          <div>Error: {error ? error.substring(0, 30) + '...' : 'None'}</div>
+        </div>
+      )}
+
+      {/* Skip to content for accessibility */}
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[60] focus:bg-neon-orange focus:text-white focus:px-4 focus:py-3 focus:rounded-lg focus:shadow-lg focus:shadow-neon-orange/50 focus:ring-2 focus:ring-white/50">
+        Skip to content
+      </a>
+
+      <header className="sticky top-0 left-0 right-0 z-50 glass-premium border-b border-white/10 shadow-xl">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo/Branding */}
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-neon-orange to-orange-600 shadow-lg shadow-neon-orange/30 group-hover:scale-110 transition-transform duration-300">
+                <span className="text-xl font-bold text-white">I</span>
+              </div>
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-white group-hover:text-neon-orange transition-colors">
                   IlliniHunt
                 </h1>
-                <p className="text-gray-600 text-xs sm:text-sm hidden sm:block">Discover innovation at Illinois</p>
-              </Link>
-            </div>
-            
-            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                <p className="text-slate-400 text-xs hidden sm:block">Discover innovation at Illinois</p>
+              </div>
+            </Link>
+
+            {/* Navigation */}
+            <nav className="flex items-center gap-2 sm:gap-3">
               {user && (
-                <Button 
+                <Button
                   asChild
-                  variant="ghost" 
+                  variant="ghost"
                   size="sm"
-                  className="bg-transparent text-gray-700 hover:bg-gray-100 text-xs sm:text-sm hidden sm:inline-flex"
+                  className="hidden md:inline-flex glass-premium hover:bg-white/10 text-slate-200 hover:text-white border-0 h-10"
                 >
-                  <Link to="/dashboard">
+                  <Link to="/dashboard" className="flex items-center gap-2">
                     Dashboard
                   </Link>
                 </Button>
               )}
-              <Button 
+
+              <Button
                 asChild
-                variant="outline" 
+                variant="outline"
                 size="sm"
-                className="bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100 text-xs sm:text-sm"
+                className="glass-premium hover:bg-neon-orange/20 text-slate-200 hover:text-white border-white/10 hover:border-neon-orange/50 h-10 transition-all duration-300"
               >
-                <Link to="/submit">
-                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <Link to="/submit" className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
                   <span className="hidden sm:inline">Submit Project</span>
                   <span className="sm:hidden">Submit</span>
                 </Link>
               </Button>
+
               {user ? <UserMenu /> : <LoginButton />}
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      <main id="main-content">
+        {error && (
+          <div className="container mx-auto px-4 pt-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+              <p className="font-semibold">Authentication Error</p>
+              <p className="text-sm">{error}</p>
             </div>
           </div>
-        </header>
-        
-        <main id="main-content">
-          {error && (
-            <div className="container mx-auto px-4 pt-4">
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-                <p className="font-semibold">Authentication Error</p>
-                <p className="text-sm">{error}</p>
-              </div>
-            </div>
-          )}
-          
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route 
-                path="/submit" 
-                element={
-                  <ProtectedRoute>
-                    <SubmitProjectPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="/project/:id" element={<ProjectDetailPage />} />
-              <Route path="/user/:id" element={<UserProfilePage />} />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/profile/edit" 
-                element={
-                  <ProtectedRoute>
-                    <EditProfilePage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/project/:id/edit" 
-                element={
-                  <ProtectedRoute>
-                    <EditProjectPage />
-                  </ProtectedRoute>
-                } 
-              />
-              {/* Backwards compatibility for older edit links */}
-              <Route 
-                path="/edit-project/:id" 
-                element={
-                  <ProtectedRoute>
-                    <EditProjectPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/collections" 
-                element={
-                  <ProtectedRoute>
-                    <CollectionsPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="/collections/:id" element={<CollectionViewPage />} />
-              {/* Fallback route */}
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Suspense>
-        </main>
-      </div>
+        )}
+
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route
+              path="/submit"
+              element={
+                <ProtectedRoute>
+                  <SubmitProjectPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/project/:id" element={<ProjectDetailPage />} />
+            <Route path="/user/:id" element={<UserProfilePage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/edit"
+              element={
+                <ProtectedRoute>
+                  <EditProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/project/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <EditProjectPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Backwards compatibility for older edit links */}
+            <Route
+              path="/edit-project/:id"
+              element={
+                <ProtectedRoute>
+                  <EditProjectPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/collections"
+              element={
+                <ProtectedRoute>
+                  <CollectionsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/collections/:id" element={<CollectionViewPage />} />
+            {/* Fallback route */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
+      </main>
+    </div>
   )
 }
 

@@ -98,11 +98,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadUserProfile = useCallback(async (user: User, force = false) => {
     if (profileLoadingRef.current && !force) return
     profileLoadingRef.current = true
-    
+
     if (import.meta.env.DEV) {
       console.log('Loading user profile for:', user.email)
     }
-    
+
     try {
       const cached = !force ? getCachedProfile() : null
       if (cached) {
@@ -124,9 +124,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
 
-        let retries = 0
-        let data: UserProfile | null = null
-        let error: PostgrestError | null = null
+      let retries = 0
+      let data: UserProfile | null = null
+      let error: PostgrestError | null = null
       while (retries < MAX_PROFILE_RETRIES) {
         const response = await supabase
           .from('users')
@@ -354,17 +354,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const retryAuth = async () => {
     setState(prev => ({ ...prev, loading: true, error: null }))
-    
+
     try {
       const { data: { session }, error } = await supabase.auth.getSession()
-      
+
       if (!mountedRef.current) return
-      
+
       if (error) {
         setState(prev => ({ ...prev, error: error.message, loading: false }))
         return
       }
-      
+
       if (session?.user) {
         setState(prev => ({
           ...prev,

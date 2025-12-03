@@ -51,7 +51,7 @@ export function HomePage() {
   }
 
   return (
-    <div className="bg-slate-950 min-h-screen">
+    <div className="bg-midnight min-h-screen">
       <Hero />
       <FeaturedProjects />
       <CategoryPreview onSelect={handleCategorySelect} />

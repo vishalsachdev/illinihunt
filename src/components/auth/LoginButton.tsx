@@ -30,7 +30,8 @@ export function LoginButton() {
         <Button
           onClick={() => setShowPrompt(true)}
           disabled={isRetrying}
-          className="bg-uiuc-orange hover:bg-uiuc-orange/90 text-white"
+          size="sm"
+          className="bg-neon-orange hover:bg-neon-orange/90 text-white shadow-lg shadow-neon-orange/30 h-10 px-6 font-semibold transition-all duration-300 hover:scale-105"
         >
           {isRetrying ? 'Retrying...' : 'Sign in'}
         </Button>
@@ -40,7 +41,7 @@ export function LoginButton() {
           size="sm"
           onClick={handleRetryAuth}
           disabled={isRetrying}
-          className="text-xs text-gray-500 hover:text-gray-700 px-2"
+          className="text-xs text-slate-400 hover:text-white px-2 h-10"
           title="Retry authentication if stuck"
         >
           {isRetrying ? '...' : '↻'}
