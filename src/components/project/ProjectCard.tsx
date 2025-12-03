@@ -1,6 +1,6 @@
 import { useState, memo } from 'react'
 import { formatDistance } from 'date-fns'
-import { ExternalLink, Github, MessageCircle } from 'lucide-react'
+import { ExternalLink, MessageCircle } from 'lucide-react'
 import { CategoryIcon } from '@/lib/categoryIcons'
 import { Link } from 'react-router-dom'
 import { VoteButton } from './VoteButton'
@@ -116,34 +116,21 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
         </p>
 
         {/* Links */}
-        <div className="flex items-center gap-2 mb-4">
-          {project.website_url && sanitizeUrl(project.website_url) && (
+        {project.website_url && sanitizeUrl(project.website_url) && (
+          <div className="mb-4">
             <Button
               variant="outline"
               size="sm"
               asChild
-              className="h-7 px-2 text-xs flex-1 border-white/15 text-foreground/70 hover:text-foreground hover:bg-white/10 hover:border-white/25 transition-all"
+              className="h-7 px-2 text-xs border-white/15 text-foreground/70 hover:text-foreground hover:bg-white/10 hover:border-white/25 transition-all"
             >
               <a href={sanitizeUrl(project.website_url)} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-3 h-3 mr-1" />
                 Website
               </a>
             </Button>
-          )}
-          {project.github_url && sanitizeUrl(project.github_url) && (
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              className="h-7 px-2 text-xs flex-1 border-white/15 text-foreground/70 hover:text-foreground hover:bg-white/10 hover:border-white/25 transition-all"
-            >
-              <a href={sanitizeUrl(project.github_url)} target="_blank" rel="noopener noreferrer">
-                <Github className="w-3 h-3 mr-1" />
-                GitHub
-              </a>
-            </Button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="flex items-center justify-between text-sm border-t border-white/15 pt-3">
