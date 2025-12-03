@@ -55,7 +55,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
   }
 
   return (
-    <div className="glass-card rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-uiuc-orange/30 group text-foreground">
+    <div className="bg-card/80 backdrop-blur-sm border border-white/10 rounded-lg overflow-hidden hover:shadow-xl hover:shadow-uiuc-orange/10 transition-all duration-300 hover:border-uiuc-orange/40 hover:-translate-y-1 group text-foreground shadow-lg">
       {/* Project Image Header */}
       <Link to={`/project/${project.id}`} className="block relative h-48 bg-midnight-800 cursor-pointer">
         {project.image_url && !imageError ? (
@@ -100,7 +100,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
       </Link>
 
       {/* Project Content */}
-      <div className="p-5 text-foreground">
+      <div className="p-5 bg-gradient-to-b from-transparent to-card/20 text-foreground">
         {/* Header */}
         <div className="mb-3">
           {/* TODO(human) - Implement project name linking */}
@@ -122,7 +122,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
               variant="outline"
               size="sm"
               asChild
-              className="h-7 px-2 text-xs flex-1 border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/5"
+              className="h-7 px-2 text-xs flex-1 border-white/15 text-foreground/70 hover:text-foreground hover:bg-white/10 hover:border-white/25 transition-all"
             >
               <a href={sanitizeUrl(project.website_url)} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-3 h-3 mr-1" />
@@ -135,7 +135,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
               variant="outline"
               size="sm"
               asChild
-              className="h-7 px-2 text-xs flex-1 border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/5"
+              className="h-7 px-2 text-xs flex-1 border-white/15 text-foreground/70 hover:text-foreground hover:bg-white/10 hover:border-white/25 transition-all"
             >
               <a href={sanitizeUrl(project.github_url)} target="_blank" rel="noopener noreferrer">
                 <Github className="w-3 h-3 mr-1" />
@@ -146,7 +146,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between text-sm border-t border-white/10 pt-3">
+        <div className="flex items-center justify-between text-sm border-t border-white/15 pt-3">
           <div className="flex items-center gap-2">
             {user ? (
               <Link
@@ -159,7 +159,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
                     {user.full_name ? user.full_name.slice(0, 2).toUpperCase() : 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-xs truncate">
+                <span className="text-xs truncate text-foreground/90">
                   {sanitizeContent(user.full_name || user.username || 'Anonymous')}
                 </span>
               </Link>
@@ -178,9 +178,9 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
           <div className="flex items-center gap-3 text-muted-foreground">
             <div className="flex items-center gap-1">
               <MessageCircle className="w-3 h-3" />
-              <span className="text-xs">{project.comments_count}</span>
+              <span className="text-xs text-foreground/70">{project.comments_count}</span>
             </div>
-            <span className="text-xs">
+            <span className="text-xs text-foreground/70">
               {formatDistance(new Date(project.created_at), new Date(), { addSuffix: true })}
             </span>
             <BookmarkButton
@@ -203,7 +203,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
           variant="ghost"
           size="sm"
           asChild
-          className="mt-3 w-full h-8 text-xs text-uiuc-orange hover:text-white hover:bg-uiuc-orange/20 transition-colors"
+          className="mt-3 w-full h-8 text-xs text-uiuc-orange hover:text-white hover:bg-uiuc-orange/25 hover:border-uiuc-orange/30 border border-transparent transition-all"
         >
           <Link to={`/project/${project.id}`}>
             View Details →
