@@ -108,6 +108,57 @@ npm run type-check && npm run build && echo "✅ Ready"
 - **[docs/setup/CUSTOM_DOMAIN_SETUP.md](docs/setup/CUSTOM_DOMAIN_SETUP.md)** - Cloudflare domain config
 - **[docs/setup/OAUTH_REDIRECT_FIX.md](docs/setup/OAUTH_REDIRECT_FIX.md)** - OAuth configuration
 
+## Performance Best Practices
+
+### Data Fetching Patterns
+
+**❌ Anti-pattern: Waterfall Loading**
+```typescript
+// BAD: Sequential fetches create slow loading
+useEffect(() => {
+  loadAuth() // Wait 500ms
+}, [])
+
+useEffect(() => {
+  if (auth) loadProject() // Wait 300ms
+}, [auth])
+
+useEffect(() => {
+  if (project) loadCategories() // Wait 200ms
+}, [project])
+// Total: ~1000ms
+```
+
+**✅ Pattern: Cached + Parallel Loading**
+```typescript
+// GOOD: Use cached hooks and load in parallel
+const { categories } = useCategories() // Cached, instant after first load
+const { user } = useAuth() // Load in parallel
+
+useEffect(() => {
+  if (user) loadProject() // Only wait for auth
+}, [user])
+// Total: ~500-700ms
+```
+
+### When to Cache Data
+
+**Always cache:**
+- Categories (rarely change)
+- Static configuration data
+- User preferences
+
+**Use `useCategories` hook:**
+```typescript
+import { useCategories } from '@/hooks/useCategories'
+
+function MyComponent() {
+  const { categories, loading } = useCategories() // Auto-cached
+}
+```
+
+**Location**: `src/hooks/useCategories.ts` (5-min in-memory cache)
+
 ## Before Committing
 
 ```bash

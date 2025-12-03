@@ -139,6 +139,63 @@ if (error) {
 - First Contentful Paint: < 1.8s
 - Largest Contentful Paint: < 2.5s
 
+### Data Fetching Best Practices
+
+**CRITICAL: Avoid Waterfall Loading**
+
+Waterfall pattern (sequential fetches) causes slow page loads:
+```typescript
+// ❌ BAD: Each fetch waits for the previous one
+useEffect(() => { loadAuth() }, [])           // 500ms
+useEffect(() => { if (auth) loadData() }, [auth])    // 300ms
+useEffect(() => { if (data) loadMore() }, [data])    // 200ms
+// Total: 1000ms 🐌
+```
+
+**Use Parallel Loading + Caching**:
+```typescript
+// ✅ GOOD: Load in parallel, use cached data
+const { categories } = useCategories()  // Cached (instant)
+const { user } = useAuth()              // Parallel
+
+useEffect(() => {
+  if (user) loadData()  // Only wait for auth
+}, [user])
+// Total: 500-700ms ⚡
+```
+
+**Cached Hooks Available:**
+- `useCategories()` - Categories with 5-min cache
+- Add more for other static/slow-changing data
+
+**When to create a cached hook:**
+1. Data rarely changes (like categories, config)
+2. Data is used across multiple pages
+3. Fetching is slow (> 100ms)
+
+**Pattern:**
+```typescript
+// src/hooks/useCachedData.ts
+let cache: Data[] | null = null
+let cacheTime: number | null = null
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+export function useCachedData() {
+  const [data, setData] = useState(cache || [])
+  const [loading, setLoading] = useState(!cache)
+
+  useEffect(() => {
+    const now = Date.now()
+    if (cache && cacheTime && now - cacheTime < CACHE_TTL) {
+      return // Use cache
+    }
+    // Fetch and cache...
+  }, [])
+
+  return { data, loading }
+}
+```
+
 ## Security Guidelines
 
 ### Environment Variables

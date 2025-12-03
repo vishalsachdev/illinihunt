@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { CategoriesService } from '@/lib/database'
+import { useCategories } from '@/hooks/useCategories'
 import { CategoryIcon } from '@/lib/categoryIcons'
 import { motion } from 'framer-motion'
 
@@ -15,19 +14,7 @@ interface CategoryPreviewProps {
 }
 
 export function CategoryPreview({ onSelect }: CategoryPreviewProps) {
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const loadCategories = async () => {
-      const { data, error } = await CategoriesService.getCategories()
-      if (data && !error) {
-        setCategories(data)
-      }
-      setLoading(false)
-    }
-    loadCategories()
-  }, [])
+  const { categories, loading } = useCategories()
 
   if (loading || categories.length === 0) {
     return null

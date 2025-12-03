@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
-import { ProjectsService, CategoriesService } from '@/lib/database'
+import { useCategories } from '@/hooks/useCategories'
+import { ProjectsService } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
 import { ProjectCard } from './ProjectCard'
 import { Button } from '@/components/ui/button'
@@ -33,8 +34,6 @@ type Project = Database['public']['Tables']['projects']['Row'] & {
   } | null
 }
 
-type Category = Database['public']['Tables']['categories']['Row']
-
 type ProjectGridProps = {
   selectedCategory?: string
 }
@@ -49,7 +48,7 @@ type ProjectGridProps = {
 export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridProps) {
   const navigate = useNavigate()
   const [projects, setProjects] = useState<Project[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
+  const { categories } = useCategories()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -60,10 +59,6 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
 
   // Real-time vote updates
   const { getVoteData } = useRealtimeVotesContext()
-
-  useEffect(() => {
-    loadCategories()
-  }, [])
 
   // Memoize loadProjects to prevent unnecessary recreations
   const loadProjects = useCallback(async () => {
@@ -98,16 +93,6 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
   useEffect(() => {
     setSelectedCategory(externalCategory || 'all')
   }, [externalCategory])
-
-  const loadCategories = async () => {
-    try {
-      const { data, error } = await CategoriesService.getCategories()
-      if (error) throw error
-      setCategories(data || [])
-    } catch (err) {
-      // Categories will remain empty if loading fails
-    }
-  }
 
   // Enrich projects with real-time vote data
   // Memoized to prevent unnecessary recalculations on every render
