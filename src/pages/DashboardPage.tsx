@@ -331,14 +331,14 @@ export function DashboardPage() {
                               {project.categories && (
                                 <Badge
                                   variant="secondary"
+                                  className="text-foreground"
                                   style={{
                                     backgroundColor: `${project.categories.color}20`,
-                                    color: project.categories.color,
                                     borderColor: `${project.categories.color}40`
                                   }}
                                 >
                                   {project.categories.icon && (
-                                    <span className="mr-1">{project.categories.icon}</span>
+                                    <span className="mr-1" style={{ color: project.categories.color }}>{project.categories.icon}</span>
                                   )}
                                   {project.categories.name}
                                 </Badge>

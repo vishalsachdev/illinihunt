@@ -46,9 +46,29 @@ Wrap images in a container with `rounded-xl` and `overflow-hidden`. Consider add
   <img src="..." className="transition-transform duration-500 group-hover:scale-105" />
 </div>
 ```
+49: 
+50: ### Badges / Categories
+51: -   **Text**: Always use `text-foreground` (White) for readability.
+52: -   **Background**: Use the category color with low opacity (e.g., `backgroundColor: ${color}20`).
+53: -   **Border**: Use the category color with medium opacity (e.g., `borderColor: ${color}40`).
+54: -   **Icon**: Use the full category color.
+55: 
+56: ```tsx
+57: <Badge 
+58:   variant="secondary" 
+59:   className="text-foreground"
+60:   style={{ 
+61:     backgroundColor: `${color}20`,
+62:     borderColor: `${color}40`
+63:   }}
+64: >
+65:   <span style={{ color: color }}>{icon}</span>
+66:   {name}
+67: </Badge>
+68: ```
 
 ## Page Layout
-1.  **Container**: `min-h-screen bg-midnight text-foreground`
+1.  **Container**: `min-h-screen bg-midnight text-foreground dark` (Add `dark` class to force dark mode variables)
 2.  **Content Wrapper**: `container mx-auto px-4`
 3.  **Spacing**: Use generous padding/margin (e.g., `py-12`, `gap-8`).
 
