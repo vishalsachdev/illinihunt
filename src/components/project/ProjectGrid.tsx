@@ -161,16 +161,18 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
   return (
     <div className="space-y-8">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-uiuc-blue to-uiuc-orange text-white rounded-xl p-8 md:p-12">
+      <div className="relative overflow-hidden bg-gradient-to-r from-uiuc-blue to-uiuc-orange rounded-xl p-8 md:p-12">
+        {/* Subtle overlay for better text contrast */}
+        <div className="absolute inset-0 bg-black/10 rounded-xl"></div>
         <div className="relative z-10 max-w-3xl">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">Discover Amazing Projects</h1>
-          <p className="text-lg text-blue-50/90 mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg">Discover Amazing Projects</h1>
+          <p className="text-lg text-white/95 mb-6 leading-relaxed drop-shadow-md">
             Explore innovative projects from the Illinois community. Vote for your favorites, discover new ideas, and connect with brilliant minds.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <Button 
               variant="secondary" 
-              className="bg-white text-uiuc-blue hover:bg-gray-100 font-medium"
+              className="bg-white text-uiuc-blue hover:bg-gray-50 font-medium shadow-lg hover:shadow-xl transition-all"
               onClick={() => document.getElementById('search-projects')?.focus()}
             >
               <Search className="mr-2 h-4 w-4" />
@@ -178,7 +180,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
             </Button>
             <Button 
               variant="outline" 
-              className="bg-transparent border-white/20 text-white hover:bg-white/10"
+              className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 hover:border-white/40 shadow-lg font-medium"
               onClick={async () => {
                 try {
                   const { data: { session } } = await supabase.auth.getSession()
@@ -307,13 +309,13 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
       {/* Results Header */}
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h3 className="text-xl font-semibold text-gray-900">
+          <h3 className="text-xl font-semibold text-foreground">
             {searchQuery ? `Search results for "${searchQuery}"` : 
              selectedCategory !== 'all' ? `${categories.find(c => c.id === selectedCategory)?.name || ''} Projects` :
              'All Projects'}
           </h3>
           {!loading && (
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {projects.length} {projects.length === 1 ? 'project' : 'projects'} found
             </p>
           )}
