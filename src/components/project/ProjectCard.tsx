@@ -55,9 +55,9 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-uiuc-orange/30 group text-gray-900">
+    <div className="glass-card rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-uiuc-orange/30 group text-foreground">
       {/* Project Image Header */}
-      <Link to={`/project/${project.id}`} className="block relative h-48 bg-gray-100 cursor-pointer">
+      <Link to={`/project/${project.id}`} className="block relative h-48 bg-midnight-800 cursor-pointer">
         {project.image_url && !imageError ? (
           <img
             src={project.image_url}
@@ -66,31 +66,31 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-midnight-800 to-midnight-900 flex items-center justify-center">
             <span className="text-4xl opacity-50">📱</span>
           </div>
         )}
-        
+
         {/* Vote Button Overlay */}
         <div className="absolute top-3 right-3" onClick={(e) => e.preventDefault()}>
-          <VoteButton 
+          <VoteButton
             projectId={project.id}
             initialVoteCount={project.upvotes_count}
             onVoteChange={handleVoteChange}
-            className="bg-white/95 backdrop-blur-sm hover:bg-white shadow-md"
+            className="bg-midnight/90 backdrop-blur-sm hover:bg-midnight shadow-md border border-white/10"
           />
         </div>
-        
+
         {/* Category Badge */}
         {category && (
           <div className="absolute top-3 left-3">
-            <span 
+            <span
               className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white shadow-sm"
               style={{ backgroundColor: category.color }}
             >
-              <CategoryIcon 
-                iconName={category.icon} 
-                className="w-3 h-3" 
+              <CategoryIcon
+                iconName={category.icon}
+                className="w-3 h-3"
                 fallback={category.name}
               />
               {category.name}
@@ -100,18 +100,18 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
       </Link>
 
       {/* Project Content */}
-      <div className="p-5 text-gray-900">
+      <div className="p-5 text-foreground">
         {/* Header */}
         <div className="mb-3">
           {/* TODO(human) - Implement project name linking */}
-          <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-uiuc-blue transition-colors !text-gray-900">
+          <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-uiuc-orange transition-colors">
             {sanitizeContent(project.name)}
           </h3>
-          <p className="text-gray-600 text-sm line-clamp-1 !text-gray-600">{sanitizeContent(project.tagline)}</p>
+          <p className="text-muted-foreground text-sm line-clamp-1">{sanitizeContent(project.tagline)}</p>
         </div>
 
         {/* Description */}
-        <p className="text-gray-800 text-sm mb-4 line-clamp-3 leading-relaxed !text-gray-800">
+        <p className="text-muted-foreground text-sm mb-4 line-clamp-3 leading-relaxed">
           {sanitizeContent(project.description)}
         </p>
 
@@ -122,9 +122,9 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
               variant="outline"
               size="sm"
               asChild
-              className="h-7 px-2 text-xs flex-1 text-gray-700 hover:text-gray-900 !text-gray-700"
+              className="h-7 px-2 text-xs flex-1 border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/5"
             >
-              <a href={sanitizeUrl(project.website_url)} target="_blank" rel="noopener noreferrer" className="!text-gray-700 hover:!text-gray-900">
+              <a href={sanitizeUrl(project.website_url)} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-3 h-3 mr-1" />
                 Website
               </a>
@@ -135,9 +135,9 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
               variant="outline"
               size="sm"
               asChild
-              className="h-7 px-2 text-xs flex-1 text-gray-700 hover:text-gray-900 !text-gray-700"
+              className="h-7 px-2 text-xs flex-1 border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/5"
             >
-              <a href={sanitizeUrl(project.github_url)} target="_blank" rel="noopener noreferrer" className="!text-gray-700 hover:!text-gray-900">
+              <a href={sanitizeUrl(project.github_url)} target="_blank" rel="noopener noreferrer">
                 <Github className="w-3 h-3 mr-1" />
                 GitHub
               </a>
@@ -146,54 +146,54 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between text-sm border-t border-gray-100 pt-3">
+        <div className="flex items-center justify-between text-sm border-t border-white/10 pt-3">
           <div className="flex items-center gap-2">
             {user ? (
-              <Link 
-                to={`/user/${user.id}`} 
-                className="flex items-center gap-2 text-gray-700 hover:text-uiuc-blue transition-colors !text-gray-700"
+              <Link
+                to={`/user/${user.id}`}
+                className="flex items-center gap-2 text-muted-foreground hover:text-uiuc-orange transition-colors"
               >
                 <Avatar className="w-6 h-6">
                   <AvatarImage src={user.avatar_url || ''} />
-                  <AvatarFallback className="text-xs text-gray-700 !text-gray-700">
+                  <AvatarFallback className="text-xs text-foreground bg-midnight-800">
                     {user.full_name ? user.full_name.slice(0, 2).toUpperCase() : 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-xs text-gray-700 truncate hover:text-uiuc-blue transition-colors !text-gray-700">
+                <span className="text-xs truncate">
                   {sanitizeContent(user.full_name || user.username || 'Anonymous')}
                 </span>
               </Link>
             ) : (
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
-                  <AvatarFallback className="text-xs text-gray-700 !text-gray-700">U</AvatarFallback>
+                  <AvatarFallback className="text-xs text-foreground bg-midnight-800">U</AvatarFallback>
                 </Avatar>
-                <span className="text-xs text-gray-700 truncate !text-gray-700">
+                <span className="text-xs text-muted-foreground truncate">
                   Anonymous
                 </span>
               </div>
             )}
           </div>
-          
-          <div className="flex items-center gap-3 text-gray-500">
+
+          <div className="flex items-center gap-3 text-muted-foreground">
             <div className="flex items-center gap-1">
-              <MessageCircle className="w-3 h-3 text-gray-500 !text-gray-500" />
-              <span className="text-xs text-gray-600 !text-gray-600">{project.comments_count}</span>
+              <MessageCircle className="w-3 h-3" />
+              <span className="text-xs">{project.comments_count}</span>
             </div>
-            <span className="text-xs text-gray-500 !text-gray-500">
+            <span className="text-xs">
               {formatDistance(new Date(project.created_at), new Date(), { addSuffix: true })}
             </span>
-            <BookmarkButton 
+            <BookmarkButton
               projectId={project.id}
               variant="ghost"
               size="sm"
-              className="text-gray-600 hover:text-uiuc-orange !text-gray-600"
+              className="text-muted-foreground hover:text-uiuc-orange"
             />
-            <AddToCollectionButton 
+            <AddToCollectionButton
               projectId={project.id}
               variant="ghost"
               size="sm"
-              className="text-gray-600 hover:text-uiuc-orange !text-gray-600"
+              className="text-muted-foreground hover:text-uiuc-orange"
             />
           </div>
         </div>
@@ -203,7 +203,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
           variant="ghost"
           size="sm"
           asChild
-          className="mt-3 w-full h-8 text-xs text-uiuc-blue hover:text-white hover:bg-uiuc-blue transition-colors"
+          className="mt-3 w-full h-8 text-xs text-uiuc-orange hover:text-white hover:bg-uiuc-orange/20 transition-colors"
         >
           <Link to={`/project/${project.id}`}>
             View Details →
