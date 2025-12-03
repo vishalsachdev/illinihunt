@@ -64,8 +64,18 @@ New premium utilities:
 - Better visual hierarchy with font weights
 - Premium "View All" button
 
-## OAuth Fix
-Fixed Google Sign-In redirect URLs to properly use production domain (`https://illinihunt.com`) when deployed, preventing localhost redirect issues.
+## OAuth Fix ✅ (Improved)
+**Initial Solution**: Hardcoded redirect to `https://illinihunt.org` in production.
+
+**Problem Discovered**: Vercel preview deployments also set `PROD=true`, causing previews to redirect to production instead of staying on preview URLs.
+
+**Final Solution** (by online agent): Changed to use `window.location.origin` for all environments.
+- ✅ Works on production: `https://illinihunt.org`
+- ✅ Works on preview: `https://illinihunt-[hash].vercel.app`
+- ✅ Works locally: `http://localhost:5173`
+- ✅ No hardcoding required - fully dynamic
+
+**Configuration Required**: Add wildcard pattern `https://illinihunt-*.vercel.app` to Supabase Redirect URLs for preview deployments. See `OAUTH_REDIRECT_FIX.md` for details.
 
 ## Visual Improvements Summary
 
@@ -78,10 +88,10 @@ Fixed Google Sign-In redirect URLs to properly use production domain (`https://i
 6. **Spacing**: Compact → Generous (py-24 vs py-20)
 7. **Shadows**: Simple → Multi-layered with color tints
 
-## Next Steps
-1. Vercel will automatically deploy the `design-refresh-neon-glass` branch
-2. View the preview deployment to see the changes
-3. If approved, merge to main for production deployment
+## Deployment Status
+1. ✅ **Merged to main** - Design refresh is now live
+2. ✅ **OAuth fix improved** - Now works on all environments
+3. ⏳ **Supabase configuration** - Add preview URL patterns for full OAuth support
 
 ## Technical Notes
 - All changes are backward compatible
@@ -89,3 +99,4 @@ Fixed Google Sign-In redirect URLs to properly use production domain (`https://i
 - Framer Motion animations preserved
 - No new dependencies added
 - Maintains responsive design across all breakpoints
+- OAuth solution is environment-agnostic
