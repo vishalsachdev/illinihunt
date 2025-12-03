@@ -1,9 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense, lazy } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
+import { useCategories } from '@/hooks/useCategories'
 import { ProjectsService } from '@/lib/database'
-import { ProjectForm } from '@/components/project/ProjectForm'
 import type { Database } from '@/types/database'
+
+// Lazy load ProjectForm to reduce initial bundle size
+const ProjectForm = lazy(() =>
+  import('@/components/project/ProjectForm').then(module => ({ default: module.ProjectForm }))
+)
 
 type Project = Database['public']['Tables']['projects']['Row']
 
@@ -15,6 +20,9 @@ export function EditProjectPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Pre-load categories in parallel with project data
+  useCategories()
+
   useEffect(() => {
     const loadProject = async () => {
       if (!id || !user) return
@@ -23,7 +31,7 @@ export function EditProjectPage() {
       try {
         const { data, error } = await ProjectsService.getProject(id)
         if (error) throw error
-        
+
         if (!data) {
           setError('Project not found')
           return
@@ -102,16 +110,27 @@ export function EditProjectPage() {
   }
 
   return (
-    <ProjectForm
-      mode="edit"
-      projectId={id}
-      initialData={project}
-      onSuccess={() => {
-        navigate('/dashboard')
-      }}
-      onCancel={() => {
-        navigate('/dashboard')
-      }}
-    />
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading form...</p>
+          </div>
+        </div>
+      }
+    >
+      <ProjectForm
+        mode="edit"
+        projectId={id}
+        initialData={project}
+        onSuccess={() => {
+          navigate('/dashboard')
+        }}
+        onCancel={() => {
+          navigate('/dashboard')
+        }}
+      />
+    </Suspense>
   )
 }

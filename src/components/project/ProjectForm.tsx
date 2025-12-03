@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuth } from '@/hooks/useAuth'
+import { useCategories } from '@/hooks/useCategories'
 import { useError } from '@/contexts/ErrorContext'
-import { ProjectsService, CategoriesService } from '@/lib/database'
+import { ProjectsService } from '@/lib/database'
 import { projectSchema, type ProjectFormData } from '@/lib/validations'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,7 +21,6 @@ import { ImageUpload } from '@/components/ui/ImageUpload'
 import { CategoryIcon } from '@/lib/categoryIcons'
 import type { Database } from '@/types/database'
 
-type Category = Database['public']['Tables']['categories']['Row']
 type Project = Database['public']['Tables']['projects']['Row']
 
 interface ProjectFormProps {
@@ -33,11 +33,10 @@ interface ProjectFormProps {
 
 export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess, onCancel }: ProjectFormProps) {
   const { user } = useAuth()
-  const { handleServiceError, handleFormError, handleAuthError, showSuccess } = useError()
-  const [categories, setCategories] = useState<Category[]>([])
+  const { categories, loading: loadingCategories } = useCategories()
+  const { handleFormError, handleAuthError, showSuccess } = useError()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [imageUrl, setImageUrl] = useState<string>('')
-  const [loadingCategories, setLoadingCategories] = useState(true)
 
   const {
     register,
@@ -48,26 +47,6 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
   } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema)
   })
-
-  const loadCategories = useCallback(async () => {
-    setLoadingCategories(true)
-    try {
-      const { data, error } = await CategoriesService.getCategories()
-      if (error) {
-        throw error
-      }
-      setCategories(data || [])
-    } catch (error) {
-      handleServiceError(error, 'load categories')
-      // Categories will remain empty, form will still be functional
-    } finally {
-      setLoadingCategories(false)
-    }
-  }, [handleServiceError])
-
-  useEffect(() => {
-    loadCategories()
-  }, [loadCategories])
 
   // Populate form with initial data for edit mode
   useEffect(() => {
