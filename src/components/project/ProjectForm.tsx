@@ -248,7 +248,10 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
 
         {/* GitHub URL */}
         <div className="space-y-2">
-          <Label htmlFor="github_url">GitHub URL</Label>
+          <Label htmlFor="github_url">GitHub URL (Optional)</Label>
+          <p className="text-sm text-muted-foreground">
+            Only fill this if you want to make your repository publicly available. Leave blank if your code is private or not on GitHub.
+          </p>
           <Input
             id="github_url"
             type="url"

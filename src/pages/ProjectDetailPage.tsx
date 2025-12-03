@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { VoteButton } from '@/components/project/VoteButton'
-import { ArrowLeft, ExternalLink, Github, User, RefreshCw, Edit } from 'lucide-react'
+import { ArrowLeft, ExternalLink, User, RefreshCw, Edit } from 'lucide-react'
 import { CommentList } from '@/components/comment/CommentList'
 import { sanitizeContent, sanitizeUrl, linkifyText } from '@/lib/sanitize'
 
@@ -208,24 +208,16 @@ export function ProjectDetailPage() {
               </div>
 
               {/* Links */}
-              <div className="flex flex-wrap gap-4">
-                {project.website_url && sanitizeUrl(project.website_url) && (
+              {project.website_url && sanitizeUrl(project.website_url) && (
+                <div className="flex flex-wrap gap-4">
                   <Button asChild variant="outline" className="border-white/10 hover:bg-white/5 hover:text-foreground">
                     <a href={sanitizeUrl(project.website_url)} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Visit Website
                     </a>
                   </Button>
-                )}
-                {project.github_url && sanitizeUrl(project.github_url) && (
-                  <Button asChild variant="outline" className="border-white/10 hover:bg-white/5 hover:text-foreground">
-                    <a href={sanitizeUrl(project.github_url)} target="_blank" rel="noopener noreferrer">
-                      <Github className="w-4 h-4 mr-2" />
-                      View Source
-                    </a>
-                  </Button>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* Comments Section */}
               <div className="border-t border-white/10 pt-8">
