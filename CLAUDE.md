@@ -80,6 +80,7 @@ npm run type-check && npm run build && echo "✅ Ready"
 - **[CLAUDE.md](CLAUDE.md)** - This quick reference
 - **[docs/MENTAL_MODEL.md](docs/MENTAL_MODEL.md)** - Complete architecture guide
 - **[IMPROVEMENT_ROADMAP.md](docs/IMPROVEMENT_ROADMAP.md)** - Implementation phases
+- **[src/docs/DESIGN_SYSTEM.md](src/docs/DESIGN_SYSTEM.md)** - Frontend design specifications
 - **[README.md](README.md)** - Project overview and setup
 
 ## Before Committing

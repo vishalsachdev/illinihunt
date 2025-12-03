@@ -46,12 +46,12 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
     } else {
       setLoading(true)
     }
-    
+
     setError('')
 
     try {
       const { data, error } = await CommentsService.getProjectComments(projectId)
-      
+
       if (error) {
         setError('Failed to load comments')
         return
@@ -82,9 +82,9 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
   }
 
   const handleCommentUpdated = (commentId: string, newContent: string) => {
-    setComments(prev => 
-      prev.map(comment => 
-        comment.id === commentId 
+    setComments(prev =>
+      prev.map(comment =>
+        comment.id === commentId
           ? { ...comment, content: newContent, updated_at: new Date().toISOString() }
           : comment
       )
@@ -92,9 +92,9 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
   }
 
   const handleCommentDeleted = (commentId: string) => {
-    setComments(prev => 
-      prev.map(comment => 
-        comment.id === commentId 
+    setComments(prev =>
+      prev.map(comment =>
+        comment.id === commentId
           ? { ...comment, is_deleted: true }
           : comment
       )
@@ -119,7 +119,7 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
     // Second pass: organize into threads
     comments.forEach(comment => {
       const commentWithReplies = commentMap.get(comment.id)!
-      
+
       if (comment.parent_id && commentMap.has(comment.parent_id)) {
         // This is a reply, add it to parent's replies
         const parent = commentMap.get(comment.parent_id)!
@@ -131,13 +131,13 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
     })
 
     // Sort root comments by creation date (newest first)
-    rootComments.sort((a, b) => 
+    rootComments.sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     )
 
     // Sort replies within each thread (oldest first for better conversation flow)
     const sortReplies = (comment: ThreadedComment) => {
-      comment.replies.sort((a, b) => 
+      comment.replies.sort((a, b) =>
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       )
       comment.replies.forEach(sortReplies)
@@ -156,9 +156,9 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
         onReply={handleReply}
         onUpdate={handleCommentUpdated}
         onDelete={handleCommentDeleted}
-        className={depth > 0 ? 'ml-6 pl-4 border-l-2 border-gray-100' : ''}
+        className={depth > 0 ? 'ml-6 pl-4 border-l-2 border-white/10' : ''}
       />
-      
+
       {comment.replies.length > 0 && (
         <div className="space-y-4">
           {comment.replies.map(reply => renderCommentThread(reply, depth + 1))}
@@ -171,15 +171,15 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+          <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
             <MessageCircle className="w-5 h-5" />
             Comments ({totalComments})
           </h2>
         </div>
-        
+
         <div className="text-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading comments...</p>
+          <p className="text-muted-foreground">Loading comments...</p>
         </div>
       </div>
     )
@@ -189,12 +189,12 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+          <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
             <MessageCircle className="w-5 h-5" />
             Comments ({totalComments})
           </h2>
         </div>
-        
+
         <div className="text-center py-8">
           <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg inline-block">
             <p className="mb-3">{error}</p>
@@ -214,11 +214,11 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+        <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
           <MessageCircle className="w-5 h-5" />
           Comments ({totalComments})
         </h2>
-        
+
         {comments.length > 0 && (
           <Button
             variant="ghost"
@@ -244,10 +244,10 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
           {organizedComments.map(comment => renderCommentThread(comment))}
         </div>
       ) : (
-        <div className="text-center py-8 bg-gray-50 rounded-lg border">
-          <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No comments yet</h3>
-          <p className="text-gray-600">
+        <div className="text-center py-8 bg-muted/10 rounded-lg border border-border/50">
+          <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">No comments yet</h3>
+          <p className="text-muted-foreground">
             Be the first to share your thoughts about this project!
           </p>
         </div>

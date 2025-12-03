@@ -8,13 +8,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { CommentForm } from './CommentForm'
 import { Link } from 'react-router-dom'
 import { sanitizeContent } from '@/lib/sanitize'
-import { 
-  MessageCircle, 
-  Heart, 
-  Edit3, 
-  Trash2, 
+import {
+  MessageCircle,
+  Heart,
+  Edit3,
+  Trash2,
   MoreHorizontal,
-  AlertCircle 
+  AlertCircle
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -48,11 +48,11 @@ interface CommentItemProps {
   className?: string
 }
 
-export function CommentItem({ 
-  comment, 
-  projectId, 
-  onReply, 
-  onUpdate, 
+export function CommentItem({
+  comment,
+  projectId,
+  onReply,
+  onUpdate,
   onDelete,
   className = ""
 }: CommentItemProps) {
@@ -62,7 +62,7 @@ export function CommentItem({
   const [editContent, setEditContent] = useState(comment.content)
   const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(comment.likes_count)
-  
+
   // Update like count if comment.likes_count changes
   useEffect(() => {
     setLikeCount(comment.likes_count)
@@ -72,12 +72,12 @@ export function CommentItem({
   const [error, setError] = useState('')
 
   const isOwner = user && comment.users && user.id === comment.users.id
-  
+
   const canReply = comment.thread_depth < 3 // Max 3 levels deep
-  
+
   const checkLikeStatus = useCallback(async () => {
     if (!comment.id) return
-    
+
     try {
       const liked = await CommentsService.hasUserLikedComment(comment.id)
       setIsLiked(liked)
@@ -126,7 +126,7 @@ export function CommentItem({
 
     try {
       const { error } = await CommentsService.updateComment(comment.id, editContent.trim())
-      
+
       if (error) {
         setError('Failed to update comment')
         return
@@ -161,7 +161,7 @@ export function CommentItem({
       }
 
       const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-      
+
       if (userError || !currentUser) {
         setError('Please log in to delete comments')
         setIsDeleting(false)
@@ -176,7 +176,7 @@ export function CommentItem({
       }
 
       const result = await CommentsService.deleteComment(comment.id)
-      
+
       if (result.error) {
         console.error('CommentItem: Delete error:', {
           error: result.error,
@@ -186,7 +186,7 @@ export function CommentItem({
           message: result.error.message,
           code: result.error.code
         })
-        
+
         // Provide more specific error messages based on the error code and message
         switch (result.error.code) {
           case 'AUTHENTICATION_REQUIRED':
@@ -231,7 +231,7 @@ export function CommentItem({
 
   if (comment.is_deleted) {
     return (
-      <div className={`text-gray-500 italic py-2 ${className}`}>
+      <div className={`text-muted-foreground italic py-2 ${className}`}>
         <div className="flex items-center gap-2">
           <AlertCircle className="w-4 h-4" />
           <span>This comment has been deleted</span>
@@ -256,9 +256,9 @@ export function CommentItem({
               <Avatar className="w-8 h-8 hover:ring-2 hover:ring-uiuc-orange/50 transition-all">
                 <AvatarImage src={comment.users.avatar_url || undefined} />
                 <AvatarFallback>
-                  {comment.users.full_name?.charAt(0) || 
-                   comment.users.username?.charAt(0) || 
-                   '?'}
+                  {comment.users.full_name?.charAt(0) ||
+                    comment.users.username?.charAt(0) ||
+                    '?'}
                 </AvatarFallback>
               </Avatar>
             </Link>
@@ -275,22 +275,22 @@ export function CommentItem({
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               {comment.users ? (
-                <Link 
+                <Link
                   to={`/user/${comment.users.id}`}
-                  className="font-medium text-gray-900 hover:text-uiuc-blue transition-colors"
+                  className="font-medium text-foreground hover:text-uiuc-blue transition-colors"
                 >
                   {sanitizeContent(comment.users.full_name || comment.users.username || 'Anonymous')}
                 </Link>
               ) : (
-                <span className="font-medium text-gray-900">Anonymous</span>
+                <span className="font-medium text-foreground">Anonymous</span>
               )}
-              
-              <span className="text-gray-500 text-sm">
+
+              <span className="text-muted-foreground text-sm">
                 {formatDistance(new Date(comment.created_at), new Date(), { addSuffix: true })}
               </span>
-              
+
               {comment.updated_at !== comment.created_at && (
-                <span className="text-gray-400 text-xs">(edited)</span>
+                <span className="text-muted-foreground text-xs">(edited)</span>
               )}
             </div>
 
@@ -322,7 +322,7 @@ export function CommentItem({
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="w-full p-2 border rounded resize-none"
+                className="w-full p-2 border border-white/10 rounded resize-none bg-midnight-800 text-foreground focus:ring-1 focus:ring-uiuc-orange focus:border-uiuc-orange outline-none"
                 rows={3}
               />
               <div className="flex items-center gap-2">
@@ -347,7 +347,7 @@ export function CommentItem({
               </div>
             </div>
           ) : (
-            <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+            <div className="text-gray-300 leading-relaxed whitespace-pre-wrap">
               {sanitizeContent(comment.content)}
             </div>
           )}
@@ -359,7 +359,7 @@ export function CommentItem({
                 variant="ghost"
                 size="sm"
                 onClick={handleLike}
-                className={`h-auto p-1 ${isLiked ? 'text-red-500' : 'text-gray-500'}`}
+                className={`h-auto p-1 ${isLiked ? 'text-red-500' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 <Heart className={`w-4 h-4 mr-1 ${isLiked ? 'fill-current' : ''}`} />
                 <span className="text-xs">{likeCount}</span>
@@ -370,7 +370,7 @@ export function CommentItem({
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowReplyForm(!showReplyForm)}
-                  className="h-auto p-1 text-gray-500"
+                  className="h-auto p-1 text-muted-foreground hover:text-foreground"
                 >
                   <MessageCircle className="w-4 h-4 mr-1" />
                   <span className="text-xs">Reply</span>
@@ -381,7 +381,7 @@ export function CommentItem({
 
           {/* Reply Form */}
           {showReplyForm && (
-            <div className="mt-4 pl-2 border-l-2 border-gray-200">
+            <div className="mt-4 pl-2 border-l-2 border-white/10">
               <CommentForm
                 projectId={projectId}
                 parentId={comment.id}

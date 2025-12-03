@@ -114,6 +114,7 @@ if (error) {
 ## UI/UX Guidelines
 
 ### Design System
+- **See [src/docs/DESIGN_SYSTEM.md](src/docs/DESIGN_SYSTEM.md) for complete specifications**
 - Primary colors: UIUC Orange (#FF6B35), UIUC Blue (#13294B)
 - Use shadcn/ui components as base
 - Follow Tailwind CSS utility-first approach

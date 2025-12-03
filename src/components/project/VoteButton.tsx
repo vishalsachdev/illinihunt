@@ -20,7 +20,7 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
   const { showAuthPrompt } = useAuthPrompt()
   const { handleServiceError, showSuccess } = useError()
   const { getVoteData, updateVoteCount, updateUserVote, clearVoteData, isRealtimeConnected } = useRealtimeVotesContext()
-  
+
   const [voteCount, setVoteCount] = useState(initialVoteCount)
   const [hasVoted, setHasVoted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -38,7 +38,7 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
       setVoteCount(initialVoteCount)
     }
   }, [getVoteData, projectId, initialVoteCount, isRealtimeConnected])
-  
+
   // Initialize real-time data
   useEffect(() => {
     updateVoteCount(projectId, initialVoteCount)
@@ -46,7 +46,7 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
 
   const checkVoteStatus = useCallback(async () => {
     if (!projectId) return
-    
+
     try {
       // First verify project exists
       const { data: project, error: projectError } = await ProjectsService.getProject(projectId)
@@ -82,12 +82,12 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     if (isVotingRef.current) return
     isVotingRef.current = true
     setIsLoading(true)
-    
+
     // Store current state for rollback
     const previousVoteCount = voteCount
     const previousHasVoted = hasVoted
     const isRemoving = hasVoted
-    
+
     try {
       // First check if project still exists
       const { data: project, error: projectError } = await ProjectsService.getProject(projectId)
@@ -107,7 +107,7 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
         setHasVoted(false)
         updateVoteCount(projectId, newCount)
         updateUserVote(projectId, false)
-        
+
         // Remove vote
         const { error } = await ProjectsService.unvoteProject(projectId)
         if (error) {
@@ -122,7 +122,7 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
         setHasVoted(true)
         updateVoteCount(projectId, newCount)
         updateUserVote(projectId, true)
-        
+
         // Add vote
         const { error } = await ProjectsService.voteProject(projectId)
         if (error) {
@@ -137,7 +137,7 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
       setHasVoted(previousHasVoted)
       updateVoteCount(projectId, previousVoteCount)
       updateUserVote(projectId, previousHasVoted)
-      
+
       const operation = isRemoving ? 'remove vote' : 'add vote'
       handleServiceError(error, operation, () => handleVote())
     } finally {
@@ -184,9 +184,9 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
       disabled={isLoading}
       className={cn(
         'flex flex-col items-center gap-1 h-auto p-2 min-w-[60px]',
-        hasVoted 
+        hasVoted
           ? '!bg-uiuc-blue !text-white !border-uiuc-blue hover:!bg-uiuc-blue/90'
-          : 'text-black hover:text-gray-700',
+          : 'text-foreground hover:text-muted-foreground',
         className
       )}
     >

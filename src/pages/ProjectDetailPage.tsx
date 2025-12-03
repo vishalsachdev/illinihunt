@@ -48,24 +48,24 @@ export function ProjectDetailPage() {
 
   const loadProject = useCallback(async () => {
     if (!id) return
-    
+
     setLoading(true)
     setError('')
-    
+
     try {
       const { data, error } = await ProjectsService.getProject(id)
-      
+
       if (error) {
         setError('Failed to load project')
         handleServiceError(error, 'load project', loadProject)
         return
       }
-      
+
       if (!data) {
         setError('Project not found')
         return
       }
-      
+
       setProject(data)
       setCurrentVoteCount(data.upvotes_count)
       setError('')
@@ -87,10 +87,10 @@ export function ProjectDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-midnight flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading project...</p>
+          <p className="text-muted-foreground">Loading project...</p>
         </div>
       </div>
     )
@@ -98,19 +98,19 @@ export function ProjectDetailPage() {
 
   if (error || !project) {
     const isNetworkError = error.includes('load project')
-    
+
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-midnight flex items-center justify-center p-4">
         <div className="text-center max-w-md">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-foreground mb-4">
             {isNetworkError ? 'Failed to Load Project' : 'Project Not Found'}
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             {error || 'The requested project could not be found.'}
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
             {isNetworkError && (
-              <Button onClick={loadProject} variant="outline" className="flex items-center gap-2">
+              <Button onClick={loadProject} variant="outline" className="flex items-center gap-2 border-white/10 hover:bg-white/5 hover:text-foreground">
                 <RefreshCw className="w-4 h-4" />
                 Retry
               </Button>
@@ -128,10 +128,10 @@ export function ProjectDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-midnight text-foreground">
       {/* Navigation */}
       <div className="container mx-auto px-4 pt-24 pb-8">
-        <Button variant="ghost" asChild className="mb-6">
+        <Button variant="ghost" asChild className="mb-6 text-muted-foreground hover:text-foreground hover:bg-white/5">
           <Link to="/">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Projects
@@ -146,13 +146,14 @@ export function ProjectDetailPage() {
           <div className="lg:col-span-2">
             {/* Project Image */}
             {project.image_url && !imageError && (
-              <div className="mb-8">
+              <div className="mb-8 group relative rounded-xl overflow-hidden border border-white/10 bg-midnight-800/50">
                 <img
                   src={project.image_url}
                   alt={project.name}
-                  className="w-full h-64 md:h-80 object-cover rounded-lg border"
+                  className="w-full h-64 md:h-80 object-cover transition-transform duration-500 group-hover:scale-105"
                   onError={() => setImageError(true)}
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-midnight via-transparent to-transparent opacity-60" />
               </div>
             )}
 
@@ -161,16 +162,16 @@ export function ProjectDetailPage() {
               <div>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2 tracking-tight">
                       {sanitizeContent(project.name)}
                     </h1>
-                    <p className="text-xl text-gray-700 leading-relaxed">
+                    <p className="text-xl text-muted-foreground leading-relaxed">
                       {sanitizeContent(project.tagline)}
                     </p>
                   </div>
                   <div className="ml-4 flex-shrink-0">
-                    <VoteButton 
-                      projectId={project.id} 
+                    <VoteButton
+                      projectId={project.id}
                       initialVoteCount={project.upvotes_count}
                       onVoteChange={setCurrentVoteCount}
                     />
@@ -179,10 +180,10 @@ export function ProjectDetailPage() {
 
                 {/* Category Badge */}
                 {project.categories && (
-                  <Badge 
-                    variant="secondary" 
+                  <Badge
+                    variant="secondary"
                     className="mb-4"
-                    style={{ 
+                    style={{
                       backgroundColor: `${project.categories.color}20`,
                       color: project.categories.color,
                       borderColor: `${project.categories.color}40`
@@ -197,10 +198,10 @@ export function ProjectDetailPage() {
               </div>
 
               {/* Description */}
-              <div className="prose max-w-none">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-4">About this project</h2>
-                <div 
-                  className="text-gray-700 leading-relaxed whitespace-pre-wrap"
+              <div className="prose prose-invert max-w-none">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">About this project</h2>
+                <div
+                  className="text-muted-foreground leading-relaxed whitespace-pre-wrap"
                   dangerouslySetInnerHTML={{
                     __html: linkifyText(sanitizeContent(project.description))
                   }}
@@ -210,7 +211,7 @@ export function ProjectDetailPage() {
               {/* Links */}
               <div className="flex flex-wrap gap-4">
                 {project.website_url && sanitizeUrl(project.website_url) && (
-                  <Button asChild variant="outline">
+                  <Button asChild variant="outline" className="border-white/10 hover:bg-white/5 hover:text-foreground">
                     <a href={sanitizeUrl(project.website_url)} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Visit Website
@@ -218,7 +219,7 @@ export function ProjectDetailPage() {
                   </Button>
                 )}
                 {project.github_url && sanitizeUrl(project.github_url) && (
-                  <Button asChild variant="outline">
+                  <Button asChild variant="outline" className="border-white/10 hover:bg-white/5 hover:text-foreground">
                     <a href={sanitizeUrl(project.github_url)} target="_blank" rel="noopener noreferrer">
                       <Github className="w-4 h-4 mr-2" />
                       View Source
@@ -228,9 +229,9 @@ export function ProjectDetailPage() {
               </div>
 
               {/* Comments Section */}
-              <div className="border-t pt-8">
-                <CommentList 
-                  projectId={project.id} 
+              <div className="border-t border-white/10 pt-8">
+                <CommentList
+                  projectId={project.id}
                   totalComments={project.comments_count}
                 />
               </div>
@@ -241,30 +242,30 @@ export function ProjectDetailPage() {
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
               {/* Creator Info */}
-              <div className="bg-white border rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Creator</h3>
+              <div className="glass-card rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Project Creator</h3>
                 {project.users ? (
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <Avatar>
                         <AvatarImage src={project.users.avatar_url || undefined} />
                         <AvatarFallback>
-                          {project.users.full_name?.charAt(0) || 
-                           project.users.username?.charAt(0) || 
-                           '?'}
+                          {project.users.full_name?.charAt(0) ||
+                            project.users.username?.charAt(0) ||
+                            '?'}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-foreground">
                           {sanitizeContent(project.users.full_name || project.users.username || 'Anonymous')}
                         </p>
                         {project.users.username && project.users.full_name && (
-                          <p className="text-sm text-gray-600">@{sanitizeContent(project.users.username)}</p>
+                          <p className="text-sm text-muted-foreground">@{sanitizeContent(project.users.username)}</p>
                         )}
                       </div>
                     </div>
-                    
-                    <Button asChild variant="outline" className="w-full">
+
+                    <Button asChild variant="outline" className="w-full border-white/10 hover:bg-white/5 hover:text-foreground">
                       <Link to={`/user/${project.users.id}`}>
                         <User className="w-4 h-4 mr-2" />
                         View Profile
@@ -272,25 +273,25 @@ export function ProjectDetailPage() {
                     </Button>
                   </div>
                 ) : (
-                  <p className="text-gray-600">Anonymous creator</p>
+                  <p className="text-muted-foreground">Anonymous creator</p>
                 )}
               </div>
 
               {/* Project Stats */}
-              <div className="bg-white border rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Stats</h3>
+              <div className="glass-card rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Project Stats</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Upvotes</span>
-                    <span className="font-medium">{currentVoteCount}</span>
+                    <span className="text-muted-foreground">Upvotes</span>
+                    <span className="font-medium text-foreground">{currentVoteCount}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Comments</span>
-                    <span className="font-medium">{project.comments_count}</span>
+                    <span className="text-muted-foreground">Comments</span>
+                    <span className="font-medium text-foreground">{project.comments_count}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Created</span>
-                    <span className="font-medium">
+                    <span className="text-muted-foreground">Created</span>
+                    <span className="font-medium text-foreground">
                       {new Date(project.created_at).toLocaleDateString()}
                     </span>
                   </div>
@@ -299,8 +300,8 @@ export function ProjectDetailPage() {
 
               {/* Edit Button for Project Owner */}
               {user && project.users && user.id === project.users.id && (
-                <div className="bg-white border rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Manage Project</h3>
+                <div className="glass-card rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-4">Manage Project</h3>
                   <div className="space-y-2">
                     <Button asChild className="w-full bg-uiuc-orange hover:bg-uiuc-orange/90">
                       <Link to={`/project/${project.id}/edit`}>
@@ -308,7 +309,7 @@ export function ProjectDetailPage() {
                         Edit Project
                       </Link>
                     </Button>
-                    <Button asChild variant="outline" className="w-full">
+                    <Button asChild variant="outline" className="w-full border-white/10 hover:bg-white/5 hover:text-foreground">
                       <Link to="/dashboard">
                         View Dashboard
                       </Link>
