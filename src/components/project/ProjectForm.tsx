@@ -242,6 +242,23 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
           )}
         </div>
 
+        {/* YouTube Video URL */}
+        <div className="space-y-2">
+          <Label htmlFor="video_url">YouTube Video (Optional)</Label>
+          <p className="text-sm text-muted-foreground">
+            Add a YouTube demo or pitch video to showcase your project. Accepts YouTube or youtu.be links.
+          </p>
+          <Input
+            id="video_url"
+            type="url"
+            placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+            {...register('video_url')}
+          />
+          {errors.video_url && (
+            <p className="text-sm text-red-600">{errors.video_url.message}</p>
+          )}
+        </div>
+
         {/* Image Upload */}
         <ImageUpload
           onImageUploaded={setImageUrl}

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { VoteButton } from '@/components/project/VoteButton'
 import { ArrowLeft, ExternalLink, Github, User, RefreshCw, Edit } from 'lucide-react'
 import { CommentList } from '@/components/comment/CommentList'
+import { YouTubeEmbed } from '@/components/media/YouTubeEmbed'
 import { sanitizeContent, sanitizeUrl, linkifyText } from '@/lib/sanitize'
 
 type ProjectDetail = {
@@ -19,6 +20,7 @@ type ProjectDetail = {
   image_url: string | null
   website_url: string | null
   github_url: string | null
+  video_url: string | null
   upvotes_count: number
   comments_count: number
   created_at: string
@@ -206,6 +208,17 @@ export function ProjectDetailPage() {
                   }}
                 />
               </div>
+
+              {/* YouTube Video Embed */}
+              {project.video_url && (
+                <div className="space-y-3">
+                  <h3 className="text-xl font-semibold text-foreground">Project Demo</h3>
+                  <YouTubeEmbed
+                    url={project.video_url}
+                    title={`${project.name} demo video`}
+                  />
+                </div>
+              )}
 
               {/* Links */}
               {(project.website_url && sanitizeUrl(project.website_url)) || (project.github_url && sanitizeUrl(project.github_url)) ? (

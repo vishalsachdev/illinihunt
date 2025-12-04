@@ -219,3 +219,4 @@ If something goes wrong, you can rollback:
 **Supabase Project**: `catzwowmxluzwbhdyhnf`
 **Current URL**: `https://catzwowmxluzwbhdyhnf.supabase.co`
 
+

@@ -22,10 +22,28 @@ export const projectSchema = z.object({
     .url('Please enter a valid GitHub URL')
     .optional()
     .or(z.literal('')),
-  
+
+  video_url: z.string()
+    .url('Please enter a valid YouTube URL')
+    .refine(
+      (url) => {
+        if (!url) return true // Optional field
+        try {
+          const urlObj = new URL(url)
+          const validDomains = ['youtube.com', 'www.youtube.com', 'youtu.be', 'm.youtube.com']
+          return validDomains.includes(urlObj.hostname)
+        } catch {
+          return false
+        }
+      },
+      { message: 'Please enter a valid YouTube URL (youtube.com or youtu.be)' }
+    )
+    .optional()
+    .or(z.literal('')),
+
   category_id: z.string()
     .min(1, 'Please select a category'),
-  
+
   image_url: z.string()
     .optional()
 })
