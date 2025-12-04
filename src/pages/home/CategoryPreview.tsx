@@ -54,7 +54,7 @@ export function CategoryPreview({ onSelect }: CategoryPreviewProps) {
             >
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300"
-                style={{ backgroundColor: category.color }}
+                style={{ backgroundColor: category.color || '#6B7280' }}
               >
                 <CategoryIcon iconName={category.icon} className="w-6 h-6" fallback={category.name} />
               </div>

@@ -77,8 +77,8 @@ export function useRealtimeVotes({
               const oldProject = payload.old as Database['public']['Tables']['projects']['Row'] | null
 
               if (newProject && oldProject) {
-                const newCount = newProject.upvotes_count
-                const oldCount = oldProject.upvotes_count
+                const newCount = newProject.upvotes_count ?? 0
+                const oldCount = oldProject.upvotes_count ?? 0
 
                 // Only trigger callback if count actually changed
                 if (newCount !== oldCount && onVoteCountChangeRef.current) {

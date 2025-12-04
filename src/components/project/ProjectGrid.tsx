@@ -29,7 +29,7 @@ type Project = Database['public']['Tables']['projects']['Row'] & {
   categories: {
     id: string
     name: string
-    color: string
+    color: string | null
     icon: string | null
   } | null
 }
@@ -229,9 +229,9 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       <div className="flex items-center gap-2">
-                        <div 
+                        <div
                           className="w-4 h-4 rounded-full flex items-center justify-center"
-                          style={{ backgroundColor: category.color }}
+                          style={{ backgroundColor: category.color || '#6B7280' }}
                         >
                           <CategoryIcon 
                             iconName={category.icon} 

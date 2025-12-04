@@ -18,9 +18,9 @@ interface ProjectData {
   image_url: string | null
   website_url: string | null
   github_url: string | null
-  upvotes_count: number
-  comments_count: number
-  created_at: string
+  upvotes_count: number | null
+  comments_count: number | null
+  created_at: string | null
   users: {
     id: string
     username: string | null
@@ -30,7 +30,7 @@ interface ProjectData {
   categories: {
     id: string
     name: string
-    color: string
+    color: string | null
     icon: string | null
   } | null
 }
@@ -75,7 +75,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
         <div className="absolute top-3 right-3" onClick={(e) => e.preventDefault()}>
           <VoteButton
             projectId={project.id}
-            initialVoteCount={project.upvotes_count}
+            initialVoteCount={project.upvotes_count ?? 0}
             onVoteChange={handleVoteChange}
             className="bg-midnight/90 backdrop-blur-sm hover:bg-midnight shadow-md border border-white/10"
           />
@@ -86,7 +86,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
           <div className="absolute top-3 left-3">
             <span
               className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white shadow-sm"
-              style={{ backgroundColor: category.color }}
+              style={{ backgroundColor: category.color || '#6B7280' }}
             >
               <CategoryIcon
                 iconName={category.icon}
@@ -168,7 +168,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
               <span className="text-xs text-foreground/70">{project.comments_count}</span>
             </div>
             <span className="text-xs text-foreground/70">
-              {formatDistance(new Date(project.created_at), new Date(), { addSuffix: true })}
+              {formatDistance(new Date(project.created_at || 0), new Date(), { addSuffix: true })}
             </span>
             <BookmarkButton
               projectId={project.id}

@@ -26,11 +26,11 @@ import {
 interface CommentData {
   id: string
   content: string
-  created_at: string
-  updated_at: string
-  likes_count: number
-  thread_depth: number
-  is_deleted: boolean
+  created_at: string | null
+  updated_at: string | null
+  likes_count: number | null
+  thread_depth: number | null
+  is_deleted: boolean | null
   users: {
     id: string
     username: string | null
@@ -73,7 +73,7 @@ export function CommentItem({
 
   const isOwner = user && comment.users && user.id === comment.users.id
 
-  const canReply = comment.thread_depth < 3 // Max 3 levels deep
+  const canReply = (comment.thread_depth ?? 0) < 3 // Max 3 levels deep
 
   const checkLikeStatus = useCallback(async () => {
     if (!comment.id) return
@@ -104,11 +104,11 @@ export function CommentItem({
     try {
       if (isLiked) {
         await CommentsService.unlikeComment(comment.id)
-        setLikeCount(prev => prev - 1)
+        setLikeCount(prev => (prev ?? 0) - 1)
         setIsLiked(false)
       } else {
         await CommentsService.likeComment(comment.id)
-        setLikeCount(prev => prev + 1)
+        setLikeCount(prev => (prev ?? 0) + 1)
         setIsLiked(true)
       }
     } catch (error) {
@@ -296,7 +296,7 @@ export function CommentItem({
               )}
 
               <span className="text-muted-foreground text-sm">
-                {formatDistance(new Date(comment.created_at), new Date(), { addSuffix: true })}
+                {formatDistance(new Date(comment.created_at || 0), new Date(), { addSuffix: true })}
               </span>
 
               {comment.updated_at !== comment.created_at && (

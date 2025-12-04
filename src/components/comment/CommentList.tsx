@@ -11,12 +11,12 @@ type Comment = Database['public']['Tables']['comments']['Row']
 interface CommentData {
   id: string
   content: string
-  created_at: string
-  updated_at: string
-  likes_count: number
-  thread_depth: number
+  created_at: string | null
+  updated_at: string | null
+  likes_count: number | null
+  thread_depth: number | null
   parent_id: string | null
-  is_deleted: boolean
+  is_deleted: boolean | null
   users: {
     id: string
     username: string | null
@@ -132,13 +132,13 @@ export function CommentList({ projectId, totalComments }: CommentListProps) {
 
     // Sort root comments by creation date (newest first)
     rootComments.sort((a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
     )
 
     // Sort replies within each thread (oldest first for better conversation flow)
     const sortReplies = (comment: ThreadedComment) => {
       comment.replies.sort((a, b) =>
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
       )
       comment.replies.forEach(sortReplies)
     }
