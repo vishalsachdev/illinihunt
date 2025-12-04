@@ -42,7 +42,9 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
       })
 
     if (error) {
-      console.error('Storage upload error:', error)
+      if (import.meta.env.DEV) {
+        console.error('Storage upload error:', error)
+      }
       return {
         url: null,
         error: `Upload failed: ${error.message}`
@@ -59,7 +61,9 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
       error: null
     }
   } catch (err) {
-    console.error('Image upload error:', err)
+    if (import.meta.env.DEV) {
+      console.error('Image upload error:', err)
+    }
     return {
       url: null,
       error: 'An unexpected error occurred while uploading the image'
@@ -87,13 +91,17 @@ export async function deleteProjectImage(imageUrl: string): Promise<{ error: str
       .remove([filePath])
 
     if (error) {
-      console.error('Storage delete error:', error)
+      if (import.meta.env.DEV) {
+        console.error('Storage delete error:', error)
+      }
       return { error: 'Failed to delete image' }
     }
 
     return { error: null }
   } catch (err) {
-    console.error('Image delete error:', err)
+    if (import.meta.env.DEV) {
+      console.error('Image delete error:', err)
+    }
     return { error: 'An unexpected error occurred while deleting the image' }
   }
 }

@@ -82,7 +82,9 @@ export function CommentItem({
       const liked = await CommentsService.hasUserLikedComment(comment.id)
       setIsLiked(liked)
     } catch (error) {
-      console.error('Error checking like status:', error)
+      if (import.meta.env.DEV) {
+        console.error('Error checking like status:', error)
+      }
       // On error, assume user hasn't liked
       setIsLiked(false)
     }
@@ -110,7 +112,9 @@ export function CommentItem({
         setIsLiked(true)
       }
     } catch (error) {
-      console.error('Like error:', error)
+      if (import.meta.env.DEV) {
+        console.error('Like error:', error)
+      }
       // Silently handle error - like state will revert
     }
   }
@@ -154,7 +158,9 @@ export function CommentItem({
       const { error: refreshError } = await supabase.auth.refreshSession();
 
       if (refreshError) {
-        console.warn("Failed to refresh session:", refreshError);
+        if (import.meta.env.DEV) {
+          console.warn("Failed to refresh session:", refreshError);
+        }
         setError("Authentication expired. Please refresh and try again.");
         setIsDeleting(false);
         return;
@@ -178,14 +184,16 @@ export function CommentItem({
       const result = await CommentsService.deleteComment(comment.id)
 
       if (result.error) {
-        console.error('CommentItem: Delete error:', {
-          error: result.error,
-          errorType: typeof result.error,
-          errorKeys: Object.keys(result.error),
-          fullError: JSON.stringify(result.error, null, 2),
-          message: result.error.message,
-          code: result.error.code
-        })
+        if (import.meta.env.DEV) {
+          console.error('CommentItem: Delete error:', {
+            error: result.error,
+            errorType: typeof result.error,
+            errorKeys: Object.keys(result.error),
+            fullError: JSON.stringify(result.error, null, 2),
+            message: result.error.message,
+            code: result.error.code
+          })
+        }
 
         // Provide more specific error messages based on the error code and message
         switch (result.error.code) {
@@ -217,7 +225,9 @@ export function CommentItem({
 
       onDelete?.(comment.id)
     } catch (err) {
-      console.error('CommentItem: Delete exception:', err)
+      if (import.meta.env.DEV) {
+        console.error('CommentItem: Delete exception:', err)
+      }
       setError('An unexpected error occurred. Please refresh the page and try again.')
     } finally {
       setIsDeleting(false) // Clear loading state

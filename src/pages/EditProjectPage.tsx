@@ -45,7 +45,9 @@ export function EditProjectPage() {
 
         setProject(data)
       } catch (err) {
-        console.error('Error loading project:', err)
+        if (import.meta.env.DEV) {
+          console.error('Error loading project:', err)
+        }
         setError('Failed to load project')
       } finally {
         setLoading(false)

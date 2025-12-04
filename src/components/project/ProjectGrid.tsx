@@ -177,11 +177,13 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
                       state: { 
                         authRedirect: '/submit',
                         message: 'Please sign in to submit a project' 
-                      } 
+                      }
                     })
                   }
                 } catch (error) {
-                  console.error('Auth check failed:', error)
+                  if (import.meta.env.DEV) {
+                    console.error('Auth check failed:', error)
+                  }
                   // Fallback to normal navigation
                   navigate('/submit')
                 }
@@ -375,11 +377,13 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
                     state: { 
                       authRedirect: '/submit',
                       message: 'Please sign in to submit a project' 
-                    } 
+                    }
                   })
                 }
               } catch (error) {
-                console.error('Auth check failed:', error)
+                if (import.meta.env.DEV) {
+                  console.error('Auth check failed:', error)
+                }
                 navigate('/submit')
               }
             }}

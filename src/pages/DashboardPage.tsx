@@ -126,7 +126,9 @@ export function DashboardPage() {
         `"${deleteModal.project.name}" has been permanently deleted.`
       )
     } catch (error) {
-      console.error('Error deleting project:', error)
+      if (import.meta.env.DEV) {
+        console.error('Error deleting project:', error)
+      }
       showToast.error(
         'Failed to delete project',
         {

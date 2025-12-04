@@ -240,19 +240,25 @@ export class ProjectsService {
 
       // Handle case where votes table doesn't exist (406 error)
       if (error && (error.code === 'PGRST202' || error.code === '406' || error.message.includes('406'))) {
-        console.warn('Votes table not found - voting feature not available')
+        if (import.meta.env.DEV) {
+          console.warn('Votes table not found - voting feature not available')
+        }
         return false
       }
 
       if (error) {
-        console.error('Error in hasUserVoted:', error)
+        if (import.meta.env.DEV) {
+          console.error('Error in hasUserVoted:', error)
+        }
         return false
       }
 
       const hasVoted = !!data
       return hasVoted
     } catch (err) {
-      console.warn('Error checking vote status:', err)
+      if (import.meta.env.DEV) {
+        console.warn('Error checking vote status:', err)
+      }
       return false
     }
   }
@@ -339,15 +345,43 @@ export class StatsService {
 
       if (projectsError) throw projectsError
 
-      // Get unique users count (project creators)
-      const { data: uniqueUsers, error: usersError } = await supabase
-        .from('projects')
-        .select('user_id')
-        .eq('status', 'active')
+      // Get unique users count efficiently using database function
+      // Note: Requires migration 20250812000001_optimize_stats_queries.sql to be applied
+      const { data: uniqueUsersCount, error: usersError } = await supabase
+        .rpc('get_unique_project_creators_count')
 
-      if (usersError) throw usersError
+      if (usersError) {
+        // Fallback to old method if function doesn't exist yet
+        if (import.meta.env.DEV) {
+          console.warn('Database function get_unique_project_creators_count not found. Using fallback method.')
+        }
 
-      const uniqueUsersCount = new Set(uniqueUsers?.map(p => p.user_id)).size
+        const { data: uniqueUsers, error: fallbackError } = await supabase
+          .from('projects')
+          .select('user_id')
+          .eq('status', 'active')
+
+        if (fallbackError) throw fallbackError
+
+        const fallbackCount = new Set(uniqueUsers?.map(p => p.user_id)).size
+
+        // Get categories count
+        const { count: categoriesCount, error: categoriesError } = await supabase
+          .from('categories')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_active', true)
+
+        if (categoriesError) throw categoriesError
+
+        return {
+          data: {
+            projectsCount: projectsCount || 0,
+            usersCount: fallbackCount || 0,
+            categoriesCount: categoriesCount || 0
+          },
+          error: null
+        }
+      }
 
       // Get categories count
       const { count: categoriesCount, error: categoriesError } = await supabase
@@ -531,13 +565,15 @@ export class CommentsService {
     try {
       // Ensure session is fresh and valid
       const { error: refreshError } = await supabase.auth.refreshSession()
-      if (refreshError) {
+      if (refreshError && import.meta.env.DEV) {
         console.warn('Session refresh failed during delete:', refreshError)
       }
 
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       if (userError || !user) {
-        console.error('Authentication check failed:', { userError, hasUser: !!user })
+        if (import.meta.env.DEV) {
+          console.error('Authentication check failed:', { userError, hasUser: !!user })
+        }
         return { 
           data: null, 
           error: { 
@@ -571,7 +607,9 @@ export class CommentsService {
         .single()
 
       if (fetchError || !commentToDelete) {
-        console.error('Could not fetch comment for ownership verification:', fetchError)
+        if (import.meta.env.DEV) {
+          console.error('Could not fetch comment for ownership verification:', fetchError)
+        }
         return {
           data: null,
           error: {
@@ -583,10 +621,12 @@ export class CommentsService {
 
       // Verify ownership
       if (commentToDelete.user_id !== user.id) {
-        console.error('User does not own this comment:', {
-          commentUserId: commentToDelete.user_id,
-          currentUserId: user.id
-        })
+        if (import.meta.env.DEV) {
+          console.error('User does not own this comment:', {
+            commentUserId: commentToDelete.user_id,
+            currentUserId: user.id
+          })
+        }
         return {
           data: null,
           error: {
@@ -605,20 +645,22 @@ export class CommentsService {
         .single()
 
       if (result.error) {
-        console.error('Database error during comment delete:', {
-          error: result.error,
-          errorCode: result.error?.code,
-          errorMessage: result.error?.message,
-          errorDetails: result.error?.details,
-          errorHint: result.error?.hint,
-          errorKeys: Object.keys(result.error || {}),
-          fullError: JSON.stringify(result.error, null, 2),
-          commentId,
-          userId: user.id,
-          resultData: result.data,
-          resultStatus: result.status,
-          resultStatusText: result.statusText
-        })
+        if (import.meta.env.DEV) {
+          console.error('Database error during comment delete:', {
+            error: result.error,
+            errorCode: result.error?.code,
+            errorMessage: result.error?.message,
+            errorDetails: result.error?.details,
+            errorHint: result.error?.hint,
+            errorKeys: Object.keys(result.error || {}),
+            fullError: JSON.stringify(result.error, null, 2),
+            commentId,
+            userId: user.id,
+            resultData: result.data,
+            resultStatus: result.status,
+            resultStatusText: result.statusText
+          })
+        }
         
         // Handle specific Supabase/PostgREST error codes
         if (result.error.code === 'PGRST116') {
@@ -675,7 +717,9 @@ export class CommentsService {
       return result
 
     } catch (error) {
-      console.error('Unexpected error during comment deletion:', error)
+      if (import.meta.env.DEV) {
+        console.error('Unexpected error during comment deletion:', error)
+      }
       return { 
         data: null, 
         error: { 
@@ -726,13 +770,17 @@ export class CommentsService {
 
       // Handle missing table gracefully
       if (error && (error.code === 'PGRST202' || error.code === '406')) {
-        console.warn('Comment likes table not found')
+        if (import.meta.env.DEV) {
+          console.warn('Comment likes table not found')
+        }
         return false
       }
 
       return !error && !!data
     } catch (err) {
-      console.warn('Error checking like status:', err)
+      if (import.meta.env.DEV) {
+        console.warn('Error checking like status:', err)
+      }
       return false
     }
   }
@@ -783,13 +831,17 @@ export class BookmarkService {
 
       // Handle case where bookmarks table doesn't exist (406 error)
       if (error && (error.code === 'PGRST202' || error.code === '406' || error.message.includes('406'))) {
-        console.warn('Bookmarks table not found - bookmark feature not available')
+        if (import.meta.env.DEV) {
+          console.warn('Bookmarks table not found - bookmark feature not available')
+        }
         return false
       }
 
       return !error && !!data
     } catch (err) {
-      console.warn('Error checking bookmark status:', err)
+      if (import.meta.env.DEV) {
+        console.warn('Error checking bookmark status:', err)
+      }
       return false
     }
   }
