@@ -57,7 +57,8 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
         description: initialData.description,
         category_id: initialData.category_id || '',
         website_url: initialData.website_url || '',
-        github_url: initialData.github_url || ''
+        github_url: initialData.github_url || '',
+        video_url: initialData.video_url || ''
       })
       setImageUrl(initialData.image_url || '')
     }
@@ -78,6 +79,7 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
         website_url: data.website_url || null,
         github_url: data.github_url || null,
         image_url: imageUrl || null,
+        video_url: data.video_url || null,
       }
 
       if (mode === 'edit' && projectId) {
