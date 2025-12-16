@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, memo } from 'react'
 import { StatsService } from '@/lib/database'
 import { motion } from 'framer-motion'
 import { Award, Rocket, Users } from 'lucide-react'
 
-export function Statistics() {
+/**
+ * Statistics component - Displays platform statistics
+ * Memoized to prevent unnecessary re-renders
+ */
+const StatisticsComponent = () => {
   const [stats, setStats] = useState({
     projectsCount: 0,
     usersCount: 0,
@@ -148,5 +152,8 @@ export function Statistics() {
     </section>
   )
 }
+
+// Memoize component to prevent unnecessary re-renders
+export const Statistics = memo(StatisticsComponent)
 
 export default Statistics

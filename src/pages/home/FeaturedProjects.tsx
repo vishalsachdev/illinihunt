@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { StatsService } from '@/lib/database'
 import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
 import { motion } from 'framer-motion'
@@ -42,13 +42,16 @@ export function FeaturedProjects() {
   }, [])
 
   // Enrich featured projects with real-time vote data
-  const enrichedFeaturedProjects = featuredProjects.map(project => {
-    const realtimeVoteData = getVoteData(project.id)
-    return {
-      ...project,
-      upvotes_count: realtimeVoteData?.count ?? project.upvotes_count
-    }
-  })
+  // Memoized to prevent recalculation on every render
+  const enrichedFeaturedProjects = useMemo(() => {
+    return featuredProjects.map(project => {
+      const realtimeVoteData = getVoteData(project.id)
+      return {
+        ...project,
+        upvotes_count: realtimeVoteData?.count ?? project.upvotes_count
+      }
+    })
+  }, [featuredProjects, getVoteData])
 
   if (loading || featuredProjects.length === 0) {
     return null
