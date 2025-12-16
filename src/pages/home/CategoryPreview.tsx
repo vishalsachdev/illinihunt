@@ -1,6 +1,7 @@
 import { useCategories } from '@/hooks/useCategories'
 import { CategoryIcon } from '@/lib/categoryIcons'
 import { motion } from 'framer-motion'
+import { memo } from 'react'
 
 export type Category = {
   id: string
@@ -13,7 +14,11 @@ interface CategoryPreviewProps {
   onSelect: (id: string) => void
 }
 
-export function CategoryPreview({ onSelect }: CategoryPreviewProps) {
+/**
+ * CategoryPreview component - Displays category grid
+ * Memoized to prevent unnecessary re-renders when parent updates
+ */
+const CategoryPreviewComponent = ({ onSelect }: CategoryPreviewProps) => {
   const { categories, loading } = useCategories()
 
   if (loading || categories.length === 0) {
@@ -68,5 +73,9 @@ export function CategoryPreview({ onSelect }: CategoryPreviewProps) {
     </section>
   )
 }
+
+// Memoize component - only re-renders when onSelect callback reference changes
+// Since onSelect is stable in HomePage, this prevents unnecessary re-renders
+export const CategoryPreview = memo(CategoryPreviewComponent)
 
 export default CategoryPreview

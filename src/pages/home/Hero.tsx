@@ -2,8 +2,13 @@ import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Zap, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { memo } from 'react'
 
-export function Hero() {
+/**
+ * Hero component - Main hero section of the homepage
+ * Memoized since it has no props and doesn't need to re-render
+ */
+const HeroComponent = () => {
   return (
     <div className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-midnight text-white">
       {/* Dynamic Background */}
@@ -111,5 +116,8 @@ export function Hero() {
     </div>
   )
 }
+
+// Memoize component since it has no props and is static
+export const Hero = memo(HeroComponent)
 
 export default Hero

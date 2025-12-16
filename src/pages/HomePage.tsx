@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
@@ -11,7 +11,7 @@ import { ProjectGridSection } from './home/ProjectGridSection'
 
 /**
  * HomePage component - Main landing page for IlliniHunt
- * Optimized to prevent unnecessary re-renders by removing window size dependency
+ * Optimized to prevent unnecessary re-renders by using useCallback for event handlers
  */
 export function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -40,15 +40,15 @@ export function HomePage() {
     }
   }, [searchParams])
 
-  // Update URL when category changes
-  const handleCategorySelect = (category: string) => {
+  // Memoize category select handler to prevent CategoryPreview re-renders
+  const handleCategorySelect = useCallback((category: string) => {
     setSelectedCategory(category)
     if (category === 'all') {
       setSearchParams({})
     } else {
       setSearchParams({ category })
     }
-  }
+  }, [setSearchParams])
 
   return (
     <div className="bg-midnight min-h-screen">
