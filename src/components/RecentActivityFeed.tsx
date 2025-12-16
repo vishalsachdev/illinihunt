@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { formatDistance } from 'date-fns'
 import { Link } from 'react-router-dom'
 import { StatsService } from '@/lib/database'
@@ -23,7 +23,11 @@ type RecentActivity = {
   } | null
 }
 
-export function RecentActivityFeed() {
+/**
+ * RecentActivityFeed component - Displays recent project submissions
+ * Memoized to prevent unnecessary re-renders when parent components update
+ */
+const RecentActivityFeedComponent = () => {
   const [activities, setActivities] = useState<RecentActivity[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -138,3 +142,6 @@ export function RecentActivityFeed() {
     </div>
   )
 }
+
+// Memoize component to prevent unnecessary re-renders
+export const RecentActivityFeed = memo(RecentActivityFeedComponent)

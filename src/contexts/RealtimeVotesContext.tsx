@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, ReactNode, useMemo } from 'react'
 import { useRealtimeVotes } from '@/hooks/useRealtimeVotes'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -22,6 +22,10 @@ interface RealtimeVotesProviderProps {
   children: ReactNode
 }
 
+/**
+ * Performance optimization: Context value is memoized to prevent unnecessary re-renders
+ * of all components consuming this context
+ */
 export function RealtimeVotesProvider({ children }: RealtimeVotesProviderProps) {
   const { user } = useAuth()
   const [voteData, setVoteData] = useState<Map<string, VoteData>>(new Map())
@@ -104,13 +108,15 @@ export function RealtimeVotesProvider({ children }: RealtimeVotesProviderProps) 
     })
   }, [])
 
-  const contextValue: RealtimeVotesContextValue = {
+  // Memoize context value to prevent re-renders of all consumers
+  // Only updates when callback functions or connection status changes
+  const contextValue: RealtimeVotesContextValue = useMemo(() => ({
     getVoteData,
     updateVoteCount,
     updateUserVote,
     clearVoteData,
     isRealtimeConnected: isConnected
-  }
+  }), [getVoteData, updateVoteCount, updateUserVote, clearVoteData, isConnected])
 
   return (
     <RealtimeVotesContext.Provider value={contextValue}>

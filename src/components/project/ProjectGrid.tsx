@@ -106,6 +106,13 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
     })
   }, [projects, getVoteData])
 
+  // Memoize category lookup for active filters display
+  // Prevents repeated array.find() calls on every render
+  const selectedCategoryName = useMemo(() => {
+    if (selectedCategory === 'all') return null
+    return categories.find(c => c.id === selectedCategory)?.name || 'Category'
+  }, [categories, selectedCategory])
+
 
   if (error) {
     return (
@@ -280,7 +287,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
             )}
             {selectedCategory !== 'all' && (
               <div className="bg-orange-50 text-orange-700 text-sm px-3 py-1.5 rounded-full flex items-center">
-                {categories.find(c => c.id === selectedCategory)?.name || 'Category'}
+                {selectedCategoryName}
                 <button 
                   onClick={() => setSelectedCategory('all')}
                   className="ml-2 text-orange-500 hover:text-orange-700"
@@ -298,7 +305,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
         <div>
           <h3 className="text-xl font-semibold text-foreground">
             {searchQuery ? `Search results for "${searchQuery}"` : 
-             selectedCategory !== 'all' ? `${categories.find(c => c.id === selectedCategory)?.name || ''} Projects` :
+             selectedCategory !== 'all' ? `${selectedCategoryName || ''} Projects` :
              'All Projects'}
           </h3>
           {!loading && (
