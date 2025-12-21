@@ -4,10 +4,12 @@ import { Suspense, lazy, useEffect } from 'react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { Toaster } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
+import { useAdminAuth } from '@/hooks/useAdminAuth'
 import { LoginButton } from '@/components/auth/LoginButton'
 import { UserMenu } from '@/components/auth/UserMenu'
+import { AdminProtectedRoute } from '@/components/auth/AdminProtectedRoute'
 import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
+import { Plus, Shield } from 'lucide-react'
 import { AuthPromptProvider, useAuthPrompt } from '@/contexts/AuthPromptContext'
 import { ErrorProvider } from '@/contexts/ErrorContext'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
@@ -26,6 +28,7 @@ const EditProjectPage = lazy(() => import('@/pages/EditProjectPage').then(module
 const CollectionsPage = lazy(() => import('@/pages/CollectionsPage').then(module => ({ default: module.CollectionsPage })))
 const CollectionViewPage = lazy(() => import('@/pages/CollectionViewPage').then(module => ({ default: module.CollectionViewPage })))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(module => ({ default: module.NotFoundPage })))
+const AdminDashboardPage = lazy(() => import('@/pages/AdminDashboardPage').then(module => ({ default: module.AdminDashboardPage })))
 
 // Preload critical routes for better UX
 const preloadRoute = (importFn: () => Promise<unknown>) => {
@@ -95,6 +98,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function AppContent() {
   const { user, error, loading, retryAuth } = useAuth()
+  const { isAdmin } = useAdminAuth()
 
   // Debug auth state in development
   if (import.meta.env.DEV) {
@@ -198,6 +202,20 @@ function AppContent() {
                 </Button>
               )}
 
+              {isAdmin && (
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="hidden md:inline-flex glass-premium hover:bg-orange-500/20 text-orange-300 hover:text-orange-200 border-0 h-10"
+                >
+                  <Link to="/admin" className="flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    Admin
+                  </Link>
+                </Button>
+              )}
+
               <Button
                 asChild
                 variant="outline"
@@ -282,6 +300,15 @@ function AppContent() {
               }
             />
             <Route path="/collections/:id" element={<CollectionViewPage />} />
+            {/* Admin route */}
+            <Route
+              path="/admin"
+              element={
+                <AdminProtectedRoute>
+                  <AdminDashboardPage />
+                </AdminProtectedRoute>
+              }
+            />
             {/* Fallback route */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
