@@ -1,9 +1,14 @@
 -- Migration: Add admin support for project management
 -- This creates RPC functions that run with elevated privileges (SECURITY DEFINER)
 -- to allow admins to manage projects they don't own.
+--
+-- IMPORTANT: This file is the SINGLE SOURCE OF TRUTH for admin emails.
+-- The client-side useAdminAuth hook calls is_admin() to check admin status.
+-- To add/remove admins: update the ARRAY in is_admin() function and run migration.
 
 -- Create admin check function
 -- Checks if the current authenticated user's email is in the admin list
+-- This is called by both the client (useAdminAuth) and other RPC functions
 CREATE OR REPLACE FUNCTION is_admin()
 RETURNS BOOLEAN AS $$
 DECLARE
@@ -12,8 +17,12 @@ BEGIN
   -- Get the email from the JWT claims
   user_email := LOWER(auth.jwt()->>'email');
 
-  -- Check against hardcoded admin emails
-  -- To add new admins, update this list and redeploy
+  -- =====================================================
+  -- ADMIN EMAIL LIST - Single source of truth
+  -- To add admins: add email to this array (lowercase)
+  -- To remove admins: remove email from this array
+  -- Then apply the migration to update the database
+  -- =====================================================
   RETURN user_email = ANY(ARRAY[
     'vishal@illinois.edu'
   ]::TEXT[]);
