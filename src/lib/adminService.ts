@@ -1,10 +1,5 @@
 import { supabase } from './supabase'
 
-// Admin emails - must match useAdminAuth.ts
-const ADMIN_EMAILS = [
-  'vishal@illinois.edu',
-] as const
-
 export type ProjectStatus = 'active' | 'featured' | 'archived' | 'draft'
 
 export interface AdminProject {
@@ -45,20 +40,16 @@ export interface PlatformStats {
   totalComments: number
 }
 
+/**
+ * AdminService - Uses RPC functions with SECURITY DEFINER to bypass RLS
+ *
+ * All operations are authorized at the database level via the is_admin() function.
+ * This ensures admins can manage projects they don't own without RLS blocking them.
+ */
 export class AdminService {
   /**
-   * Verify current user is admin before any admin operation
-   */
-  private static async verifyAdmin(): Promise<boolean> {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user?.email) return false
-
-    const userEmail = user.email.toLowerCase()
-    return ADMIN_EMAILS.some(adminEmail => adminEmail.toLowerCase() === userEmail)
-  }
-
-  /**
    * Get all projects with any status (not just 'active')
+   * Uses admin_get_projects RPC function which bypasses RLS
    */
   static async getAllProjects(options?: {
     status?: ProjectStatus
@@ -66,174 +57,81 @@ export class AdminService {
     limit?: number
     offset?: number
   }): Promise<{ data: AdminProject[] | null; error: { message: string } | null }> {
-    if (!await this.verifyAdmin()) {
-      return { data: null, error: { message: 'Unauthorized: Admin access required' } }
+    try {
+      const { data, error } = await supabase.rpc('admin_get_projects', {
+        filter_status: options?.status || null,
+        search_query: options?.search || null,
+        result_limit: options?.limit || 50,
+        result_offset: options?.offset || 0
+      })
+
+      if (error) {
+        // Handle authorization error specifically
+        if (error.message.includes('Unauthorized')) {
+          return { data: null, error: { message: 'Unauthorized: Admin access required' } }
+        }
+        return { data: null, error: { message: error.message } }
+      }
+
+      // RPC returns JSON, parse if needed
+      const projects = Array.isArray(data) ? data : (data || [])
+      return { data: projects as AdminProject[], error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: { message: err instanceof Error ? err.message : 'Failed to fetch projects' }
+      }
     }
-
-    let query = supabase
-      .from('projects')
-      .select(`
-        id,
-        name,
-        tagline,
-        description,
-        image_url,
-        website_url,
-        github_url,
-        upvotes_count,
-        comments_count,
-        status,
-        created_at,
-        updated_at,
-        users (
-          id,
-          username,
-          full_name,
-          avatar_url,
-          email
-        ),
-        categories (
-          id,
-          name,
-          color,
-          icon
-        )
-      `)
-      .order('created_at', { ascending: false })
-
-    if (options?.status) {
-      query = query.eq('status', options.status)
-    }
-
-    if (options?.search) {
-      query = query.or(`name.ilike.%${options.search}%,tagline.ilike.%${options.search}%`)
-    }
-
-    if (options?.limit) {
-      query = query.limit(options.limit)
-    }
-
-    if (options?.offset) {
-      query = query.range(options.offset, options.offset + (options.limit || 20) - 1)
-    }
-
-    const { data, error } = await query
-
-    if (error) {
-      return { data: null, error: { message: error.message } }
-    }
-
-    // Transform the data to match AdminProject interface
-    // Supabase returns arrays for joined tables, we need single objects
-    const transformedData = (data || []).map((project) => ({
-      ...project,
-      users: Array.isArray(project.users) ? project.users[0] || null : project.users,
-      categories: Array.isArray(project.categories) ? project.categories[0] || null : project.categories,
-    })) as AdminProject[]
-
-    return { data: transformedData, error: null }
   }
 
   /**
    * Update project status (feature, archive, activate)
+   * Uses admin_update_project_status RPC function which bypasses RLS
    */
   static async updateProjectStatus(
     projectId: string,
     status: ProjectStatus
   ): Promise<{ data: AdminProject | null; error: { message: string } | null }> {
-    if (!await this.verifyAdmin()) {
-      return { data: null, error: { message: 'Unauthorized: Admin access required' } }
-    }
-
-    const { data, error } = await supabase
-      .from('projects')
-      .update({
-        status,
-        updated_at: new Date().toISOString()
+    try {
+      const { data, error } = await supabase.rpc('admin_update_project_status', {
+        project_id: projectId,
+        new_status: status
       })
-      .eq('id', projectId)
-      .select(`
-        id,
-        name,
-        tagline,
-        description,
-        image_url,
-        website_url,
-        github_url,
-        upvotes_count,
-        comments_count,
-        status,
-        created_at,
-        updated_at,
-        users (
-          id,
-          username,
-          full_name,
-          avatar_url,
-          email
-        ),
-        categories (
-          id,
-          name,
-          color,
-          icon
-        )
-      `)
-      .single()
 
-    if (error) {
-      return { data: null, error: { message: error.message } }
+      if (error) {
+        // Handle authorization error specifically
+        if (error.message.includes('Unauthorized')) {
+          return { data: null, error: { message: 'Unauthorized: Admin access required' } }
+        }
+        return { data: null, error: { message: error.message } }
+      }
+
+      return { data: data as AdminProject, error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: { message: err instanceof Error ? err.message : 'Failed to update project status' }
+      }
     }
-
-    // Transform the data to match AdminProject interface
-    const transformedData = data ? {
-      ...data,
-      users: Array.isArray(data.users) ? data.users[0] || null : data.users,
-      categories: Array.isArray(data.categories) ? data.categories[0] || null : data.categories,
-    } as AdminProject : null
-
-    return { data: transformedData, error: null }
   }
 
   /**
    * Get platform statistics
+   * Uses admin_get_stats RPC function which bypasses RLS
    */
   static async getStats(): Promise<{ data: PlatformStats | null; error: { message: string } | null }> {
-    if (!await this.verifyAdmin()) {
-      return { data: null, error: { message: 'Unauthorized: Admin access required' } }
-    }
-
     try {
-      const [
-        projectsResult,
-        activeResult,
-        featuredResult,
-        archivedResult,
-        usersResult,
-        upvotesResult,
-        commentsResult
-      ] = await Promise.all([
-        supabase.from('projects').select('*', { count: 'exact', head: true }),
-        supabase.from('projects').select('*', { count: 'exact', head: true }).eq('status', 'active'),
-        supabase.from('projects').select('*', { count: 'exact', head: true }).eq('status', 'featured'),
-        supabase.from('projects').select('*', { count: 'exact', head: true }).eq('status', 'archived'),
-        supabase.from('users').select('*', { count: 'exact', head: true }),
-        supabase.from('votes').select('*', { count: 'exact', head: true }),
-        supabase.from('comments').select('*', { count: 'exact', head: true }).eq('is_deleted', false)
-      ])
+      const { data, error } = await supabase.rpc('admin_get_stats')
 
-      return {
-        data: {
-          totalProjects: projectsResult.count || 0,
-          activeProjects: activeResult.count || 0,
-          featuredProjects: featuredResult.count || 0,
-          archivedProjects: archivedResult.count || 0,
-          totalUsers: usersResult.count || 0,
-          totalUpvotes: upvotesResult.count || 0,
-          totalComments: commentsResult.count || 0
-        },
-        error: null
+      if (error) {
+        // Handle authorization error specifically
+        if (error.message.includes('Unauthorized')) {
+          return { data: null, error: { message: 'Unauthorized: Admin access required' } }
+        }
+        return { data: null, error: { message: error.message } }
       }
+
+      return { data: data as PlatformStats, error: null }
     } catch (err) {
       return {
         data: null,
@@ -244,26 +142,19 @@ export class AdminService {
 
   /**
    * Delete a project (admin override - bypasses ownership check)
+   * Uses admin_delete_project RPC function which bypasses RLS
    */
   static async deleteProject(projectId: string): Promise<{ error: { message: string } | null }> {
-    if (!await this.verifyAdmin()) {
-      return { error: { message: 'Unauthorized: Admin access required' } }
-    }
-
     try {
-      // Delete related records first (in order of dependencies)
-      await supabase.from('votes').delete().eq('project_id', projectId)
-      await supabase.from('comments').delete().eq('project_id', projectId)
-      await supabase.from('bookmarks').delete().eq('project_id', projectId)
-      await supabase.from('collection_projects').delete().eq('project_id', projectId)
-
-      // Delete the project
-      const { error } = await supabase
-        .from('projects')
-        .delete()
-        .eq('id', projectId)
+      const { error } = await supabase.rpc('admin_delete_project', {
+        project_id: projectId
+      })
 
       if (error) {
+        // Handle authorization error specifically
+        if (error.message.includes('Unauthorized')) {
+          return { error: { message: 'Unauthorized: Admin access required' } }
+        }
         return { error: { message: error.message } }
       }
 
