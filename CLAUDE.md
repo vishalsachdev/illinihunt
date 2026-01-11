@@ -51,22 +51,23 @@ mcp__supabase__apply_migration({ project_id: "catzwowmxluzwbhdyhnf", name: "..."
   - After deployments, purge Cloudflare cache to clear stale assets
   - See: [Cloudflare + Vercel Issues](#cloudflare--vercel-issues) below
 
-## Current Status
+## Current Focus
+- [ ] Search & filtering system
+- [ ] Trending algorithm with analytics
+- [ ] Admin moderation tools
+- [ ] Testing framework
 
-### ✅ Recently Completed
-- **Deployment**: Cloudflare CDN integration with custom domain (illinihunt.org)
-- **Routing**: Fixed SPA routing pattern for Cloudflare compatibility
-- **Performance**: Vote sync removed, database triggers active
-- **Security**: Email validation secured (`is_valid_illinois_email()`)
-- **Quality**: TypeScript 0 errors, ~600kB bundle
+## Roadmap
+- [ ] Search & filtering system
+- [ ] Trending algorithm with analytics
+- [ ] Admin moderation tools
+- [ ] Testing framework
+- [ ] See: [Improvement Roadmap](docs/IMPROVEMENT_ROADMAP.md) for full details
 
-### 🔄 Next Priorities
-- Search & filtering system
-- Trending algorithm with analytics
-- Admin moderation tools
-- Testing framework
-
-**See**: [Full documentation index](docs/INDEX.md) | [Improvement Roadmap](docs/IMPROVEMENT_ROADMAP.md)
+## Session Log
+### 2025-12-27
+- Standardized roadmap sections (migrated from "Current Status" format)
+- Recently completed: Cloudflare CDN, SPA routing, vote sync removal, email validation, TypeScript 0 errors
 
 ## Quick Troubleshooting
 
