@@ -34,7 +34,7 @@ npm run type-check   # TypeScript validation
 npm run lint         # Code quality check
 
 # Supabase
-npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/lib/supabase-types.ts
+npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/types/database.ts
 mcp__supabase__execute_sql({ project_id: "catzwowmxluzwbhdyhnf", query: "..." })
 mcp__supabase__apply_migration({ project_id: "catzwowmxluzwbhdyhnf", name: "...", query: "..." })
 ```
@@ -56,6 +56,7 @@ mcp__supabase__apply_migration({ project_id: "catzwowmxluzwbhdyhnf", name: "..."
 - [ ] Trending algorithm with analytics
 - [ ] Admin moderation tools
 - [ ] Testing framework
+- [ ] Accessibility + regression test coverage for new collection flows
 
 ## Roadmap
 - [ ] Search & filtering system
@@ -65,6 +66,12 @@ mcp__supabase__apply_migration({ project_id: "catzwowmxluzwbhdyhnf", name: "..."
 - [ ] See: [Improvement Roadmap](docs/IMPROVEMENT_ROADMAP.md) for full details
 
 ## Session Log
+### 2026-02-11
+- Reduced project-list N+1 calls by batching vote/bookmark status fetches
+- Added real collection pages/routes: new, edit, discover, bookmarks, add-projects
+- Removed `framer-motion` and replaced with lightweight CSS animation classes
+- Reduced built JS payload below budget (now under 800 kB target)
+
 ### 2025-12-27
 - Standardized roadmap sections (migrated from "Current Status" format)
 - Recently completed: Cloudflare CDN, SPA routing, vote sync removal, email validation, TypeScript 0 errors
@@ -73,7 +80,7 @@ mcp__supabase__apply_migration({ project_id: "catzwowmxluzwbhdyhnf", name: "..."
 
 ```bash
 # Type errors after schema changes
-npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/lib/supabase-types.ts && npm run type-check
+npx supabase gen types typescript --project-id catzwowmxluzwbhdyhnf > src/types/database.ts && npm run type-check
 
 # Port conflicts
 npx kill-port 5173
