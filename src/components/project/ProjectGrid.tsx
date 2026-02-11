@@ -18,7 +18,6 @@ import {
 import { Search, Filter, Sparkles, Frown, Rocket } from 'lucide-react'
 import { CategoryIcon } from '@/lib/categoryIcons'
 import type { Database } from '@/types/database'
-import { motion } from 'framer-motion'
 
 type Project = Database['public']['Tables']['projects']['Row'] & {
   users: {
@@ -383,11 +382,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
         </div>
       ) : error ? (
         // Error State
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-red-50 border border-red-100 rounded-xl p-6 text-center"
-        >
+        <div className="bg-red-50 border border-red-100 rounded-xl p-6 text-center animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mb-4">
             <Frown className="h-6 w-6 text-red-600" />
           </div>
@@ -400,14 +395,10 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
           >
             Try Again
           </Button>
-        </motion.div>
+        </div>
       ) : projects.length === 0 ? (
         // Empty State
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-gray-100 rounded-xl p-8 text-center shadow-sm"
-        >
+        <div className="bg-white border border-gray-100 rounded-xl p-8 text-center shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-500 mb-4">
             <Sparkles className="h-8 w-8" />
           </div>
@@ -442,44 +433,20 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
           >
             Submit Your Project
           </Button>
-        </motion.div>
+        </div>
       ) : (
         // Projects Grid
-        <motion.div 
-          initial="hidden"
-          animate="show"
-          variants={{
-            hidden: { opacity: 0 },
-            show: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.1
-              }
-            }
-          }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {enrichedProjects.map((project) => (
-            <motion.div
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {enrichedProjects.map((project, index) => (
+            <div
               key={project.id}
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                show: { 
-                  opacity: 1, 
-                  y: 0,
-                  transition: { 
-                    type: 'spring', 
-                    stiffness: 100,
-                    damping: 15
-                  }
-                }
-              }}
-              whileHover={{ y: -4 }}
+              className="animate-in fade-in zoom-in-95 transition-transform duration-300 hover:-translate-y-1"
+              style={{ animationDelay: `${index * 60}ms` }}
             >
               <ProjectCard project={project} />
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       )}
     </div>
   )

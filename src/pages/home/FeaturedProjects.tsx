@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { StatsService } from '@/lib/database'
 import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
-import { motion } from 'framer-motion'
 import { ArrowUpRight, Trophy } from 'lucide-react'
 
 // Types for featured projects
@@ -67,45 +66,24 @@ export function FeaturedProjects() {
 
       <div className="container relative z-10 px-4 md:px-6">
         <div className="flex flex-col items-center text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center rounded-full border border-neon-orange/20 bg-neon-orange/5 px-4 py-1.5 text-sm text-neon-orange mb-6 shadow-[0_0_20px_rgba(255,107,53,0.1)]"
-          >
+          <div className="inline-flex items-center rounded-full border border-neon-orange/20 bg-neon-orange/5 px-4 py-1.5 text-sm text-neon-orange mb-6 shadow-[0_0_20px_rgba(255,107,53,0.1)] animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Trophy className="mr-2 h-4 w-4" />
             <span className="font-semibold uppercase tracking-wider text-xs">Trending Now</span>
-          </motion.div>
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-white mb-4"
-          >
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 animate-in fade-in slide-in-from-bottom-3 duration-500 delay-100">
             Featured Projects
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="text-slate-300 text-lg max-w-2xl"
-          >
+          </h2>
+          <p className="text-slate-300 text-lg max-w-2xl animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200">
             Discover the most popular and innovative projects making waves across campus.
-          </motion.p>
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {enrichedFeaturedProjects.map((project, index) => (
-            <motion.div
+            <div
               key={project.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="group relative glass-premium rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 cursor-pointer hover:scale-[1.02]"
+              className="group relative glass-premium rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 cursor-pointer hover:scale-[1.02] animate-in fade-in zoom-in-95"
+              style={{ animationDelay: `${index * 80}ms` }}
               onClick={() => {
                 window.location.href = `/project/${project.id}`
               }}
@@ -158,7 +136,7 @@ export function FeaturedProjects() {
                   )}
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

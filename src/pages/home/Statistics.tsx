@@ -1,6 +1,5 @@
 import { useEffect, useState, memo } from 'react'
 import { StatsService } from '@/lib/database'
-import { motion } from 'framer-motion'
 import { Award, Rocket, Users } from 'lucide-react'
 
 /**
@@ -42,13 +41,7 @@ const StatisticsComponent = () => {
 
       <div className="container relative z-10 px-4 md:px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-center p-10 rounded-2xl glass-premium hover:bg-white/5 transition-all duration-300 group"
-          >
+          <div className="text-center p-10 rounded-2xl glass-premium hover:bg-white/5 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="text-5xl md:text-6xl font-bold text-neon-orange mb-3 drop-shadow-lg group-hover:scale-110 transition-transform duration-300">
               {stats.loading ? (
                 <div className="h-14 w-32 bg-white/5 animate-pulse rounded-xl mx-auto" />
@@ -57,15 +50,9 @@ const StatisticsComponent = () => {
               )}
             </div>
             <div className="text-slate-300 font-semibold text-lg uppercase tracking-wider">Community Projects</div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            viewport={{ once: true }}
-            className="text-center p-10 rounded-2xl glass-premium hover:bg-white/5 transition-all duration-300 group"
-          >
+          <div className="text-center p-10 rounded-2xl glass-premium hover:bg-white/5 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-3 duration-500 delay-100">
             <div className="text-5xl md:text-6xl font-bold text-neon-blue mb-3 drop-shadow-lg group-hover:scale-110 transition-transform duration-300">
               {stats.loading ? (
                 <div className="h-14 w-32 bg-white/5 animate-pulse rounded-xl mx-auto" />
@@ -74,15 +61,9 @@ const StatisticsComponent = () => {
               )}
             </div>
             <div className="text-slate-300 font-semibold text-lg uppercase tracking-wider">Community Innovators</div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="text-center p-10 rounded-2xl glass-premium hover:bg-white/5 transition-all duration-300 group"
-          >
+          <div className="text-center p-10 rounded-2xl glass-premium hover:bg-white/5 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200">
             <div className="text-5xl md:text-6xl font-bold text-neon-purple mb-3 drop-shadow-lg group-hover:scale-110 transition-transform duration-300">
               {stats.loading ? (
                 <div className="h-14 w-32 bg-white/5 animate-pulse rounded-xl mx-auto" />
@@ -91,7 +72,7 @@ const StatisticsComponent = () => {
               )}
             </div>
             <div className="text-slate-300 font-semibold text-lg uppercase tracking-wider">Categories</div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Social Proof Indicators */}
@@ -113,31 +94,22 @@ const StatisticsComponent = () => {
               description: "Faculty-student partnerships & staff innovations"
             }
           ].map((item, index) => (
-            <motion.div
+            <div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 + (index * 0.1) }}
-              viewport={{ once: true }}
-              className="flex flex-col items-center text-center p-8 rounded-2xl glass-premium hover:bg-white/5 transition-all duration-300 group"
+              className="flex flex-col items-center text-center p-8 rounded-2xl glass-premium hover:bg-white/5 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-3"
+              style={{ animationDelay: `${(300 + (index * 80))}ms` }}
             >
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-orange/20 to-neon-orange/5 flex items-center justify-center text-neon-orange mb-5 shadow-lg shadow-neon-orange/10 group-hover:scale-110 transition-transform duration-300">
                 <item.icon className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
               <p className="text-sm text-slate-300 leading-relaxed">{item.description}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* University Endorsement */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto text-center"
-        >
+        <div className="max-w-4xl mx-auto text-center animate-in fade-in zoom-in-95 duration-700 delay-500">
           <div className="glass-premium rounded-3xl p-10 relative overflow-hidden hover:bg-white/5 transition-all duration-300">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-neon-orange via-neon-blue to-neon-purple"></div>
             <blockquote className="text-xl md:text-2xl text-slate-200 italic mb-6 relative z-10 leading-relaxed font-light">
@@ -147,7 +119,7 @@ const StatisticsComponent = () => {
               — University of Illinois Campus Innovation Initiative
             </cite>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   )
