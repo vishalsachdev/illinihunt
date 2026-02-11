@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
 import { useCategories } from '@/hooks/useCategories'
+import { useAuth } from '@/hooks/useAuth'
 import { ProjectsService } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
 import { ProjectCard } from './ProjectCard'
@@ -32,6 +33,8 @@ type Project = Database['public']['Tables']['projects']['Row'] & {
     color: string | null
     icon: string | null
   } | null
+  has_voted?: boolean
+  is_bookmarked?: boolean
 }
 
 type ProjectGridProps = {
@@ -47,6 +50,7 @@ type ProjectGridProps = {
  */
 export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridProps) {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [projects, setProjects] = useState<Project[]>([])
   const { categories } = useCategories()
   const [loading, setLoading] = useState(true)
@@ -74,13 +78,54 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
       })
 
       if (error) throw error
-      setProjects((data as unknown as Project[]) || [])
+      const projectData = (data as unknown as Project[]) || []
+
+      // Batch-fetch user interaction status to avoid N+1 network calls from each card.
+      if (user?.id && projectData.length > 0) {
+        const projectIds = projectData.map(project => project.id)
+
+        const [votesResult, bookmarksResult] = await Promise.all([
+          supabase
+            .from('votes')
+            .select('project_id')
+            .eq('user_id', user.id)
+            .in('project_id', projectIds),
+          supabase
+            .from('bookmarks')
+            .select('project_id')
+            .eq('user_id', user.id)
+            .in('project_id', projectIds)
+        ])
+
+        const ignoreVotesError = !!votesResult.error && (votesResult.error.code === 'PGRST202' || votesResult.error.code === '406')
+        const ignoreBookmarksError = !!bookmarksResult.error && (bookmarksResult.error.code === 'PGRST202' || bookmarksResult.error.code === '406')
+
+        if (votesResult.error && !ignoreVotesError) {
+          throw votesResult.error
+        }
+        if (bookmarksResult.error && !ignoreBookmarksError) {
+          throw bookmarksResult.error
+        }
+
+        const votedProjectIds = new Set((votesResult.data || []).map(vote => vote.project_id))
+        const bookmarkedProjectIds = new Set((bookmarksResult.data || []).map(bookmark => bookmark.project_id))
+
+        setProjects(
+          projectData.map(project => ({
+            ...project,
+            has_voted: votedProjectIds.has(project.id),
+            is_bookmarked: bookmarkedProjectIds.has(project.id)
+          }))
+        )
+      } else {
+        setProjects(projectData)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load projects')
     } finally {
       setLoading(false)
     }
-  }, [searchQuery, selectedCategory, sortBy])
+  }, [searchQuery, selectedCategory, sortBy, user?.id])
 
   useEffect(() => {
     // Debounce all filters including search

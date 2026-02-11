@@ -11,18 +11,27 @@ import { cn } from '@/lib/utils'
 interface VoteButtonProps {
   projectId: string
   initialVoteCount: number
+  initialHasVoted?: boolean
+  skipStatusFetch?: boolean
   className?: string
   onVoteChange?: (newCount: number) => void
 }
 
-export function VoteButton({ projectId, initialVoteCount, className, onVoteChange }: VoteButtonProps) {
+export function VoteButton({
+  projectId,
+  initialVoteCount,
+  initialHasVoted,
+  skipStatusFetch = false,
+  className,
+  onVoteChange
+}: VoteButtonProps) {
   const { user } = useAuth()
   const { showAuthPrompt } = useAuthPrompt()
   const { handleServiceError, showSuccess } = useError()
-  const { getVoteData, updateVoteCount, updateUserVote, clearVoteData, isRealtimeConnected } = useRealtimeVotesContext()
+  const { getVoteData, updateVoteCount, updateUserVote, isRealtimeConnected } = useRealtimeVotesContext()
 
   const [voteCount, setVoteCount] = useState(initialVoteCount)
-  const [hasVoted, setHasVoted] = useState(false)
+  const [hasVoted, setHasVoted] = useState(initialHasVoted ?? false)
   const [isLoading, setIsLoading] = useState(false)
   const isVotingRef = useRef(false)
   const debounceTimeoutRef = useRef<NodeJS.Timeout>()
@@ -36,8 +45,11 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     } else {
       // Fallback to initial values
       setVoteCount(initialVoteCount)
+      if (typeof initialHasVoted === 'boolean') {
+        setHasVoted(initialHasVoted)
+      }
     }
-  }, [getVoteData, projectId, initialVoteCount, isRealtimeConnected])
+  }, [getVoteData, projectId, initialVoteCount, initialHasVoted, isRealtimeConnected])
 
   // Initialize real-time data
   useEffect(() => {
@@ -48,16 +60,6 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     if (!projectId) return
 
     try {
-      // First verify project exists
-      const { data: project, error: projectError } = await ProjectsService.getProject(projectId)
-      if (projectError || !project) {
-        // Project doesn't exist - clear vote data
-        clearVoteData(projectId)
-        setHasVoted(false)
-        setVoteCount(0)
-        return
-      }
-
       const voted = await ProjectsService.hasUserVoted(projectId)
       setHasVoted(voted)
       updateUserVote(projectId, voted)
@@ -67,16 +69,22 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
       setHasVoted(false)
       updateUserVote(projectId, false)
     }
-  }, [projectId, handleServiceError, updateUserVote, clearVoteData])
+  }, [projectId, handleServiceError, updateUserVote])
 
   useEffect(() => {
     if (user && projectId) {
-      checkVoteStatus()
+      if (skipStatusFetch) {
+        const seededValue = typeof initialHasVoted === 'boolean' ? initialHasVoted : false
+        setHasVoted(seededValue)
+        updateUserVote(projectId, seededValue)
+      } else {
+        checkVoteStatus()
+      }
     } else if (!user) {
       setHasVoted(false)
       updateUserVote(projectId, false)
     }
-  }, [user, projectId, checkVoteStatus, updateUserVote])
+  }, [user, projectId, checkVoteStatus, updateUserVote, skipStatusFetch, initialHasVoted])
 
   const executeVote = async () => {
     if (isVotingRef.current) return
@@ -89,17 +97,6 @@ export function VoteButton({ projectId, initialVoteCount, className, onVoteChang
     const isRemoving = hasVoted
 
     try {
-      // First check if project still exists
-      const { data: project, error: projectError } = await ProjectsService.getProject(projectId)
-      if (projectError || !project) {
-        // Project doesn't exist - clear from local state
-        clearVoteData(projectId)
-        setVoteCount(0)
-        setHasVoted(false)
-        handleServiceError(new Error('This project no longer exists'), 'vote on project')
-        return
-      }
-
       if (hasVoted) {
         // Optimistically update UI - prevent negative votes
         const newCount = Math.max(0, voteCount - 1)

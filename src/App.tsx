@@ -1,5 +1,5 @@
 
-import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, Navigate, useLocation, useParams } from 'react-router-dom'
 import { Suspense, lazy, useEffect } from 'react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { Toaster } from 'sonner'
@@ -94,6 +94,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   return <>{children}</>
+}
+
+const CollectionRouteAlias = () => {
+  const { id } = useParams<{ id: string }>()
+  return <Navigate to={id ? `/collections/${id}` : '/collections'} replace />
 }
 
 function AppContent() {
@@ -299,7 +304,48 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+            {/* Temporary aliases for routes linked in UI but not yet implemented as dedicated pages */}
+            <Route
+              path="/collections/new"
+              element={
+                <ProtectedRoute>
+                  <Navigate to="/collections" replace />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/collections/discover"
+              element={
+                <ProtectedRoute>
+                  <Navigate to="/collections" replace />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bookmarks"
+              element={
+                <ProtectedRoute>
+                  <Navigate to="/collections" replace />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/collections/:id" element={<CollectionViewPage />} />
+            <Route
+              path="/collections/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <CollectionRouteAlias />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/collections/:id/add-projects"
+              element={
+                <ProtectedRoute>
+                  <CollectionRouteAlias />
+                </ProtectedRoute>
+              }
+            />
             {/* Admin route */}
             <Route
               path="/admin"

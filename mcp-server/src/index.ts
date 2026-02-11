@@ -18,6 +18,8 @@ interface RateLimitEntry {
   resetTime: number;
 }
 
+type ToolArgs = Record<string, unknown>;
+
 class IlliniHuntMCPServer {
   private server: Server;
   private supabase: SupabaseClient;
@@ -74,25 +76,37 @@ class IlliniHuntMCPServer {
   }
 
   // Input validation methods
-  private validateQueryProjectsInput(args: any): void {
-    if (args.limit && (typeof args.limit !== 'number' || args.limit < 1 || args.limit > 100)) {
+  private validateQueryProjectsInput(args: ToolArgs): void {
+    if (
+      args.limit !== undefined &&
+      (typeof args.limit !== 'number' || args.limit < 1 || args.limit > 100)
+    ) {
       throw new Error('Limit must be a number between 1 and 100');
     }
     
-    if (args.category && (typeof args.category !== 'string' || args.category.length > 100)) {
+    if (
+      args.category !== undefined &&
+      (typeof args.category !== 'string' || args.category.length > 100)
+    ) {
       throw new Error('Category must be a string with maximum 100 characters');
     }
     
-    if (args.search && (typeof args.search !== 'string' || args.search.length > 200)) {
+    if (
+      args.search !== undefined &&
+      (typeof args.search !== 'string' || args.search.length > 200)
+    ) {
       throw new Error('Search term must be a string with maximum 200 characters');
     }
     
-    if (args.sortBy && !['recent', 'popular', 'featured'].includes(args.sortBy)) {
+    if (
+      args.sortBy !== undefined &&
+      (typeof args.sortBy !== 'string' || !['recent', 'popular', 'featured'].includes(args.sortBy))
+    ) {
       throw new Error('SortBy must be one of: recent, popular, featured');
     }
   }
 
-  private validateProjectIdInput(args: any): void {
+  private validateProjectIdInput(args: ToolArgs): void {
     if (!args.projectId || typeof args.projectId !== 'string') {
       throw new Error('ProjectId is required and must be a string');
     }
@@ -104,7 +118,7 @@ class IlliniHuntMCPServer {
     }
   }
 
-  private validateUserIdInput(args: any): void {
+  private validateUserIdInput(args: ToolArgs): void {
     if (!args.userId || typeof args.userId !== 'string') {
       throw new Error('UserId is required and must be a string');
     }
@@ -116,7 +130,7 @@ class IlliniHuntMCPServer {
     }
   }
 
-  private validateCustomQueryInput(args: any): void {
+  private validateCustomQueryInput(args: ToolArgs): void {
     if (!args.query || typeof args.query !== 'string') {
       throw new Error('Query is required and must be a string');
     }

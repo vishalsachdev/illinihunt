@@ -8,14 +8,18 @@ import { cn } from '@/lib/utils'
 
 interface BookmarkButtonProps {
   projectId: string
+  initialIsBookmarked?: boolean
+  skipStatusFetch?: boolean
   className?: string
   size?: 'sm' | 'default' | 'lg'
   variant?: 'default' | 'ghost' | 'outline'
   showLabel?: boolean
 }
 
-export function BookmarkButton({ 
+export function BookmarkButton({
   projectId, 
+  initialIsBookmarked,
+  skipStatusFetch = false,
   className,
   size = 'sm',
   variant = 'ghost',
@@ -23,7 +27,7 @@ export function BookmarkButton({
 }: BookmarkButtonProps) {
   const { user } = useAuth()
   const { showAuthPrompt } = useAuthPrompt()
-  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked ?? false)
   const [isLoading, setIsLoading] = useState(false)
 
   const checkBookmarkStatus = useCallback(async () => {
@@ -37,10 +41,18 @@ export function BookmarkButton({
 
   // Check if project is bookmarked on mount
   useEffect(() => {
-    if (user) {
-      checkBookmarkStatus()
+    if (!user) {
+      setIsBookmarked(false)
+      return
     }
-  }, [user, checkBookmarkStatus])
+
+    if (skipStatusFetch) {
+      setIsBookmarked(initialIsBookmarked ?? false)
+      return
+    }
+
+    checkBookmarkStatus()
+  }, [user, checkBookmarkStatus, skipStatusFetch, initialIsBookmarked])
 
   const handleBookmarkToggle = async () => {
     if (!user) {

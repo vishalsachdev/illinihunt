@@ -33,6 +33,8 @@ interface ProjectData {
     color: string | null
     icon: string | null
   } | null
+  has_voted?: boolean
+  is_bookmarked?: boolean
 }
 
 interface ProjectCardProps {
@@ -76,6 +78,8 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
           <VoteButton
             projectId={project.id}
             initialVoteCount={project.upvotes_count ?? 0}
+            initialHasVoted={project.has_voted ?? false}
+            skipStatusFetch
             onVoteChange={handleVoteChange}
             className="bg-midnight/90 backdrop-blur-sm hover:bg-midnight shadow-md border border-white/10"
           />
@@ -172,6 +176,8 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
             </span>
             <BookmarkButton
               projectId={project.id}
+              initialIsBookmarked={project.is_bookmarked ?? false}
+              skipStatusFetch
               variant="ghost"
               size="sm"
               className="text-muted-foreground hover:text-uiuc-orange"
@@ -205,10 +211,28 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
 // Custom comparison: returns true if props are equal (skip re-render), false if different (re-render)
 // Only re-renders when project ID, vote count, or comment count changes
 export const ProjectCard = memo(ProjectCardComponent, (prevProps, nextProps) => {
+  const prev = prevProps.project
+  const next = nextProps.project
+
   // Return true (skip re-render) if all values are the same
   return (
-    prevProps.project.id === nextProps.project.id &&
-    prevProps.project.upvotes_count === nextProps.project.upvotes_count &&
-    prevProps.project.comments_count === nextProps.project.comments_count
+    prev.id === next.id &&
+    prev.upvotes_count === next.upvotes_count &&
+    prev.comments_count === next.comments_count &&
+    prev.has_voted === next.has_voted &&
+    prev.is_bookmarked === next.is_bookmarked &&
+    prev.name === next.name &&
+    prev.tagline === next.tagline &&
+    prev.description === next.description &&
+    prev.image_url === next.image_url &&
+    prev.website_url === next.website_url &&
+    prev.created_at === next.created_at &&
+    prev.users?.id === next.users?.id &&
+    prev.users?.full_name === next.users?.full_name &&
+    prev.users?.avatar_url === next.users?.avatar_url &&
+    prev.categories?.id === next.categories?.id &&
+    prev.categories?.name === next.categories?.name &&
+    prev.categories?.color === next.categories?.color &&
+    prev.categories?.icon === next.categories?.icon
   )
 })

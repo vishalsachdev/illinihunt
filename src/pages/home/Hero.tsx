@@ -17,8 +17,8 @@ const HeroComponent = () => {
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-midnight-900 via-midnight to-midnight-800 opacity-80"></div>
 
         {/* Neon Glow Orbs */}
-        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-neon-blue/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-[4000ms]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-neon-orange/10 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-[5000ms]"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-neon-blue/20 rounded-full blur-[120px] mix-blend-screen animate-[pulse_4s_ease-in-out_infinite]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-neon-orange/10 rounded-full blur-[120px] mix-blend-screen animate-[pulse_5s_ease-in-out_infinite]"></div>
 
         {/* Grid Pattern */}
         <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10 [mask-image:radial-gradient(ellipse_at_center,white,transparent_70%)]"></div>
