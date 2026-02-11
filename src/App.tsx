@@ -1,5 +1,5 @@
 
-import { BrowserRouter, Routes, Route, Link, Navigate, useLocation, useParams } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
 import { Suspense, lazy, useEffect } from 'react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { Toaster } from 'sonner'
@@ -27,6 +27,11 @@ const EditProfilePage = lazy(() => import('@/pages/EditProfilePage').then(module
 const EditProjectPage = lazy(() => import('@/pages/EditProjectPage').then(module => ({ default: module.EditProjectPage })))
 const CollectionsPage = lazy(() => import('@/pages/CollectionsPage').then(module => ({ default: module.CollectionsPage })))
 const CollectionViewPage = lazy(() => import('@/pages/CollectionViewPage').then(module => ({ default: module.CollectionViewPage })))
+const NewCollectionPage = lazy(() => import('@/pages/NewCollectionPage').then(module => ({ default: module.NewCollectionPage })))
+const EditCollectionPage = lazy(() => import('@/pages/EditCollectionPage').then(module => ({ default: module.EditCollectionPage })))
+const AddProjectsToCollectionPage = lazy(() => import('@/pages/AddProjectsToCollectionPage').then(module => ({ default: module.AddProjectsToCollectionPage })))
+const DiscoverCollectionsPage = lazy(() => import('@/pages/DiscoverCollectionsPage').then(module => ({ default: module.DiscoverCollectionsPage })))
+const BookmarksPage = lazy(() => import('@/pages/BookmarksPage').then(module => ({ default: module.BookmarksPage })))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(module => ({ default: module.NotFoundPage })))
 const AdminDashboardPage = lazy(() => import('@/pages/AdminDashboardPage').then(module => ({ default: module.AdminDashboardPage })))
 
@@ -94,11 +99,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   return <>{children}</>
-}
-
-const CollectionRouteAlias = () => {
-  const { id } = useParams<{ id: string }>()
-  return <Navigate to={id ? `/collections/${id}` : '/collections'} replace />
 }
 
 function AppContent() {
@@ -304,20 +304,11 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
-            {/* Temporary aliases for routes linked in UI but not yet implemented as dedicated pages */}
             <Route
               path="/collections/new"
               element={
                 <ProtectedRoute>
-                  <Navigate to="/collections" replace />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/collections/discover"
-              element={
-                <ProtectedRoute>
-                  <Navigate to="/collections" replace />
+                  <NewCollectionPage />
                 </ProtectedRoute>
               }
             />
@@ -325,16 +316,17 @@ function AppContent() {
               path="/bookmarks"
               element={
                 <ProtectedRoute>
-                  <Navigate to="/collections" replace />
+                  <BookmarksPage />
                 </ProtectedRoute>
               }
             />
+            <Route path="/collections/discover" element={<DiscoverCollectionsPage />} />
             <Route path="/collections/:id" element={<CollectionViewPage />} />
             <Route
               path="/collections/:id/edit"
               element={
                 <ProtectedRoute>
-                  <CollectionRouteAlias />
+                  <EditCollectionPage />
                 </ProtectedRoute>
               }
             />
@@ -342,7 +334,7 @@ function AppContent() {
               path="/collections/:id/add-projects"
               element={
                 <ProtectedRoute>
-                  <CollectionRouteAlias />
+                  <AddProjectsToCollectionPage />
                 </ProtectedRoute>
               }
             />
