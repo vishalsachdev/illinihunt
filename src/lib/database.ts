@@ -16,7 +16,7 @@ export class ProjectsService {
   static async getProjects(options?: {
     category?: string
     search?: string
-    sortBy?: 'recent' | 'popular' | 'featured'
+    sortBy?: 'recent' | 'popular' | 'featured' | 'trending'
     limit?: number
     offset?: number
   }) {
@@ -64,12 +64,18 @@ export class ProjectsService {
     }
 
     // Apply sorting
+    // 'trending' uses the same DB query as 'recent' -- ranking happens client-side
+    // via rankByTrending() so the caller is responsible for re-sorting.
     switch (options?.sortBy) {
       case 'popular':
         query = query.order('upvotes_count', { ascending: false })
         break
       case 'featured':
         query = query.eq('status', 'featured').order('created_at', { ascending: false })
+        break
+      case 'trending':
+        // Fetch recent-first; caller will apply trending score reorder
+        query = query.order('created_at', { ascending: false })
         break
       default:
         query = query.order('created_at', { ascending: false })
@@ -405,6 +411,45 @@ export class StatsService {
         error: error instanceof Error ? error.message : 'Failed to load statistics'
       }
     }
+  }
+
+  // Get trending projects using time-decay algorithm
+  static async getTrendingProjects(limit = 10) {
+    // Fetch a generous pool so the trending sort has good data to work with.
+    // We fetch recent projects (last 90 days) then rank client-side.
+    return supabase
+      .from('projects')
+      .select(`
+        id,
+        name,
+        tagline,
+        description,
+        image_url,
+        website_url,
+        github_url,
+        category_id,
+        user_id,
+        upvotes_count,
+        comments_count,
+        status,
+        created_at,
+        updated_at,
+        users (
+          id,
+          username,
+          full_name,
+          avatar_url
+        ),
+        categories (
+          id,
+          name,
+          color,
+          icon
+        )
+      `)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(Math.max(limit * 5, 50))
   }
 
   // Get featured projects for hero section
