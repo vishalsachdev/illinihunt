@@ -9,7 +9,7 @@ import { LoginButton } from '@/components/auth/LoginButton'
 import { UserMenu } from '@/components/auth/UserMenu'
 import { AdminProtectedRoute } from '@/components/auth/AdminProtectedRoute'
 import { Button } from '@/components/ui/button'
-import { Plus, Shield } from 'lucide-react'
+import { Plus, Shield, Flame } from 'lucide-react'
 import { AuthPromptProvider, useAuthPrompt } from '@/contexts/AuthPromptContext'
 import { ErrorProvider } from '@/contexts/ErrorContext'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
@@ -32,6 +32,7 @@ const EditCollectionPage = lazy(() => import('@/pages/EditCollectionPage').then(
 const AddProjectsToCollectionPage = lazy(() => import('@/pages/AddProjectsToCollectionPage').then(module => ({ default: module.AddProjectsToCollectionPage })))
 const DiscoverCollectionsPage = lazy(() => import('@/pages/DiscoverCollectionsPage').then(module => ({ default: module.DiscoverCollectionsPage })))
 const BookmarksPage = lazy(() => import('@/pages/BookmarksPage').then(module => ({ default: module.BookmarksPage })))
+const TrendingPage = lazy(() => import('@/pages/TrendingPage').then(module => ({ default: module.TrendingPage })))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(module => ({ default: module.NotFoundPage })))
 const AdminDashboardPage = lazy(() => import('@/pages/AdminDashboardPage').then(module => ({ default: module.AdminDashboardPage })))
 
@@ -49,6 +50,7 @@ if (typeof window !== 'undefined') {
       preloaded = true
       preloadRoute(() => import('@/pages/SubmitProjectPage'))
       preloadRoute(() => import('@/pages/ProjectDetailPage'))
+      preloadRoute(() => import('@/pages/TrendingPage'))
     }
   }
 
@@ -223,6 +225,18 @@ function AppContent() {
 
               <Button
                 asChild
+                variant="ghost"
+                size="sm"
+                className="hidden md:inline-flex glass-premium hover:bg-neon-orange/20 text-slate-200 hover:text-neon-orange border-0 h-10"
+              >
+                <Link to="/trending" className="flex items-center gap-2">
+                  <Flame className="w-4 h-4" />
+                  Trending
+                </Link>
+              </Button>
+
+              <Button
+                asChild
                 variant="outline"
                 size="sm"
                 className="glass-premium hover:bg-neon-orange/20 text-slate-200 hover:text-white border-white/10 hover:border-neon-orange/50 h-10 transition-all duration-300"
@@ -253,6 +267,7 @@ function AppContent() {
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/trending" element={<TrendingPage />} />
             <Route
               path="/submit"
               element={

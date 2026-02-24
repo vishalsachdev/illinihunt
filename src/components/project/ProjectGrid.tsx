@@ -15,7 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Search, Filter, Sparkles, Frown, Rocket } from 'lucide-react'
+import { Search, Filter, Sparkles, Frown, Rocket, Flame } from 'lucide-react'
+import { rankByTrending } from '@/lib/trending'
 import { CategoryIcon } from '@/lib/categoryIcons'
 import type { Database } from '@/types/database'
 
@@ -58,13 +59,16 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>(externalCategory || 'all')
-  const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent')
+  const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'trending'>('trending')
 
   // Real-time vote updates
   const { getVoteData } = useRealtimeVotesContext()
 
   // Memoize loadProjects to prevent unnecessary recreations
   const loadProjects = useCallback(async () => {
+    // Prevent race conditions by checking if already loading
+    if (loading) return
+    
     try {
       setLoading(true)
       setError(null)
@@ -138,17 +142,21 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
     setSelectedCategory(externalCategory || 'all')
   }, [externalCategory])
 
-  // Enrich projects with real-time vote data
+  // Enrich projects with real-time vote data, then apply trending sort if needed
   // Memoized to prevent unnecessary recalculations on every render
   const enrichedProjects = useMemo(() => {
-    return projects.map(project => {
+    const enriched = projects.map(project => {
       const realtimeVoteData = getVoteData(project.id)
       return {
         ...project,
         upvotes_count: realtimeVoteData?.count ?? project.upvotes_count
       }
     })
-  }, [projects, getVoteData])
+    if (sortBy === 'trending') {
+      return rankByTrending(enriched, 'week')
+    }
+    return enriched
+  }, [projects, getVoteData, sortBy])
 
   // Memoize category lookup for active filters display
   // Prevents repeated array.find() calls on every render
@@ -298,15 +306,17 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
               </Select>
             </div>
 
-            <div className="w-36">
+            <div className="w-40">
               <Select
                 value={sortBy}
-                onValueChange={(value: 'recent' | 'popular') => setSortBy(value)}
+                onValueChange={(value: 'recent' | 'popular' | 'trending') => setSortBy(value)}
               >
                 <SelectTrigger className="h-11">
+                  {sortBy === 'trending' && <Flame className="h-4 w-4 mr-1 text-orange-500 flex-shrink-0" />}
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="trending">Trending</SelectItem>
                   <SelectItem value="recent">Most Recent</SelectItem>
                   <SelectItem value="popular">Most Popular</SelectItem>
                 </SelectContent>
@@ -354,7 +364,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
           </h3>
           {!loading && (
             <p className="text-sm text-muted-foreground mt-1">
-              {projects.length} {projects.length === 1 ? 'project' : 'projects'} found
+              {enrichedProjects.length} {enrichedProjects.length === 1 ? 'project' : 'projects'} found
             </p>
           )}
         </div>
@@ -396,7 +406,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
             Try Again
           </Button>
         </div>
-      ) : projects.length === 0 ? (
+      ) : enrichedProjects.length === 0 ? (
         // Empty State
         <div className="bg-white border border-gray-100 rounded-xl p-8 text-center shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-500 mb-4">
