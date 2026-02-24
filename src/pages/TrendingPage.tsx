@@ -4,7 +4,7 @@ import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
 import { useAuth } from '@/hooks/useAuth'
 import { StatsService } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
-import { rankByTrending, periodLabel, type TrendingPeriod } from '@/lib/trending'
+import { rankByTrending, periodLabel, MIN_TRENDING_POOL_SIZE, type TrendingPeriod } from '@/lib/trending'
 import { ProjectCard } from '@/components/project/ProjectCard'
 import { Button } from '@/components/ui/button'
 import { Flame, TrendingUp, Clock, Calendar, Infinity, ArrowRight } from 'lucide-react'
@@ -56,9 +56,12 @@ export function TrendingPage() {
   const [period, setPeriod] = useState<TrendingPeriod>('week')
 
   const loadProjects = useCallback(async () => {
+    // Prevent race conditions
+    if (loading) return
+    
     setLoading(true)
     try {
-      const { data, error } = await StatsService.getTrendingProjects(50)
+      const { data, error } = await StatsService.getTrendingProjects(MIN_TRENDING_POOL_SIZE)
       if (error) throw error
       const projectData = (data as unknown as TrendingProject[]) || []
 
@@ -77,11 +80,12 @@ export function TrendingPage() {
             .in('project_id', projectIds),
         ])
 
+        // Check for query errors before using data
         const votedIds = new Set(
-          (votesResult.data || []).map((v) => v.project_id),
+          (!votesResult.error && votesResult.data ? votesResult.data : []).map((v) => v.project_id),
         )
         const bookmarkedIds = new Set(
-          (bookmarksResult.data || []).map((b) => b.project_id),
+          (!bookmarksResult.error && bookmarksResult.data ? bookmarksResult.data : []).map((b) => b.project_id),
         )
 
         setAllProjects(
@@ -94,7 +98,11 @@ export function TrendingPage() {
       } else {
         setAllProjects(projectData)
       }
-    } catch {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load trending projects'
+      if (import.meta.env.DEV) {
+        console.error('Error loading trending projects:', errorMessage)
+      }
       setAllProjects([])
     } finally {
       setLoading(false)

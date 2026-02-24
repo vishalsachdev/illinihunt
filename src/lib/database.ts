@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import type { Database } from '@/types/database'
 import { ErrorHandler, type ServiceResult } from './errorHandler'
+import { TRENDING_POOL_MULTIPLIER, MIN_TRENDING_POOL_SIZE, FEATURED_PROJECTS_COUNT } from './trending'
 
 type ProjectInsert = Database['public']['Tables']['projects']['Insert']
 type ProjectUpdate = Database['public']['Tables']['projects']['Update']
@@ -449,7 +450,7 @@ export class StatsService {
       `)
       .eq('status', 'active')
       .order('created_at', { ascending: false })
-      .limit(Math.max(limit * 5, 50))
+      .limit(Math.max(limit * TRENDING_POOL_MULTIPLIER, MIN_TRENDING_POOL_SIZE))
   }
 
   // Get featured projects for hero section

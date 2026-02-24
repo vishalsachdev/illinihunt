@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { StatsService } from '@/lib/database'
 import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
-import { rankByTrending } from '@/lib/trending'
+import { rankByTrending, FEATURED_PROJECTS_COUNT } from '@/lib/trending'
 import { ArrowUpRight, Flame, ArrowRight } from 'lucide-react'
 
 // Types for featured projects
@@ -36,7 +36,7 @@ export function FeaturedProjects() {
   useEffect(() => {
     const load = async () => {
       // Fetch a wider pool so the trending algo has good data
-      const { data, error } = await StatsService.getTrendingProjects(30)
+      const { data, error } = await StatsService.getTrendingProjects(FEATURED_PROJECTS_COUNT)
       if (data && !error) {
         setRawProjects(data as unknown as FeaturedProject[])
       }

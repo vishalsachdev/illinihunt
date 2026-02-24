@@ -17,9 +17,15 @@
 
 export type TrendingPeriod = 'today' | 'week' | 'month' | 'all'
 
+// Trending algorithm constants
 const COMMENT_WEIGHT = 2
 const GRAVITY = 1.8
 const GRAVITY_OFFSET = 2
+
+// Pool size configuration for trending projects
+export const TRENDING_POOL_MULTIPLIER = 5
+export const MIN_TRENDING_POOL_SIZE = 50
+export const FEATURED_PROJECTS_COUNT = 30
 
 export interface ScoredProject<T> {
   project: T

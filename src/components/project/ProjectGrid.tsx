@@ -66,6 +66,9 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
 
   // Memoize loadProjects to prevent unnecessary recreations
   const loadProjects = useCallback(async () => {
+    // Prevent race conditions by checking if already loading
+    if (loading) return
+    
     try {
       setLoading(true)
       setError(null)
@@ -361,7 +364,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
           </h3>
           {!loading && (
             <p className="text-sm text-muted-foreground mt-1">
-              {projects.length} {projects.length === 1 ? 'project' : 'projects'} found
+              {enrichedProjects.length} {enrichedProjects.length === 1 ? 'project' : 'projects'} found
             </p>
           )}
         </div>
@@ -403,7 +406,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
             Try Again
           </Button>
         </div>
-      ) : projects.length === 0 ? (
+      ) : enrichedProjects.length === 0 ? (
         // Empty State
         <div className="bg-white border border-gray-100 rounded-xl p-8 text-center shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-500 mb-4">
