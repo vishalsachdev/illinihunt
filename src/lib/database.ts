@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 import type { Database } from '@/types/database'
 import { ErrorHandler, type ServiceResult } from './errorHandler'
-import { TRENDING_POOL_MULTIPLIER, MIN_TRENDING_POOL_SIZE, FEATURED_PROJECTS_COUNT } from './trending'
+import { TRENDING_POOL_MULTIPLIER, MIN_TRENDING_POOL_SIZE } from './trending'
 
 type ProjectInsert = Database['public']['Tables']['projects']['Insert']
 type ProjectUpdate = Database['public']['Tables']['projects']['Update']
