@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
 import { useCategories } from '@/hooks/useCategories'
@@ -55,6 +55,10 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
   const { categories } = useCategories()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const requestIdRef = useRef(0)
+
+  const PROJECTS_QUERY_TIMEOUT_MS = 12000
+  const USER_INTERACTIONS_TIMEOUT_MS = 5000
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -64,71 +68,92 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
   // Real-time vote updates
   const { getVoteData } = useRealtimeVotesContext()
 
+  const withTimeout = useCallback(<T,>(
+    promise: Promise<T>,
+    timeoutMs: number,
+    timeoutMessage: string
+  ): Promise<T> => {
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs)
+      })
+    ])
+  }, [])
+
   // Memoize loadProjects to prevent unnecessary recreations
   const loadProjects = useCallback(async () => {
-    // Prevent race conditions by checking if already loading
-    if (loading) return
-    
+    const requestId = ++requestIdRef.current
     try {
       setLoading(true)
       setError(null)
 
-      const { data, error } = await ProjectsService.getProjects({
+      const { data, error } = await withTimeout(ProjectsService.getProjects({
         search: searchQuery || undefined,
         category: selectedCategory === 'all' ? undefined : selectedCategory,
         sortBy,
         limit: 20
-      })
+      }), PROJECTS_QUERY_TIMEOUT_MS, 'Timed out while loading projects')
 
       if (error) throw error
       const projectData = (data as unknown as Project[]) || []
+      if (requestId !== requestIdRef.current) return
 
       // Batch-fetch user interaction status to avoid N+1 network calls from each card.
       if (user?.id && projectData.length > 0) {
         const projectIds = projectData.map(project => project.id)
+        try {
+          const [votesResult, bookmarksResult] = await withTimeout(Promise.all([
+            supabase
+              .from('votes')
+              .select('project_id')
+              .eq('user_id', user.id)
+              .in('project_id', projectIds),
+            supabase
+              .from('bookmarks')
+              .select('project_id')
+              .eq('user_id', user.id)
+              .in('project_id', projectIds)
+          ]), USER_INTERACTIONS_TIMEOUT_MS, 'Timed out while loading user interaction status')
 
-        const [votesResult, bookmarksResult] = await Promise.all([
-          supabase
-            .from('votes')
-            .select('project_id')
-            .eq('user_id', user.id)
-            .in('project_id', projectIds),
-          supabase
-            .from('bookmarks')
-            .select('project_id')
-            .eq('user_id', user.id)
-            .in('project_id', projectIds)
-        ])
+          const ignoreVotesError = !!votesResult.error && (votesResult.error.code === 'PGRST202' || votesResult.error.code === '406')
+          const ignoreBookmarksError = !!bookmarksResult.error && (bookmarksResult.error.code === 'PGRST202' || bookmarksResult.error.code === '406')
 
-        const ignoreVotesError = !!votesResult.error && (votesResult.error.code === 'PGRST202' || votesResult.error.code === '406')
-        const ignoreBookmarksError = !!bookmarksResult.error && (bookmarksResult.error.code === 'PGRST202' || bookmarksResult.error.code === '406')
+          if (votesResult.error && !ignoreVotesError) {
+            throw votesResult.error
+          }
+          if (bookmarksResult.error && !ignoreBookmarksError) {
+            throw bookmarksResult.error
+          }
 
-        if (votesResult.error && !ignoreVotesError) {
-          throw votesResult.error
+          if (requestId !== requestIdRef.current) return
+
+          const votedProjectIds = new Set((votesResult.data || []).map(vote => vote.project_id))
+          const bookmarkedProjectIds = new Set((bookmarksResult.data || []).map(bookmark => bookmark.project_id))
+
+          setProjects(
+            projectData.map(project => ({
+              ...project,
+              has_voted: votedProjectIds.has(project.id),
+              is_bookmarked: bookmarkedProjectIds.has(project.id)
+            }))
+          )
+        } catch (_interactionError) {
+          // If user interaction lookups fail or time out, render projects anyway.
+          setProjects(projectData)
         }
-        if (bookmarksResult.error && !ignoreBookmarksError) {
-          throw bookmarksResult.error
-        }
-
-        const votedProjectIds = new Set((votesResult.data || []).map(vote => vote.project_id))
-        const bookmarkedProjectIds = new Set((bookmarksResult.data || []).map(bookmark => bookmark.project_id))
-
-        setProjects(
-          projectData.map(project => ({
-            ...project,
-            has_voted: votedProjectIds.has(project.id),
-            is_bookmarked: bookmarkedProjectIds.has(project.id)
-          }))
-        )
       } else {
         setProjects(projectData)
       }
     } catch (err) {
+      if (requestId !== requestIdRef.current) return
       setError(err instanceof Error ? err.message : 'Failed to load projects')
     } finally {
-      setLoading(false)
+      if (requestId === requestIdRef.current) {
+        setLoading(false)
+      }
     }
-  }, [searchQuery, selectedCategory, sortBy, user?.id])
+  }, [PROJECTS_QUERY_TIMEOUT_MS, USER_INTERACTIONS_TIMEOUT_MS, searchQuery, selectedCategory, sortBy, user?.id, withTimeout])
 
   useEffect(() => {
     // Debounce all filters including search
