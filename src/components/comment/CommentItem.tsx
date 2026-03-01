@@ -14,7 +14,8 @@ import {
   Edit3,
   Trash2,
   MoreHorizontal,
-  AlertCircle
+  AlertCircle,
+  Flag
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -22,6 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { ReportModal } from '@/components/moderation/ReportModal'
 import type { CommentData } from '@/types/comment'
 
 interface CommentItemProps {
@@ -43,6 +45,7 @@ export function CommentItem({
 }: CommentItemProps) {
   const { user } = useAuth()
   const [showReplyForm, setShowReplyForm] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState(comment.content)
   const [isLiked, setIsLiked] = useState(false)
@@ -344,6 +347,18 @@ export function CommentItem({
                   <span className="text-xs">Reply</span>
                 </Button>
               )}
+
+              {user && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setReportOpen(true)}
+                  className="h-auto p-1 text-muted-foreground hover:text-foreground"
+                >
+                  <Flag className="w-4 h-4 mr-1" />
+                  <span className="text-xs">Report</span>
+                </Button>
+              )}
             </div>
           )}
 
@@ -362,6 +377,14 @@ export function CommentItem({
           )}
         </div>
       </div>
+
+      <ReportModal
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetType="comment"
+        targetId={comment.id}
+        targetName={comment.content.substring(0, 80)}
+      />
     </div>
   )
 }
