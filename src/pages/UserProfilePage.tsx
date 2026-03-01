@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { ProjectCard } from '@/components/project/ProjectCard'
 import { ArrowLeft, ExternalLink, Github, Linkedin, MapPin, Calendar, Settings, Award } from 'lucide-react'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 
 type UserProfile = {
   id: string
@@ -98,14 +99,7 @@ export function UserProfilePage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading profile...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner message="Loading profile..." className="min-h-screen bg-midnight" />
   }
 
   if (error || !profile) {
@@ -249,10 +243,7 @@ export function UserProfilePage() {
               </div>
 
               {projectsLoading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-                  <p className="text-muted-foreground">Loading projects...</p>
-                </div>
+                <LoadingSpinner message="Loading projects..." />
               ) : projects.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {projects.map((project) => (

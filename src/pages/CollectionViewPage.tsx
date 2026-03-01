@@ -5,6 +5,7 @@ import { CollectionService } from '@/lib/database'
 import { ProjectCard } from '@/components/project/ProjectCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   ArrowLeft,
@@ -142,14 +143,7 @@ export function CollectionViewPage() {
   const isOwner = user && collection && collection.user_id === user.id
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading collection...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner message="Loading collection..." className="min-h-screen bg-midnight" />
   }
 
   if (error || !collection) {

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { getErrorMessage, showToast } from '@/components/ui/toast'
 import { ArrowLeft, Check, Plus, Search } from 'lucide-react'
 import { DEFAULT_CATEGORY_COLOR } from '@/lib/constants'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import type { Database } from '@/types/database'
 
 type CollectionProject = {
@@ -174,14 +175,7 @@ export function AddProjectsToCollectionPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading collection projects...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner message="Loading collection projects..." className="min-h-screen bg-midnight" />
   }
 
   if (error || !collection) {

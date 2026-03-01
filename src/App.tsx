@@ -13,6 +13,7 @@ import { Plus, Shield, Flame } from 'lucide-react'
 import { AuthPromptProvider, useAuthPrompt } from '@/contexts/AuthPromptContext'
 import { ErrorProvider } from '@/contexts/ErrorContext'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { RealtimeVotesProvider } from '@/contexts/RealtimeVotesContext'
 import { GitHubPopupButton } from '@/components/GitHubPopupButton'
@@ -60,14 +61,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Loading component for Suspense fallback
-const PageLoader = () => (
-  <div className="min-h-screen bg-background flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-      <p className="text-gray-600">Loading...</p>
-    </div>
-  </div>
-)
+const PageLoader = () => <LoadingSpinner className="min-h-screen" />
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -85,14 +79,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   // Always wait for authentication to complete, regardless of localStorage
   // This prevents race conditions during OAuth callbacks and session establishment
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking authentication...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner message="Checking authentication..." className="min-h-screen" />
   }
 
   // Redirect to home if not authenticated after loading completes

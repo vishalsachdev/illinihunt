@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { StatCard } from '@/components/shared/StatCard'
 import { DeleteProjectModal } from '@/components/project/DeleteProjectModal'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { showToast } from '@/components/ui/toast'
 import {
   Plus,
@@ -150,14 +151,7 @@ export function DashboardPage() {
 
   // Show loading while auth is being determined
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner className="min-h-screen" />
   }
 
   // Only show access denied if auth is complete and user is null
