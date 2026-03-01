@@ -105,8 +105,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const cached = !force ? getCachedProfile() : null
       if (cached) {
-        setState(prev => ({ ...prev, profile: cached, error: null, loading: false }))
-        return
+        // If cached profile is suspended, clear cache and re-fetch from DB
+        if (cached.suspended_at) {
+          clearCachedProfile()
+        } else {
+          setState(prev => ({ ...prev, profile: cached, error: null, loading: false }))
+          return
+        }
       }
 
       if (!isValidIllinoisEmail(user.email)) {
@@ -183,6 +188,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           loading: false
         }))
       } else if (data) {
+        // Block suspended users
+        if (data.suspended_at) {
+          await supabase.auth.signOut()
+          clearCachedProfile()
+          if (mountedRef.current) {
+            setState({
+              user: null,
+              profile: null,
+              session: null,
+              loading: false,
+              error: 'Your account has been suspended. Contact an administrator.'
+            })
+          }
+          return
+        }
+
         setCachedProfile(data)
         setState(prev => ({
           ...prev,
