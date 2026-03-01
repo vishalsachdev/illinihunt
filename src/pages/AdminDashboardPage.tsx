@@ -426,13 +426,7 @@ export function AdminDashboardPage() {
         )}
 
         {/* Reports Tab */}
-        {adminTab === 'reports' && (
-          <div className="text-center py-12 bg-muted/10 rounded-lg border-2 border-dashed border-border/50">
-            <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Reports</h3>
-            <p className="text-muted-foreground">Reports tab coming soon</p>
-          </div>
-        )}
+        {adminTab === 'reports' && <ReportsTab />}
 
         {/* Comments Tab */}
         {adminTab === 'comments' && <CommentsTab />}
