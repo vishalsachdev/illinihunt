@@ -52,20 +52,24 @@ mcp__supabase__apply_migration({ project_id: "catzwowmxluzwbhdyhnf", name: "..."
   - See: [Cloudflare + Vercel Issues](#cloudflare--vercel-issues) below
 
 ## Current Focus
-- [ ] Search & filtering system
-- [ ] Trending algorithm with analytics
 - [ ] Admin moderation tools
 - [ ] Testing framework
 - [ ] Accessibility + regression test coverage for new collection flows
 
 ## Roadmap
-- [ ] Search & filtering system
-- [ ] Trending algorithm with analytics
+- [x] Search & filtering system
+- [x] Trending algorithm with analytics
 - [ ] Admin moderation tools
 - [ ] Testing framework
 - [ ] See: [Improvement Roadmap](docs/IMPROVEMENT_ROADMAP.md) for full details
 
 ## Session Log
+### 2026-03-01
+- Merged large refactor PR #71: decomposed `database.ts` god file into 7 service modules, extracted 5 shared components, fixed trending page bugs, removed dead code
+- Fixed P1 bug found by Codex review: realtime vote context was reading from a ref with stable identity, preventing consumer re-renders on vote updates
+- Changed default homepage sort from "trending" to "most recent" (trending shows empty results with low posting frequency)
+- Next: Admin moderation tools, testing framework
+
 ### 2026-02-11
 - Reduced project-list N+1 calls by batching vote/bookmark status fetches
 - Added real collection pages/routes: new, edit, discover, bookmarks, add-projects
