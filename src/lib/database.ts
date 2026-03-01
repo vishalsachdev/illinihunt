@@ -61,7 +61,9 @@ export class ProjectsService {
     }
 
     if (options?.search) {
-      query = query.or(`name.ilike.%${options.search}%,tagline.ilike.%${options.search}%`)
+      // Sanitize search input: escape PostgREST special characters to prevent filter injection
+      const sanitized = options.search.replace(/[%_\\,()]/g, (c) => `\\${c}`)
+      query = query.or(`name.ilike.%${sanitized}%,tagline.ilike.%${sanitized}%`)
     }
 
     // Apply sorting

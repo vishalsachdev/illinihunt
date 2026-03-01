@@ -56,9 +56,6 @@ export function TrendingPage() {
   const [period, setPeriod] = useState<TrendingPeriod>('week')
 
   const loadProjects = useCallback(async () => {
-    // Prevent race conditions
-    if (loading) return
-    
     setLoading(true)
     try {
       const { data, error } = await StatsService.getTrendingProjects(MIN_TRENDING_POOL_SIZE)

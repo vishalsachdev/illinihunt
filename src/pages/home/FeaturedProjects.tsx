@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { StatsService } from '@/lib/database'
 import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
 import { rankByTrending, FEATURED_PROJECTS_COUNT } from '@/lib/trending'
@@ -29,6 +29,7 @@ export type FeaturedProject = {
 }
 
 export function FeaturedProjects() {
+  const navigate = useNavigate()
   const [rawProjects, setRawProjects] = useState<FeaturedProject[]>([])
   const [loading, setLoading] = useState(true)
   const { getVoteData } = useRealtimeVotesContext()
@@ -90,7 +91,7 @@ export function FeaturedProjects() {
               className="group relative glass-premium rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 cursor-pointer hover:scale-[1.02] animate-in fade-in zoom-in-95"
               style={{ animationDelay: `${index * 80}ms` }}
               onClick={() => {
-                window.location.href = `/project/${project.id}`
+                navigate(`/project/${project.id}`)
               }}
             >
               {/* Rank Badge */}

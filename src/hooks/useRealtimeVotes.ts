@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
@@ -35,7 +35,7 @@ export function useRealtimeVotes({
   userId 
 }: UseRealtimeVotesProps) {
   const channelsRef = useRef<RealtimeChannel[]>([])
-  const isConnectedRef = useRef(false)
+  const [isConnected, setIsConnected] = useState(false)
 
   // Store callbacks in refs to avoid dependency issues while maintaining stable references
   // Using mutable refs that can be updated
@@ -177,11 +177,11 @@ export function useRealtimeVotes({
         })
 
         await Promise.allSettled(subscribePromises)
-        isConnectedRef.current = true
+        setIsConnected(true)
 
       } catch (error) {
         // Silently handle realtime setup errors to avoid console noise
-        isConnectedRef.current = false
+        setIsConnected(false)
       }
     }
 
@@ -197,14 +197,14 @@ export function useRealtimeVotes({
         }
       })
       channelsRef.current = []
-      isConnectedRef.current = false
+      setIsConnected(false)
     }
     // Only depend on userId to avoid unnecessary reconnections
     // Callbacks are accessed via refs, so they don't need to be in dependencies
   }, [userId])
 
   return {
-    isConnected: isConnectedRef.current,
+    isConnected,
     channels: channelsRef.current
   }
 }
