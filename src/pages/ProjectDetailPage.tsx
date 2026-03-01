@@ -11,6 +11,7 @@ import { ArrowLeft, ExternalLink, Github, User, RefreshCw, Edit } from 'lucide-r
 import { CommentList } from '@/components/comment/CommentList'
 import { YouTubeEmbed } from '@/components/media/YouTubeEmbed'
 import { sanitizeContent, sanitizeUrl, linkifyText } from '@/lib/sanitize'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 
 type ProjectDetail = {
   id: string
@@ -88,14 +89,7 @@ export function ProjectDetailPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-midnight flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading project...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner message="Loading project..." className="min-h-screen bg-midnight" />
   }
 
   if (error || !project) {

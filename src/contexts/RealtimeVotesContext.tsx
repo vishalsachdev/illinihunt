@@ -16,6 +16,19 @@ interface RealtimeVotesContextValue {
   isRealtimeConnected: boolean
 }
 
+const DEFAULT_VOTE_DATA: VoteData = { count: 0, hasVoted: false }
+
+/** Immutable helper: clone Map, merge partial update for projectId */
+function updateVoteMap(
+  prev: Map<string, VoteData>,
+  projectId: string,
+  patch: Partial<VoteData>
+): Map<string, VoteData> {
+  const next = new Map(prev)
+  next.set(projectId, { ...(next.get(projectId) || DEFAULT_VOTE_DATA), ...patch })
+  return next
+}
+
 const RealtimeVotesContext = createContext<RealtimeVotesContextValue | null>(null)
 
 interface RealtimeVotesProviderProps {
@@ -31,29 +44,13 @@ export function RealtimeVotesProvider({ children }: RealtimeVotesProviderProps) 
   const [voteData, setVoteData] = useState<Map<string, VoteData>>(new Map())
 
   const handleVoteCountChange = useCallback((change: { projectId: string; newCount: number }) => {
-    setVoteData(prev => {
-      const newMap = new Map(prev)
-      const existing = newMap.get(change.projectId) || { count: 0, hasVoted: false }
-      newMap.set(change.projectId, {
-        ...existing,
-        count: change.newCount
-      })
-      return newMap
-    })
+    setVoteData(prev => updateVoteMap(prev, change.projectId, { count: change.newCount }))
   }, [])
 
   const handleUserVoteChange = useCallback((change: { projectId: string; userId: string; hasVoted: boolean }) => {
     // Only update if it's the current user's vote
     if (user && change.userId === user.id) {
-      setVoteData(prev => {
-        const newMap = new Map(prev)
-        const existing = newMap.get(change.projectId) || { count: 0, hasVoted: false }
-        newMap.set(change.projectId, {
-          ...existing,
-          hasVoted: change.hasVoted
-        })
-        return newMap
-      })
+      setVoteData(prev => updateVoteMap(prev, change.projectId, { hasVoted: change.hasVoted }))
     }
   }, [user])
 
@@ -77,27 +74,11 @@ export function RealtimeVotesProvider({ children }: RealtimeVotesProviderProps) 
   }, [voteData])
 
   const updateVoteCount = useCallback((projectId: string, count: number) => {
-    setVoteData(prev => {
-      const newMap = new Map(prev)
-      const existing = newMap.get(projectId) || { count: 0, hasVoted: false }
-      newMap.set(projectId, {
-        ...existing,
-        count
-      })
-      return newMap
-    })
+    setVoteData(prev => updateVoteMap(prev, projectId, { count }))
   }, [])
 
   const updateUserVote = useCallback((projectId: string, hasVoted: boolean) => {
-    setVoteData(prev => {
-      const newMap = new Map(prev)
-      const existing = newMap.get(projectId) || { count: 0, hasVoted: false }
-      newMap.set(projectId, {
-        ...existing,
-        hasVoted
-      })
-      return newMap
-    })
+    setVoteData(prev => updateVoteMap(prev, projectId, { hasVoted }))
   }, [])
 
   const clearVoteData = useCallback((projectId: string) => {

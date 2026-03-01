@@ -4,26 +4,10 @@ import { CommentItem } from './CommentItem'
 import { CommentForm } from './CommentForm'
 import { Button } from '@/components/ui/button'
 import { MessageCircle, RefreshCw } from 'lucide-react'
+import type { CommentData } from '@/types/comment'
 import type { Database } from '@/types/database'
 
 type Comment = Database['public']['Tables']['comments']['Row']
-
-interface CommentData {
-  id: string
-  content: string
-  created_at: string | null
-  updated_at: string | null
-  likes_count: number | null
-  thread_depth: number | null
-  parent_id: string | null
-  is_deleted: boolean | null
-  users: {
-    id: string
-    username: string | null
-    full_name: string | null
-    avatar_url: string | null
-  } | null
-}
 
 interface ThreadedComment extends CommentData {
   replies: ThreadedComment[]

@@ -45,7 +45,9 @@ if (envError) {
       )
     })
     .catch((error) => {
-      console.error('Failed to initialize app:', error)
+      if (import.meta.env.DEV) {
+        console.error('Failed to initialize app:', error)
+      }
       renderError(error instanceof Error ? error.message : 'Failed to initialize application')
     })
 }

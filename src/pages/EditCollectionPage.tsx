@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ArrowLeft, Save, Trash2 } from 'lucide-react'
 import { getErrorMessage, showToast } from '@/components/ui/toast'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import type { Database } from '@/types/database'
 
 type CollectionWithOwner = Database['public']['Tables']['collections']['Row'] & {
@@ -136,14 +137,7 @@ export function EditCollectionPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading collection...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner message="Loading collection..." className="min-h-screen bg-midnight" />
   }
 
   if (error && !collection) {

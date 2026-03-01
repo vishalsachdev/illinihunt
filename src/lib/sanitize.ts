@@ -20,24 +20,6 @@ export function sanitizeContent(content: string): string {
 }
 
 /**
- * Sanitizes content that may contain basic formatting
- * Allows some safe HTML tags like paragraphs and line breaks
- */
-export function sanitizeFormattedContent(content: string): string {
-  if (!content) return ''
-  
-  const cleanContent = DOMPurify.sanitize(content, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u'],
-    ALLOWED_ATTR: [],
-    KEEP_CONTENT: true,
-    FORBID_TAGS: ['script', 'object', 'embed', 'link', 'style', 'iframe', 'form', 'input'],
-    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'href', 'src']
-  })
-  
-  return cleanContent.trim()
-}
-
-/**
  * Sanitizes URLs to prevent javascript: and data: schemes
  */
 export function sanitizeUrl(url: string): string {

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
@@ -26,7 +26,7 @@ interface UseRealtimeVotesProps {
  * Performance improvements:
  * - Uses useCallback to memoize handlers and prevent unnecessary subscription recreations
  * - Properly manages channel cleanup to prevent memory leaks
- * - Silently handles errors to avoid console noise
+ * - Logs errors in DEV mode for debugging
  */
 export function useRealtimeVotes({ 
   onVoteCountChange, 
@@ -35,7 +35,7 @@ export function useRealtimeVotes({
   userId 
 }: UseRealtimeVotesProps) {
   const channelsRef = useRef<RealtimeChannel[]>([])
-  const isConnectedRef = useRef(false)
+  const [isConnected, setIsConnected] = useState(false)
 
   // Store callbacks in refs to avoid dependency issues while maintaining stable references
   // Using mutable refs that can be updated
@@ -161,7 +161,6 @@ export function useRealtimeVotes({
         // Subscribe to both channels with consistent error handling
         const subscribePromises = channelsRef.current.map(channel => {
           return new Promise<void>((resolve, reject) => {
-            // Fixed: Use consistent channel key naming pattern - lines 108-112
             const channelName = channel.topic
             
             channel.subscribe((status) => {
@@ -177,11 +176,13 @@ export function useRealtimeVotes({
         })
 
         await Promise.allSettled(subscribePromises)
-        isConnectedRef.current = true
+        setIsConnected(true)
 
       } catch (error) {
-        // Silently handle realtime setup errors to avoid console noise
-        isConnectedRef.current = false
+        if (import.meta.env.DEV) {
+          console.error('Realtime subscription setup failed:', error)
+        }
+        setIsConnected(false)
       }
     }
 
@@ -193,18 +194,20 @@ export function useRealtimeVotes({
         try {
           supabase.removeChannel(channel)
         } catch (error) {
-          // Silently handle channel cleanup errors
+          if (import.meta.env.DEV) {
+            console.error('Channel cleanup error:', error)
+          }
         }
       })
       channelsRef.current = []
-      isConnectedRef.current = false
+      setIsConnected(false)
     }
     // Only depend on userId to avoid unnecessary reconnections
     // Callbacks are accessed via refs, so they don't need to be in dependencies
   }, [userId])
 
   return {
-    isConnected: isConnectedRef.current,
+    isConnected,
     channels: channelsRef.current
   }
 }

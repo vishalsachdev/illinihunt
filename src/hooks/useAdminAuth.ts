@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { ILLINOIS_DOMAIN } from '@/lib/constants'
 
 /**
  * Hook to check if current user has admin privileges.
@@ -48,7 +49,7 @@ export function useAdminAuth() {
   }, [user?.email, authLoading])
 
   // All @illinois.edu users can flag content (moderator-lite capability)
-  const canFlag = user?.email?.toLowerCase().endsWith('@illinois.edu') ?? false
+  const canFlag = user?.email?.toLowerCase().endsWith(`@${ILLINOIS_DOMAIN}`) ?? false
 
   return {
     isAdmin,

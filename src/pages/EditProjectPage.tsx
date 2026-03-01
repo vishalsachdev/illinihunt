@@ -3,6 +3,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useCategories } from '@/hooks/useCategories'
 import { ProjectsService } from '@/lib/database'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import type { Database } from '@/types/database'
 
 // Lazy load ProjectForm to reduce initial bundle size
@@ -58,14 +59,7 @@ export function EditProjectPage() {
   }, [id, user])
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner className="min-h-screen" />
   }
 
   if (!user) {
@@ -77,14 +71,7 @@ export function EditProjectPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading project...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner message="Loading project..." className="min-h-screen" />
   }
 
   if (error || !project) {
@@ -112,16 +99,7 @@ export function EditProjectPage() {
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading form...</p>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingSpinner message="Loading form..." className="min-h-screen" />}>
       <ProjectForm
         mode="edit"
         projectId={id}

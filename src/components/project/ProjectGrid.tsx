@@ -5,6 +5,7 @@ import { useCategories } from '@/hooks/useCategories'
 import { useAuth } from '@/hooks/useAuth'
 import { ProjectsService } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
+import { DEFAULT_CATEGORY_COLOR } from '@/lib/constants'
 import { ProjectCard } from './ProjectCard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,21 +19,12 @@ import {
 import { Search, Filter, Sparkles, Frown, Rocket, Flame } from 'lucide-react'
 import { rankByTrending } from '@/lib/trending'
 import { CategoryIcon } from '@/lib/categoryIcons'
+import type { UserInfo, CategoryInfo } from '@/types/project'
 import type { Database } from '@/types/database'
 
 type Project = Database['public']['Tables']['projects']['Row'] & {
-  users: {
-    id: string
-    username: string | null
-    full_name: string | null
-    avatar_url: string | null
-  } | null
-  categories: {
-    id: string
-    name: string
-    color: string | null
-    icon: string | null
-  } | null
+  users: UserInfo | null
+  categories: CategoryInfo | null
   has_voted?: boolean
   is_bookmarked?: boolean
 }
@@ -40,6 +32,9 @@ type Project = Database['public']['Tables']['projects']['Row'] & {
 type ProjectGridProps = {
   selectedCategory?: string
 }
+
+const PROJECTS_QUERY_TIMEOUT_MS = 12000
+const USER_INTERACTIONS_TIMEOUT_MS = 5000
 
 /**
  * ProjectGrid component - Main grid displaying all projects with filtering and sorting
@@ -56,9 +51,6 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const requestIdRef = useRef(0)
-
-  const PROJECTS_QUERY_TIMEOUT_MS = 12000
-  const USER_INTERACTIONS_TIMEOUT_MS = 5000
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -153,7 +145,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
         setLoading(false)
       }
     }
-  }, [PROJECTS_QUERY_TIMEOUT_MS, USER_INTERACTIONS_TIMEOUT_MS, searchQuery, selectedCategory, sortBy, user?.id, withTimeout])
+  }, [searchQuery, selectedCategory, sortBy, user?.id, withTimeout])
 
   useEffect(() => {
     // Debounce all filters including search
@@ -315,7 +307,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
                       <div className="flex items-center gap-2">
                         <div
                           className="w-4 h-4 rounded-full flex items-center justify-center"
-                          style={{ backgroundColor: category.color || '#6B7280' }}
+                          style={{ backgroundColor: category.color || DEFAULT_CATEGORY_COLOR }}
                         >
                           <CategoryIcon 
                             iconName={category.icon} 

@@ -4,6 +4,7 @@ import { CollectionService } from '@/lib/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ArrowLeft, Eye, FolderOpen, Search, Users } from 'lucide-react'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { formatDistance } from 'date-fns'
 import type { Database } from '@/types/database'
 
@@ -78,10 +79,7 @@ export function DiscoverCollectionsPage() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading public collections...</p>
-          </div>
+          <LoadingSpinner message="Loading public collections..." />
         ) : error ? (
           <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-red-200">
             {error}

@@ -1,0 +1,512 @@
+{
+  "version": "1.0.0",
+  "timestamp": "2026-03-01T16:00:00Z",
+  "baseline": {
+    "typeCheck": "PASS",
+    "build": "PASS",
+    "lint": "PASS (1 warning: TrendingPage.tsx useCallback missing dep)",
+    "testCoverage": "0% (no test files exist)"
+  },
+  "codebaseStats": {
+    "totalFiles": 78,
+    "totalLines": 13497,
+    "tsxFiles": 59,
+    "tsFiles": 17,
+    "cssFiles": 1,
+    "testFiles": 0,
+    "directories": 13
+  },
+  "domains": {
+    "lib": {
+      "files": 11,
+      "totalLines": 2091,
+      "status": "audited",
+      "criticalFiles": [
+        {
+          "path": "src/lib/database.ts",
+          "lines": 1251,
+          "severity": "CRITICAL",
+          "issues": [
+            "God file: 7 service classes in one file",
+            "deleteComment method: 167 lines, CC>15",
+            "Auth check boilerplate repeated 13 times",
+            "Select column patterns copy-pasted 7 times",
+            "Search input interpolated into PostgREST filter (injection risk)",
+            "SafeCommentsService and CollectionService.*Safe are dead code",
+            "Inconsistent error contracts: throw vs return vs boolean"
+          ]
+        },
+        {
+          "path": "src/lib/errorHandler.ts",
+          "lines": 121,
+          "severity": "MEDIUM",
+          "issues": [
+            "75% dead code (logError, getUserMessage, isSuccess, handleFormError never called)",
+            "console.error not dev-gated (logs in production)",
+            "Error message matching uses hardcoded strings"
+          ]
+        },
+        {
+          "path": "src/lib/imageUpload.ts",
+          "lines": 175,
+          "severity": "LOW",
+          "issues": [
+            "compressImage: ObjectURL never revoked (memory leak)",
+            "deleteProjectImage is dead code (never called)",
+            "2 empty catch blocks in compressImage"
+          ]
+        },
+        {
+          "path": "src/lib/sanitize.ts",
+          "lines": 91,
+          "severity": "LOW",
+          "issues": [
+            "sanitizeFormattedContent is dead code",
+            "linkifyText produces raw HTML (XSS surface if misused)"
+          ]
+        }
+      ]
+    },
+    "contexts": {
+      "files": 4,
+      "totalLines": 728,
+      "status": "audited",
+      "criticalFiles": [
+        {
+          "path": "src/contexts/AuthContext.tsx",
+          "lines": 405,
+          "severity": "HIGH",
+          "issues": [
+            "loadUserProfile: 111 lines, should decompose",
+            "retryAuth duplicates initializeAuth logic",
+            "13 setState calls - strong candidate for useReducer",
+            "Duplicate useAuth/useAuthContext exports",
+            "'illinois.edu' string used instead of ILLINOIS_DOMAIN constant on line 310"
+          ]
+        },
+        {
+          "path": "src/contexts/RealtimeVotesContext.tsx",
+          "lines": 134,
+          "severity": "HIGH",
+          "issues": [
+            "getVoteData depends on voteData state - defeats useMemo, causes all consumers to re-render",
+            "{ count: 0, hasVoted: false } default repeated 5 times",
+            "Map clone-and-update pattern repeated 5 times"
+          ]
+        },
+        {
+          "path": "src/contexts/ErrorContext.tsx",
+          "lines": 145,
+          "severity": "MEDIUM",
+          "issues": [
+            "Context value object not memoized - causes unnecessary consumer re-renders",
+            "4 console.error calls not dev-gated (log in production)",
+            "Error handler pattern duplicated 4 times internally"
+          ]
+        }
+      ]
+    },
+    "hooks": {
+      "files": 5,
+      "totalLines": 397,
+      "status": "audited",
+      "criticalFiles": [
+        {
+          "path": "src/hooks/useRealtimeVotes.ts",
+          "lines": 210,
+          "severity": "HIGH",
+          "issues": [
+            "setupRealtimeSubscriptions: 126 lines",
+            "isConnected returns ref.current not state - never triggers re-renders (BUG)",
+            "2 empty catch blocks silently swallow connection errors",
+            "No timeout on subscription promises (may hang indefinitely)"
+          ]
+        },
+        {
+          "path": "src/hooks/useAdminAuth.ts",
+          "lines": 60,
+          "severity": "LOW",
+          "issues": [
+            "'@illinois.edu' hardcoded instead of shared constant",
+            "No unmount cancellation for async effect"
+          ]
+        }
+      ]
+    },
+    "pages": {
+      "files": 22,
+      "totalLines": 4540,
+      "status": "audited",
+      "criticalFiles": [
+        {
+          "path": "src/pages/TrendingPage.tsx",
+          "lines": 340,
+          "severity": "CRITICAL",
+          "issues": [
+            "BUG: if(loading) return guard + loading=true initial state = loadProjects never executes"
+          ]
+        },
+        {
+          "path": "src/pages/home/FeaturedProjects.tsx",
+          "lines": 180,
+          "severity": "CRITICAL",
+          "issues": [
+            "BUG: window.location.href causes full page reload instead of SPA navigation"
+          ]
+        },
+        {
+          "path": "src/pages/AdminDashboardPage.tsx",
+          "lines": 479,
+          "severity": "HIGH",
+          "issues": [
+            "Stats refresh logic duplicated after status change and delete",
+            "Stats card layout repeated 7 times",
+            "JSX nesting 8 levels deep"
+          ]
+        },
+        {
+          "path": "src/pages/DashboardPage.tsx",
+          "lines": 455,
+          "severity": "HIGH",
+          "issues": [
+            "DashboardProject type duplicates fields from other files",
+            "totalViews: 0 placeholder is dead code"
+          ]
+        },
+        {
+          "path": "src/pages/CollectionsPage.tsx",
+          "lines": 339,
+          "severity": "HIGH",
+          "issues": [
+            "2 empty catch blocks swallow all errors silently",
+            "Sequential fetches should be parallel with Promise.all",
+            "Uses confirm() instead of DeleteProjectModal"
+          ]
+        },
+        {
+          "path": "src/pages/UserProfilePage.tsx",
+          "lines": 348,
+          "severity": "MEDIUM",
+          "issues": [
+            "projects.sort() mutates array during render",
+            "Uncoordinated parallel fetches (no Promise.all)"
+          ]
+        },
+        {
+          "path": "src/pages/EditProfilePage.tsx",
+          "lines": 362,
+          "severity": "LOW",
+          "issues": [
+            "setTimeout with no cleanup (navigate on unmounted component)"
+          ]
+        },
+        {
+          "path": "src/pages/home/Hero.tsx",
+          "lines": 103,
+          "severity": "LOW",
+          "issues": [
+            "Hardcoded stats ('50+', '120+', '15+') contradict live Statistics component"
+          ]
+        }
+      ]
+    },
+    "components": {
+      "files": 22,
+      "totalLines": 4180,
+      "status": "audited",
+      "criticalFiles": [
+        {
+          "path": "src/components/project/ProjectGrid.tsx",
+          "lines": 489,
+          "severity": "CRITICAL",
+          "issues": [
+            "Largest component: 489 lines, CC~18",
+            "loadProjects: 71 lines",
+            "Auth-check-then-navigate duplicated verbatim",
+            "2 floating promises in onClick handlers",
+            "Unsafe double cast: data as unknown as Project[]",
+            "Constants declared inside component (useCallback dep issue)"
+          ]
+        },
+        {
+          "path": "src/components/comment/CommentItem.tsx",
+          "lines": 409,
+          "severity": "HIGH",
+          "issues": [
+            "handleDelete: 87 lines",
+            "Directly imports supabase client (breaks abstraction layer)",
+            "CommentData type duplicated with CommentList.tsx"
+          ]
+        },
+        {
+          "path": "src/components/project/AddToCollectionModal.tsx",
+          "lines": 333,
+          "severity": "HIGH",
+          "issues": [
+            "3 silent catch blocks",
+            "No keyboard trap for modal accessibility",
+            "No Escape key handler"
+          ]
+        },
+        {
+          "path": "src/App.tsx",
+          "lines": 411,
+          "severity": "HIGH",
+          "issues": [
+            "AppContent: 266 lines - header/nav should be extracted",
+            "5 levels of context provider nesting",
+            "Loading spinner appears 3 times"
+          ]
+        },
+        {
+          "path": "src/components/ErrorBoundary.tsx",
+          "lines": 174,
+          "severity": "MEDIUM",
+          "issues": [
+            "componentDidCatch logs to production console (8 ungated console calls)",
+            "Error tracking TODO still commented out"
+          ]
+        }
+      ]
+    },
+    "types": {
+      "files": 1,
+      "totalLines": 634,
+      "status": "audited",
+      "issues": ["Auto-generated from Supabase - no manual changes needed"]
+    },
+    "ui": {
+      "files": 11,
+      "totalLines": 850,
+      "status": "skip",
+      "reason": "shadcn/ui generated components - do not modify"
+    }
+  },
+  "findings": {
+    "bugs": [
+      {
+        "id": "BUG-001",
+        "severity": "P0",
+        "file": "src/pages/TrendingPage.tsx",
+        "line": 60,
+        "description": "loadProjects never executes: loading initialized to true, guard returns early on loading=true",
+        "fix": "Remove the if(loading) return guard or initialize loading to false"
+      },
+      {
+        "id": "BUG-002",
+        "severity": "P0",
+        "file": "src/pages/home/FeaturedProjects.tsx",
+        "line": 93,
+        "description": "window.location.href causes full page reload instead of SPA navigation, destroying all in-memory state",
+        "fix": "Replace with useNavigate() or <Link>"
+      },
+      {
+        "id": "BUG-003",
+        "severity": "P1",
+        "file": "src/hooks/useRealtimeVotes.ts",
+        "line": 207,
+        "description": "isConnected returns ref.current not state - never triggers re-renders in consumers",
+        "fix": "Add useState for isConnected alongside the ref"
+      },
+      {
+        "id": "BUG-004",
+        "severity": "P1",
+        "file": "src/contexts/RealtimeVotesContext.tsx",
+        "line": 77,
+        "description": "getVoteData useCallback depends on voteData, defeating useMemo and causing all consumers to re-render on every vote",
+        "fix": "Use a ref for voteData inside getVoteData callback"
+      },
+      {
+        "id": "BUG-005",
+        "severity": "P2",
+        "file": "src/pages/UserProfilePage.tsx",
+        "line": 325,
+        "description": "Array.sort() mutates projects state during render",
+        "fix": "Use [...projects].sort() or useMemo"
+      }
+    ],
+    "security": [
+      {
+        "id": "SEC-001",
+        "severity": "HIGH",
+        "file": "src/lib/database.ts",
+        "line": 64,
+        "description": "Search input interpolated into PostgREST .or() filter - potential filter injection",
+        "fix": "Sanitize search input or use parameterized filtering"
+      },
+      {
+        "id": "SEC-002",
+        "severity": "MEDIUM",
+        "file": "src/lib/sanitize.ts",
+        "line": 79,
+        "description": "linkifyText produces raw HTML strings used with dangerouslySetInnerHTML",
+        "fix": "Ensure output is always sanitized before rendering; consider using a React component approach"
+      },
+      {
+        "id": "SEC-003",
+        "severity": "MEDIUM",
+        "file": "src/lib/errorHandler.ts",
+        "line": 24,
+        "description": "console.error in production leaks error details to browser console",
+        "fix": "Gate behind import.meta.env.DEV"
+      }
+    ],
+    "silentFailures": {
+      "totalEmptyCatchBlocks": 15,
+      "locations": [
+        "src/pages/CollectionsPage.tsx (2)",
+        "src/components/project/AddToCollectionModal.tsx (3)",
+        "src/components/project/BookmarkButton.tsx (2)",
+        "src/components/RecentActivityFeed.tsx (1)",
+        "src/components/auth/UserMenu.tsx (1)",
+        "src/components/project/DeleteProjectModal.tsx (1)",
+        "src/hooks/useRealtimeVotes.ts (2)",
+        "src/lib/imageUpload.ts (2)",
+        "src/lib/validations.ts (1)"
+      ]
+    },
+    "deadCode": [
+      "src/lib/database.ts: SafeCommentsService (entire class)",
+      "src/lib/database.ts: CollectionService.createProjectSafe, getProjectSafe, voteProjectSafe, unvoteProjectSafe",
+      "src/lib/errorHandler.ts: logError, getUserMessage, isSuccess, handleFormError",
+      "src/lib/imageUpload.ts: deleteProjectImage",
+      "src/lib/sanitize.ts: sanitizeFormattedContent",
+      "src/lib/trending.ts: ScoredProject type"
+    ],
+    "duplication": {
+      "loadingSpinner": "16+ instances across all pages and components",
+      "authGuard": "8+ instances of redirect-on-no-user pattern",
+      "emptyState": "8+ instances of dashed-border empty state pattern",
+      "avatarFallback": "5+ instances of .slice(0,2).toUpperCase() pattern",
+      "projectTypes": "5+ overlapping inline type definitions (DashboardProject, TrendingProject, FeaturedProject, ProjectData, ProjectListItem)",
+      "commentDataType": "Duplicated verbatim between CommentItem.tsx and CommentList.tsx",
+      "authCheckBoilerplate": "13 times in database.ts",
+      "selectColumns": "7 times in database.ts",
+      "collectionForm": "Nearly identical between NewCollectionPage and EditCollectionPage",
+      "rankBadgeGradient": "Identical in TrendingPage and FeaturedProjects",
+      "fallbackColor": "'#6B7280' hardcoded in 3 files",
+      "illinoisDomain": "'illinois.edu' string in 3 files without shared constant"
+    },
+    "oversizedFunctions": [
+      { "file": "src/lib/database.ts", "function": "CommentsService.deleteComment", "lines": 167 },
+      { "file": "src/hooks/useRealtimeVotes.ts", "function": "setupRealtimeSubscriptions", "lines": 126 },
+      { "file": "src/contexts/AuthContext.tsx", "function": "loadUserProfile", "lines": 111 },
+      { "file": "src/components/comment/CommentItem.tsx", "function": "handleDelete", "lines": 87 },
+      { "file": "src/components/project/ProjectGrid.tsx", "function": "loadProjects", "lines": 71 },
+      { "file": "src/lib/database.ts", "function": "StatsService.getPlatformStats", "lines": 70 },
+      { "file": "src/components/project/VoteButton.tsx", "function": "executeVote", "lines": 55 },
+      { "file": "src/lib/database.ts", "function": "ProjectsService.deleteProject", "lines": 53 }
+    ],
+    "productionConsoleLogs": [
+      "src/lib/errorHandler.ts:24 (console.error on every error)",
+      "src/lib/supabaseInit.ts:22 (console.error on init failure)",
+      "src/contexts/ErrorContext.tsx (4 console.error calls)",
+      "src/components/ErrorBoundary.tsx (8 console calls in componentDidCatch)"
+    ]
+  },
+  "workBatches": {
+    "batch1_bugs_and_security": {
+      "priority": "P0",
+      "estimatedFiles": 5,
+      "description": "Fix active bugs and security issues",
+      "files": [
+        "src/pages/TrendingPage.tsx",
+        "src/pages/home/FeaturedProjects.tsx",
+        "src/hooks/useRealtimeVotes.ts",
+        "src/contexts/RealtimeVotesContext.tsx",
+        "src/lib/database.ts"
+      ]
+    },
+    "batch2_database_decomposition": {
+      "priority": "P0",
+      "estimatedFiles": 8,
+      "description": "Split database.ts god file into focused service modules",
+      "newFiles": [
+        "src/lib/services/projects.ts",
+        "src/lib/services/comments.ts",
+        "src/lib/services/bookmarks.ts",
+        "src/lib/services/collections.ts",
+        "src/lib/services/categories.ts",
+        "src/lib/services/stats.ts",
+        "src/lib/services/auth-helpers.ts",
+        "src/lib/services/query-constants.ts"
+      ]
+    },
+    "batch3_shared_abstractions": {
+      "priority": "P1",
+      "estimatedFiles": 10,
+      "description": "Extract duplicated patterns into shared components and utilities",
+      "newFiles": [
+        "src/components/shared/LoadingSpinner.tsx",
+        "src/components/shared/EmptyState.tsx",
+        "src/components/shared/PageError.tsx",
+        "src/components/shared/RequireAuth.tsx",
+        "src/components/shared/StatCard.tsx",
+        "src/components/shared/CollectionForm.tsx",
+        "src/components/shared/RankBadge.tsx",
+        "src/types/project.ts",
+        "src/types/comment.ts",
+        "src/lib/constants.ts"
+      ]
+    },
+    "batch4_context_refactor": {
+      "priority": "P1",
+      "estimatedFiles": 5,
+      "description": "Refactor contexts and hooks for correctness and performance",
+      "files": [
+        "src/contexts/AuthContext.tsx",
+        "src/contexts/ErrorContext.tsx",
+        "src/contexts/RealtimeVotesContext.tsx",
+        "src/hooks/useRealtimeVotes.ts",
+        "src/hooks/useAuth.ts"
+      ]
+    },
+    "batch5_component_decomposition": {
+      "priority": "P1",
+      "estimatedFiles": 6,
+      "description": "Break up oversized components",
+      "files": [
+        "src/components/project/ProjectGrid.tsx",
+        "src/components/comment/CommentItem.tsx",
+        "src/components/project/AddToCollectionModal.tsx",
+        "src/App.tsx",
+        "src/components/ErrorBoundary.tsx",
+        "src/pages/AdminDashboardPage.tsx"
+      ]
+    },
+    "batch6_dead_code_and_cleanup": {
+      "priority": "P2",
+      "estimatedFiles": 8,
+      "description": "Remove dead code, fix silent failures, gate production logs",
+      "files": [
+        "src/lib/database.ts",
+        "src/lib/errorHandler.ts",
+        "src/lib/imageUpload.ts",
+        "src/lib/sanitize.ts",
+        "src/lib/trending.ts",
+        "src/pages/CollectionsPage.tsx",
+        "src/pages/UserProfilePage.tsx",
+        "src/pages/EditProfilePage.tsx"
+      ]
+    },
+    "batch7_page_consistency": {
+      "priority": "P2",
+      "estimatedFiles": 12,
+      "description": "Apply shared abstractions to all pages, unify patterns",
+      "files": [
+        "src/pages/AdminDashboardPage.tsx",
+        "src/pages/DashboardPage.tsx",
+        "src/pages/CollectionsPage.tsx",
+        "src/pages/CollectionViewPage.tsx",
+        "src/pages/AddProjectsToCollectionPage.tsx",
+        "src/pages/EditCollectionPage.tsx",
+        "src/pages/BookmarksPage.tsx",
+        "src/pages/DiscoverCollectionsPage.tsx",
+        "src/pages/NewCollectionPage.tsx",
+        "src/pages/EditProjectPage.tsx",
+        "src/pages/SubmitProjectPage.tsx",
+        "src/pages/home/Hero.tsx"
+      ]
+    }
+  }
+}

@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { getErrorMessage, showToast } from '@/components/ui/toast'
 import { formatDistance } from 'date-fns'
+import { DEFAULT_CATEGORY_COLOR } from '@/lib/constants'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import type { Database } from '@/types/database'
 
 type BookmarkRow = Database['public']['Views']['user_bookmarks_with_projects']['Row']
@@ -101,10 +103,7 @@ export function BookmarksPage() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading bookmarks...</p>
-          </div>
+          <LoadingSpinner message="Loading bookmarks..." />
         ) : error ? (
           <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-red-200">{error}</div>
         ) : filteredBookmarks.length === 0 ? (
@@ -134,7 +133,7 @@ export function BookmarksPage() {
                   {bookmark.category_name && (
                     <span
                       className="rounded-full px-2 py-1 text-xs font-medium text-white"
-                      style={{ backgroundColor: bookmark.category_color || '#6B7280' }}
+                      style={{ backgroundColor: bookmark.category_color || DEFAULT_CATEGORY_COLOR }}
                     >
                       {bookmark.category_name}
                     </span>

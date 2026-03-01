@@ -19,7 +19,9 @@ export async function ensureSupabaseInitialized(): Promise<void> {
       await supabase.auth.getSession()
       isInitialized = true
     } catch (error) {
-      console.error('Failed to initialize Supabase session:', error)
+      if (import.meta.env.DEV) {
+        console.error('Failed to initialize Supabase session:', error)
+      }
       isInitialized = true // Mark as initialized even on error
     }
   })()

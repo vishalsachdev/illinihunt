@@ -1,9 +1,10 @@
 import { useEffect, useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { StatsService } from '@/lib/database'
 import { useRealtimeVotesContext } from '@/contexts/RealtimeVotesContext'
 import { rankByTrending, FEATURED_PROJECTS_COUNT } from '@/lib/trending'
 import { ArrowUpRight, Flame, ArrowRight } from 'lucide-react'
+import { RankBadge } from '@/components/shared/RankBadge'
 
 // Types for featured projects
 export type FeaturedProject = {
@@ -29,6 +30,7 @@ export type FeaturedProject = {
 }
 
 export function FeaturedProjects() {
+  const navigate = useNavigate()
   const [rawProjects, setRawProjects] = useState<FeaturedProject[]>([])
   const [loading, setLoading] = useState(true)
   const { getVoteData } = useRealtimeVotesContext()
@@ -90,23 +92,10 @@ export function FeaturedProjects() {
               className="group relative glass-premium rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 cursor-pointer hover:scale-[1.02] animate-in fade-in zoom-in-95"
               style={{ animationDelay: `${index * 80}ms` }}
               onClick={() => {
-                window.location.href = `/project/${project.id}`
+                navigate(`/project/${project.id}`)
               }}
             >
-              {/* Rank Badge */}
-              <div className="absolute top-4 left-4 z-10">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-lg ${
-                    index === 0
-                      ? 'bg-gradient-to-br from-yellow-400 to-orange-500 shadow-yellow-500/30'
-                      : index === 1
-                        ? 'bg-gradient-to-br from-slate-300 to-slate-500 shadow-slate-400/30'
-                        : 'bg-gradient-to-br from-amber-600 to-amber-800 shadow-amber-600/30'
-                  }`}
-                >
-                  {index + 1}
-                </div>
-              </div>
+              <RankBadge index={index} />
 
               <div className="p-7 pt-14 h-full flex flex-col">
                 <div className="flex items-start justify-between mb-5">

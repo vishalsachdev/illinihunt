@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { formatDistance } from 'date-fns'
 import { useAuth } from '@/hooks/useAuth'
 import { CommentsService } from '@/lib/database'
-import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { CommentForm } from './CommentForm'
 import { Link } from 'react-router-dom'
 import { sanitizeContent } from '@/lib/sanitize'
+import { MAX_THREAD_DEPTH } from '@/lib/constants'
 import {
   MessageCircle,
   Heart,
@@ -22,22 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-
-interface CommentData {
-  id: string
-  content: string
-  created_at: string | null
-  updated_at: string | null
-  likes_count: number | null
-  thread_depth: number | null
-  is_deleted: boolean | null
-  users: {
-    id: string
-    username: string | null
-    full_name: string | null
-    avatar_url: string | null
-  } | null
-}
+import type { CommentData } from '@/types/comment'
 
 interface CommentItemProps {
   comment: CommentData
@@ -73,7 +58,7 @@ export function CommentItem({
 
   const isOwner = user && comment.users && user.id === comment.users.id
 
-  const canReply = (comment.thread_depth ?? 0) < 3 // Max 3 levels deep
+  const canReply = (comment.thread_depth ?? 0) < MAX_THREAD_DEPTH
 
   const checkLikeStatus = useCallback(async () => {
     if (!comment.id) return
@@ -150,37 +135,10 @@ export function CommentItem({
       return
     }
 
-    setError('') // Clear any previous errors
-    setIsDeleting(true) // Show loading state
+    setError('')
+    setIsDeleting(true)
 
     try {
-      // This ensures tokens are valid before getUser() is called
-      const { error: refreshError } = await supabase.auth.refreshSession();
-
-      if (refreshError) {
-        if (import.meta.env.DEV) {
-          console.warn("Failed to refresh session:", refreshError);
-        }
-        setError("Authentication expired. Please refresh and try again.");
-        setIsDeleting(false);
-        return;
-      }
-
-      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-
-      if (userError || !currentUser) {
-        setError('Please log in to delete comments')
-        setIsDeleting(false)
-        return
-      }
-
-      // Verify user owns this comment
-      if (!comment.users || currentUser.id !== comment.users.id) {
-        setError('You can only delete your own comments')
-        setIsDeleting(false)
-        return
-      }
-
       const result = await CommentsService.deleteComment(comment.id)
 
       if (result.error) {

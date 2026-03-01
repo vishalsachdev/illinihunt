@@ -27,14 +27,8 @@ export const TRENDING_POOL_MULTIPLIER = 5
 export const MIN_TRENDING_POOL_SIZE = 50
 export const FEATURED_PROJECTS_COUNT = 30
 
-export interface ScoredProject<T> {
-  project: T
-  score: number
-  ageHours: number
-}
-
 /** Calculate trending score for a single project. */
-export function trendingScore(
+function trendingScore(
   upvotes: number,
   comments: number,
   createdAt: string | null,
@@ -50,7 +44,7 @@ export function trendingScore(
 }
 
 /** Filter cutoff date for a given period. */
-export function periodCutoff(period: TrendingPeriod, now: Date = new Date()): Date | null {
+function periodCutoff(period: TrendingPeriod, now: Date = new Date()): Date | null {
   switch (period) {
     case 'today': {
       const d = new Date(now)

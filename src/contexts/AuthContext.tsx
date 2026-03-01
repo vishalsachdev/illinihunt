@@ -1,8 +1,8 @@
-/* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react'
+import { createContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react'
 import { User, Session, type PostgrestError } from '@supabase/supabase-js'
 import { z } from 'zod'
 import { supabase } from '@/lib/supabase'
+import { ILLINOIS_DOMAIN } from '@/lib/constants'
 import type { Database } from '@/types/database'
 
 // Type for user profile from database
@@ -30,7 +30,6 @@ const PROFILE_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 const AUTH_CHECK_TIMEOUT = 5000
 const MAX_PROFILE_RETRIES = 3
 const PROFILE_RETRY_BASE_DELAY = 500
-const ILLINOIS_DOMAIN = 'illinois.edu'
 
 const CachedProfileSchema = z.object({
   profile: z.object({
@@ -208,6 +207,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  /** Shared session restoration logic used by both init and retry */
+  const restoreSession = useCallback(async () => {
+    const { data: { session }, error } = await supabase.auth.getSession()
+    if (!mountedRef.current) return
+    if (error) {
+      setState(prev => ({ ...prev, error: error.message, loading: false }))
+      return
+    }
+    if (session?.user) {
+      setState(prev => ({ ...prev, user: session.user, session, loading: false }))
+      await loadUserProfile(session.user)
+    } else {
+      setState(prev => ({ ...prev, loading: false, user: null, session: null }))
+    }
+  }, [loadUserProfile])
+
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | null = null
 
@@ -223,42 +238,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }, AUTH_CHECK_TIMEOUT)
 
       try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-
-        if (timeoutId) {
-          clearTimeout(timeoutId)
-          timeoutId = null
-        }
-
-        if (!mountedRef.current) return
-
-        if (error) {
-          setState(prev => ({ ...prev, error: error.message, loading: false }))
-          return
-        }
-
-        if (session?.user) {
-          setState(prev => ({
-            ...prev,
-            user: session.user,
-            session,
-            loading: false
-          }))
-          await loadUserProfile(session.user)
-        } else {
-          setState(prev => ({ ...prev, loading: false, user: null, session: null }))
-        }
+        await restoreSession()
       } catch (err) {
-        if (timeoutId) {
-          clearTimeout(timeoutId)
-          timeoutId = null
-        }
         if (!mountedRef.current) return
         setState(prev => ({
           ...prev,
           error: err instanceof Error ? err.message : 'Failed to initialize auth',
           loading: false
         }))
+      } finally {
+        if (timeoutId) {
+          clearTimeout(timeoutId)
+          timeoutId = null
+        }
       }
     }
 
@@ -300,14 +292,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       subscription.unsubscribe()
     }
-  }, [loadUserProfile])
+  }, [loadUserProfile, restoreSession])
 
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         queryParams: {
-          hd: 'illinois.edu'
+          hd: ILLINOIS_DOMAIN
         },
         redirectTo: window.location.origin
       }
@@ -354,28 +346,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const retryAuth = async () => {
     setState(prev => ({ ...prev, loading: true, error: null }))
-
     try {
-      const { data: { session }, error } = await supabase.auth.getSession()
-
-      if (!mountedRef.current) return
-
-      if (error) {
-        setState(prev => ({ ...prev, error: error.message, loading: false }))
-        return
-      }
-
-      if (session?.user) {
-        setState(prev => ({
-          ...prev,
-          user: session.user,
-          session,
-          loading: false
-        }))
-        await loadUserProfile(session.user)
-      } else {
-        setState(prev => ({ ...prev, loading: false, user: null, session: null }))
-      }
+      await restoreSession()
     } catch (err) {
       if (!mountedRef.current) return
       setState(prev => ({
@@ -391,14 +363,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   )
-}
-
-export function useAuthContext() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
 }
 
 export { AuthContext }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { ProjectsService } from '@/lib/database'
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Save, User, AlertCircle } from 'lucide-react'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -64,6 +65,13 @@ export function EditProfilePage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [isFormInitialized, setIsFormInitialized] = useState(false)
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current)
+    }
+  }, [])
 
   const {
     register,
@@ -113,7 +121,7 @@ export function EditProfilePage() {
         setError('Failed to update profile. Please try again.')
       } else {
         setSuccess(true)
-        setTimeout(() => {
+        redirectTimerRef.current = setTimeout(() => {
           navigate(`/user/${user.id}`)
         }, 1500)
       }
@@ -126,14 +134,7 @@ export function EditProfilePage() {
 
   // Show loading screen while auth is being checked
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-midnight text-foreground dark flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading profile...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner message="Loading profile..." className="min-h-screen bg-midnight" />
   }
 
   if (!user) {

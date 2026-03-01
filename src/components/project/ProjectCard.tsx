@@ -9,6 +9,8 @@ import { AddToCollectionButton } from './AddToCollectionButton'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { sanitizeContent, sanitizeUrl } from '@/lib/sanitize'
+import { DEFAULT_CATEGORY_COLOR } from '@/lib/constants'
+import type { UserInfo, CategoryInfo } from '@/types/project'
 
 interface ProjectData {
   id: string
@@ -21,18 +23,8 @@ interface ProjectData {
   upvotes_count: number | null
   comments_count: number | null
   created_at: string | null
-  users: {
-    id: string
-    username: string | null
-    full_name: string | null
-    avatar_url: string | null
-  } | null
-  categories: {
-    id: string
-    name: string
-    color: string | null
-    icon: string | null
-  } | null
+  users: UserInfo | null
+  categories: CategoryInfo | null
   has_voted?: boolean
   is_bookmarked?: boolean
 }
@@ -90,7 +82,7 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
           <div className="absolute top-3 left-3">
             <span
               className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white shadow-sm"
-              style={{ backgroundColor: category.color || '#6B7280' }}
+              style={{ backgroundColor: category.color || DEFAULT_CATEGORY_COLOR }}
             >
               <CategoryIcon
                 iconName={category.icon}

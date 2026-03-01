@@ -36,38 +36,29 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
-    // Enhanced logging for debugging
-    console.group('🚨 React Error Boundary')
-    console.error('Error ID:', this.state.errorId)
-    console.error('Error:', error)
-    console.error('Error Info:', errorInfo)
-    console.error('Props:', this.props)
-    console.error('User Agent:', navigator.userAgent)
-    console.error('URL:', window.location.href)
-    console.error('Timestamp:', new Date().toISOString())
-    console.groupEnd()
-    
-    this.setState({ errorInfo })
-    
-    // In production, you might want to send this to an error tracking service
-    if (import.meta.env.PROD) {
-      // Example: Send to error tracking service
-      // errorTrackingService.captureException(error, {
-      //   errorId: this.state.errorId,
-      //   componentStack: errorInfo.componentStack,
-      //   url: window.location.href,
-      //   userAgent: navigator.userAgent
-      // })
+    if (import.meta.env.DEV) {
+      console.group('React Error Boundary')
+      console.error('Error ID:', this.state.errorId)
+      console.error('Error:', error)
+      console.error('Error Info:', errorInfo)
+      console.error('URL:', window.location.href)
+      console.groupEnd()
     }
+
+    this.setState({ errorInfo })
+  }
+
+  private resetState = () => {
+    this.setState({ hasError: false, error: null, errorInfo: null, errorId: null })
   }
 
   handleReset = () => {
-    this.setState({ hasError: false, error: null, errorInfo: null, errorId: null })
+    this.resetState()
     window.location.href = '/'
   }
 
   handleRetry = () => {
-    this.setState({ hasError: false, error: null, errorInfo: null, errorId: null })
+    this.resetState()
   }
 
   copyErrorDetails = () => {
@@ -83,7 +74,7 @@ export class ErrorBoundary extends Component<Props, State> {
     
     navigator.clipboard.writeText(JSON.stringify(errorDetails, null, 2))
       .then(() => alert('Error details copied to clipboard!'))
-      .catch(() => console.error('Failed to copy error details:', errorDetails))
+      .catch(() => { /* clipboard write not supported */ })
   }
 
   render() {

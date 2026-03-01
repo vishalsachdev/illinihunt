@@ -14,6 +14,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { showToast } from '@/components/ui/toast'
 import type { Database } from '@/types/database'
 
 type Collection = Database['public']['Tables']['collections']['Row']
@@ -61,7 +62,10 @@ export function AddToCollectionModal({
         setCollectionsWithProject(collectionIds)
       }
     } catch (error) {
-      // Silently fail, collections will remain empty
+      if (import.meta.env.DEV) {
+        console.error('Failed to load collections:', error)
+      }
+      showToast.error('Failed to load collections')
     } finally {
       setLoading(false)
     }
@@ -76,14 +80,18 @@ export function AddToCollectionModal({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose()
+      }
+      document.addEventListener('keydown', handleEscape)
+      return () => {
+        document.body.style.overflow = 'unset'
+        document.removeEventListener('keydown', handleEscape)
+      }
     } else {
       document.body.style.overflow = 'unset'
     }
-    
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
-  }, [isOpen])
+  }, [isOpen, onClose])
 
   const handleToggleProject = async (collectionId: string) => {
     if (!user) {
@@ -109,7 +117,10 @@ export function AddToCollectionModal({
 
       onSuccess?.()
     } catch (error) {
-      // Silently fail, action will not complete
+      if (import.meta.env.DEV) {
+        console.error('Failed to update collection:', error)
+      }
+      showToast.error('Failed to update collection')
     } finally {
       setActionLoading(null)
     }
@@ -144,7 +155,10 @@ export function AddToCollectionModal({
         onSuccess?.()
       }
     } catch (error) {
-      // Silently fail, collection will not be created
+      if (import.meta.env.DEV) {
+        console.error('Failed to create collection:', error)
+      }
+      showToast.error('Failed to create collection')
     } finally {
       setActionLoading(null)
     }
