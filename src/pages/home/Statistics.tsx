@@ -68,7 +68,7 @@ const StatisticsComponent = () => {
               {stats.loading ? (
                 <div className="h-14 w-32 bg-white/5 animate-pulse rounded-xl mx-auto" />
               ) : (
-                stats.categoriesCount
+                `${stats.categoriesCount}+`
               )}
             </div>
             <div className="text-slate-300 font-semibold text-lg uppercase tracking-wider">Categories</div>
@@ -108,18 +108,6 @@ const StatisticsComponent = () => {
           ))}
         </div>
 
-        {/* University Endorsement */}
-        <div className="max-w-4xl mx-auto text-center animate-in fade-in zoom-in-95 duration-700 delay-500">
-          <div className="glass-premium rounded-3xl p-10 relative overflow-hidden hover:bg-white/5 transition-all duration-300">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-neon-orange via-neon-blue to-neon-purple"></div>
-            <blockquote className="text-xl md:text-2xl text-slate-200 italic mb-6 relative z-10 leading-relaxed font-light">
-              "IlliniHunt showcases the incredible innovation happening across our entire campus community, fostering collaboration between students, faculty, staff, and researchers in meaningful ways."
-            </blockquote>
-            <cite className="text-sm font-semibold text-neon-orange not-italic uppercase tracking-wider">
-              — University of Illinois Campus Innovation Initiative
-            </cite>
-          </div>
-        </div>
       </div>
     </section>
   )

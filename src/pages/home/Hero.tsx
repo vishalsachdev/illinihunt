@@ -75,21 +75,6 @@ const HeroComponent = () => {
             </Button>
           </div>
 
-          {/* Stats Preview - Glass Cards */}
-          <div className="pt-16 grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12 w-full max-w-4xl animate-in fade-in slide-in-from-bottom-2 duration-700 delay-500">
-            {[
-              { label: 'Active Projects', value: '50+', color: 'text-neon-orange' },
-              { label: 'Contributors', value: '120+', color: 'text-neon-blue' },
-              { label: 'Departments', value: '15+', color: 'text-neon-purple' },
-            ].map((stat, index) => (
-              <div key={index} className="glass-premium rounded-2xl p-6 flex flex-col items-center justify-center space-y-2 hover:bg-white/5 transition-colors group">
-                <div className={`text-4xl md:text-5xl font-bold ${stat.color} drop-shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                  {stat.value}
-                </div>
-                <div className="text-sm text-slate-400 font-medium uppercase tracking-widest">{stat.label}</div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>

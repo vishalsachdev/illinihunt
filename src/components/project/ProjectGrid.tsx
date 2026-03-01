@@ -266,7 +266,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
               }}
             >
               <Rocket className="mr-2 h-4 w-4" />
-              Submit Your Project
+              Submit Project
             </Button>
           </div>
         </div>
@@ -458,7 +458,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
               }
             }}
           >
-            Submit Your Project
+            Submit Project
           </Button>
         </div>
       ) : (
