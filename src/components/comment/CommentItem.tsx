@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { formatDistance } from 'date-fns'
 import { useAuth } from '@/hooks/useAuth'
 import { CommentsService } from '@/lib/database'
-import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { CommentForm } from './CommentForm'
@@ -136,37 +135,10 @@ export function CommentItem({
       return
     }
 
-    setError('') // Clear any previous errors
-    setIsDeleting(true) // Show loading state
+    setError('')
+    setIsDeleting(true)
 
     try {
-      // This ensures tokens are valid before getUser() is called
-      const { error: refreshError } = await supabase.auth.refreshSession();
-
-      if (refreshError) {
-        if (import.meta.env.DEV) {
-          console.warn("Failed to refresh session:", refreshError);
-        }
-        setError("Authentication expired. Please refresh and try again.");
-        setIsDeleting(false);
-        return;
-      }
-
-      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-
-      if (userError || !currentUser) {
-        setError('Please log in to delete comments')
-        setIsDeleting(false)
-        return
-      }
-
-      // Verify user owns this comment
-      if (!comment.users || currentUser.id !== comment.users.id) {
-        setError('You can only delete your own comments')
-        setIsDeleting(false)
-        return
-      }
-
       const result = await CommentsService.deleteComment(comment.id)
 
       if (result.error) {
