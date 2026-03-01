@@ -18,7 +18,9 @@ export function LoginButton() {
     try {
       await retryAuth()
     } catch (error) {
-      console.error('Retry auth failed:', error)
+      if (import.meta.env.DEV) {
+        console.error('Retry auth failed:', error)
+      }
     } finally {
       setIsRetrying(false)
     }

@@ -74,7 +74,7 @@ export class ErrorBoundary extends Component<Props, State> {
     
     navigator.clipboard.writeText(JSON.stringify(errorDetails, null, 2))
       .then(() => alert('Error details copied to clipboard!'))
-      .catch(() => console.error('Failed to copy error details:', errorDetails))
+      .catch(() => { /* clipboard write not supported */ })
   }
 
   render() {

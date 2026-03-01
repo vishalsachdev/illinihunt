@@ -321,7 +321,7 @@ export function UserProfilePage() {
                 <h3 className="text-lg font-semibold text-foreground mb-4">Recent Activity</h3>
                 {projects.length > 0 ? (
                   <div className="space-y-3">
-                    {projects
+                    {[...projects]
                       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                       .slice(0, 3)
                       .map((project) => (

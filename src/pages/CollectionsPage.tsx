@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { CollectionService, BookmarkService } from '@/lib/database'
+import { showToast } from '@/components/ui/toast'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -72,7 +73,10 @@ export function CollectionsPage() {
           })
         }
       } catch (error) {
-        // Silently handle error - user will see empty state
+        if (import.meta.env.DEV) {
+          console.error('Failed to load collections:', error)
+        }
+        showToast.error('Failed to load collections')
       } finally {
         setLoading(false)
       }
@@ -95,7 +99,10 @@ export function CollectionsPage() {
         totalCollections: prev.totalCollections - 1
       }))
     } catch (error) {
-      // Silently handle error - operation will appear to fail
+      if (import.meta.env.DEV) {
+        console.error('Failed to delete collection:', error)
+      }
+      showToast.error('Failed to delete collection')
     }
   }
 

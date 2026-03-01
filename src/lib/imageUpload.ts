@@ -72,41 +72,6 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
 }
 
 /**
- * Delete an image from Supabase Storage
- */
-export async function deleteProjectImage(imageUrl: string): Promise<{ error: string | null }> {
-  try {
-    // Extract path from public URL
-    const url = new URL(imageUrl)
-    const pathMatch = url.pathname.match(/\/storage\/v1\/object\/public\/project-images\/(.+)$/)
-    
-    if (!pathMatch) {
-      return { error: 'Invalid image URL' }
-    }
-
-    const filePath = pathMatch[1]
-
-    const { error } = await supabase.storage
-      .from('project-images')
-      .remove([filePath])
-
-    if (error) {
-      if (import.meta.env.DEV) {
-        console.error('Storage delete error:', error)
-      }
-      return { error: 'Failed to delete image' }
-    }
-
-    return { error: null }
-  } catch (err) {
-    if (import.meta.env.DEV) {
-      console.error('Image delete error:', err)
-    }
-    return { error: 'An unexpected error occurred while deleting the image' }
-  }
-}
-
-/**
  * Compress image file before upload (optional optimization)
  */
 export function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
@@ -126,6 +91,11 @@ export function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promi
     }
     
     const img = new Image()
+    let objectUrl: string | null = null
+
+    const cleanup = () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl)
+    }
 
     img.onload = () => {
       try {
@@ -141,6 +111,7 @@ export function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promi
         canvas.toBlob(
           (blob) => {
             clearTimeout(timeout)
+            cleanup()
             if (blob) {
               const compressedFile = new File([blob], file.name, {
                 type: file.type,
@@ -148,7 +119,7 @@ export function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promi
               })
               resolve(compressedFile)
             } else {
-              resolve(file) // Fallback to original file
+              resolve(file)
             }
           },
           file.type,
@@ -156,19 +127,23 @@ export function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promi
         )
       } catch (err) {
         clearTimeout(timeout)
+        cleanup()
         resolve(file)
       }
     }
 
     img.onerror = () => {
       clearTimeout(timeout)
-      resolve(file) // Use original file if compression fails
+      cleanup()
+      resolve(file)
     }
 
     try {
-      img.src = URL.createObjectURL(file)
+      objectUrl = URL.createObjectURL(file)
+      img.src = objectUrl
     } catch (err) {
       clearTimeout(timeout)
+      cleanup()
       resolve(file)
     }
   })

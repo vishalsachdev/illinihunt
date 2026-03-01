@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { ProjectsService } from '@/lib/database'
@@ -64,6 +64,13 @@ export function EditProfilePage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [isFormInitialized, setIsFormInitialized] = useState(false)
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current)
+    }
+  }, [])
 
   const {
     register,
@@ -113,7 +120,7 @@ export function EditProfilePage() {
         setError('Failed to update profile. Please try again.')
       } else {
         setSuccess(true)
-        setTimeout(() => {
+        redirectTimerRef.current = setTimeout(() => {
           navigate(`/user/${user.id}`)
         }, 1500)
       }
