@@ -11,6 +11,7 @@ import { showToast } from '@/components/ui/toast'
 import { DeleteProjectModal } from '@/components/project/DeleteProjectModal'
 import { CommentsTab } from '@/components/admin/CommentsTab'
 import { ReportsTab } from '@/components/admin/ReportsTab'
+import { UsersTab } from '@/components/admin/UsersTab'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import {
   DropdownMenu,
@@ -432,13 +433,7 @@ export function AdminDashboardPage() {
         {adminTab === 'comments' && <CommentsTab />}
 
         {/* Users Tab */}
-        {adminTab === 'users' && (
-          <div className="text-center py-12 bg-muted/10 rounded-lg border-2 border-dashed border-border/50">
-            <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Users</h3>
-            <p className="text-muted-foreground">Users tab coming soon</p>
-          </div>
-        )}
+        {adminTab === 'users' && <UsersTab />}
       </div>
 
       {/* Delete Confirmation Modal */}
