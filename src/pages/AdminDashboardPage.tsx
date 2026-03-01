@@ -9,6 +9,9 @@ import { StatCard } from '@/components/shared/StatCard'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
 import { DeleteProjectModal } from '@/components/project/DeleteProjectModal'
+import { CommentsTab } from '@/components/admin/CommentsTab'
+import { ReportsTab } from '@/components/admin/ReportsTab'
+import { UsersTab } from '@/components/admin/UsersTab'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import {
   DropdownMenu,
@@ -18,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
+  AlertTriangle,
   BarChart3,
   MessageCircle,
   ArrowUp,
@@ -35,10 +39,12 @@ import {
   Shield
 } from 'lucide-react'
 
+type AdminTab = 'projects' | 'reports' | 'comments' | 'users'
 type TabFilter = 'all' | 'active' | 'featured' | 'archived'
 
 export function AdminDashboardPage() {
   const { loading: authLoading } = useAdminAuth()
+  const [adminTab, setAdminTab] = useState<AdminTab>('projects')
   const [projects, setProjects] = useState<AdminProject[]>([])
   const [stats, setStats] = useState<PlatformStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -181,218 +187,253 @@ export function AdminDashboardPage() {
             </Button>
           </div>
 
-          {/* Stats Cards */}
-          {stats && (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-              <StatCard title="Total Projects" value={stats.totalProjects} icon={BarChart3} />
-              <StatCard title="Active" value={stats.activeProjects} icon={CheckCircle} iconClassName="text-green-500" valueClassName="text-green-600" />
-              <StatCard title="Featured" value={stats.featuredProjects} icon={Star} iconClassName="text-orange-500" valueClassName="text-orange-600" />
-              <StatCard title="Archived" value={stats.archivedProjects} icon={Archive} iconClassName="text-gray-500" valueClassName="text-gray-600" />
-              <StatCard title="Users" value={stats.totalUsers} icon={Users} />
-              <StatCard title="Upvotes" value={stats.totalUpvotes} icon={ArrowUp} />
-              <StatCard title="Comments" value={stats.totalComments} icon={MessageCircle} />
-            </div>
-          )}
-        </div>
-
-        {/* Filters */}
-        <div className="mb-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            {/* Tabs */}
-            <div className="flex gap-2">
-              {(['all', 'active', 'featured', 'archived'] as TabFilter[]).map((tab) => (
-                <Button
-                  key={tab}
-                  variant={activeTab === tab ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setActiveTab(tab)}
-                  className={activeTab === tab ? 'bg-uiuc-orange hover:bg-uiuc-orange/90' : ''}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </Button>
-              ))}
-            </div>
-
-            {/* Search */}
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search projects..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+          {/* Top-Level Admin Tabs */}
+          <div className="flex gap-2 mb-6">
+            {([
+              { key: 'projects' as AdminTab, label: 'Projects', icon: BarChart3 },
+              { key: 'reports' as AdminTab, label: 'Reports', icon: AlertTriangle },
+              { key: 'comments' as AdminTab, label: 'Comments', icon: MessageCircle },
+              { key: 'users' as AdminTab, label: 'Users', icon: Users },
+            ]).map(({ key, label, icon: Icon }) => (
+              <Button
+                key={key}
+                variant={adminTab === key ? 'default' : 'outline'}
+                size="default"
+                onClick={() => setAdminTab(key)}
+                className={adminTab === key ? 'bg-uiuc-orange hover:bg-uiuc-orange/90' : ''}
+              >
+                <Icon className="w-4 h-4 mr-2" />
+                {label}
+              </Button>
+            ))}
           </div>
         </div>
 
-        {/* Projects List */}
-        <div>
-          {loading ? (
-            <LoadingSpinner message="Loading projects..." />
-          ) : projects.length > 0 ? (
-            <div className="space-y-4">
-              {projects.map((project) => (
-                <Card key={project.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-4">
-                      {/* Project Image */}
-                      {project.image_url ? (
-                        <img
-                          src={project.image_url}
-                          alt={project.name}
-                          className="w-16 h-16 rounded-lg object-cover border flex-shrink-0"
-                        />
-                      ) : (
-                        <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <span className="text-gray-400 text-xl">📱</span>
-                        </div>
-                      )}
+        {/* Projects Tab */}
+        {adminTab === 'projects' && (
+          <>
+            {/* Stats Cards */}
+            {stats && (
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+                <StatCard title="Total Projects" value={stats.totalProjects} icon={BarChart3} />
+                <StatCard title="Active" value={stats.activeProjects} icon={CheckCircle} iconClassName="text-green-500" valueClassName="text-green-600" />
+                <StatCard title="Featured" value={stats.featuredProjects} icon={Star} iconClassName="text-orange-500" valueClassName="text-orange-600" />
+                <StatCard title="Archived" value={stats.archivedProjects} icon={Archive} iconClassName="text-gray-500" valueClassName="text-gray-600" />
+                <StatCard title="Users" value={stats.totalUsers} icon={Users} />
+                <StatCard title="Upvotes" value={stats.totalUpvotes} icon={ArrowUp} />
+                <StatCard title="Comments" value={stats.totalComments} icon={MessageCircle} />
+              </div>
+            )}
 
-                      {/* Project Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Link
-                                to={`/project/${project.id}`}
-                                className="text-lg font-semibold text-foreground hover:text-uiuc-orange transition-colors"
-                              >
-                                {project.name}
-                              </Link>
-                              {getStatusBadge(project.status)}
+            {/* Filters */}
+            <div className="mb-6">
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                {/* Tabs */}
+                <div className="flex gap-2">
+                  {(['all', 'active', 'featured', 'archived'] as TabFilter[]).map((tab) => (
+                    <Button
+                      key={tab}
+                      variant={activeTab === tab ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setActiveTab(tab)}
+                      className={activeTab === tab ? 'bg-uiuc-orange hover:bg-uiuc-orange/90' : ''}
+                    >
+                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Search */}
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search projects..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Projects List */}
+            <div>
+              {loading ? (
+                <LoadingSpinner message="Loading projects..." />
+              ) : projects.length > 0 ? (
+                <div className="space-y-4">
+                  {projects.map((project) => (
+                    <Card key={project.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-4">
+                          {/* Project Image */}
+                          {project.image_url ? (
+                            <img
+                              src={project.image_url}
+                              alt={project.name}
+                              className="w-16 h-16 rounded-lg object-cover border flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <span className="text-gray-400 text-xl">📱</span>
                             </div>
+                          )}
 
-                            <p className="text-sm text-muted-foreground mb-2 line-clamp-1">
-                              {project.tagline}
-                            </p>
+                          {/* Project Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Link
+                                    to={`/project/${project.id}`}
+                                    className="text-lg font-semibold text-foreground hover:text-uiuc-orange transition-colors"
+                                  >
+                                    {project.name}
+                                  </Link>
+                                  {getStatusBadge(project.status)}
+                                </div>
 
-                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                              {project.users && (
-                                <span>
-                                  by {project.users.full_name || project.users.username || 'Unknown'}
-                                  <span className="text-muted-foreground/60 ml-1">
-                                    ({project.users.email})
-                                  </span>
-                                </span>
-                              )}
-                              {project.categories && (
-                                <Badge variant="outline" className="text-xs">
-                                  {project.categories.name}
-                                </Badge>
-                              )}
+                                <p className="text-sm text-muted-foreground mb-2 line-clamp-1">
+                                  {project.tagline}
+                                </p>
+
+                                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                  {project.users && (
+                                    <span>
+                                      by {project.users.full_name || project.users.username || 'Unknown'}
+                                      <span className="text-muted-foreground/60 ml-1">
+                                        ({project.users.email})
+                                      </span>
+                                    </span>
+                                  )}
+                                  {project.categories && (
+                                    <Badge variant="outline" className="text-xs">
+                                      {project.categories.name}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Stats */}
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <ArrowUp className="w-4 h-4" />
+                                  <span>{project.upvotes_count}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <MessageCircle className="w-4 h-4" />
+                                  <span>{project.comments_count}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-4 h-4" />
+                                  <span>{new Date(project.created_at).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+
+                              {/* Actions */}
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    disabled={actionLoading === project.id}
+                                  >
+                                    {actionLoading === project.id ? (
+                                      <RefreshCw className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <MoreVertical className="w-4 h-4" />
+                                    )}
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem asChild>
+                                    <Link to={`/project/${project.id}`}>
+                                      <Eye className="w-4 h-4 mr-2" />
+                                      View Project
+                                    </Link>
+                                  </DropdownMenuItem>
+
+                                  <DropdownMenuSeparator />
+
+                                  {project.status !== 'featured' && (
+                                    <DropdownMenuItem
+                                      onClick={() => handleStatusChange(project.id, 'featured')}
+                                    >
+                                      <Star className="w-4 h-4 mr-2 text-orange-500" />
+                                      Feature Project
+                                    </DropdownMenuItem>
+                                  )}
+
+                                  {project.status === 'featured' && (
+                                    <DropdownMenuItem
+                                      onClick={() => handleStatusChange(project.id, 'active')}
+                                    >
+                                      <StarOff className="w-4 h-4 mr-2" />
+                                      Remove Feature
+                                    </DropdownMenuItem>
+                                  )}
+
+                                  {project.status !== 'active' && project.status !== 'featured' && (
+                                    <DropdownMenuItem
+                                      onClick={() => handleStatusChange(project.id, 'active')}
+                                    >
+                                      <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                                      Activate
+                                    </DropdownMenuItem>
+                                  )}
+
+                                  {project.status !== 'archived' && (
+                                    <DropdownMenuItem
+                                      onClick={() => handleStatusChange(project.id, 'archived')}
+                                    >
+                                      <Archive className="w-4 h-4 mr-2" />
+                                      Archive
+                                    </DropdownMenuItem>
+                                  )}
+
+                                  <DropdownMenuSeparator />
+
+                                  <DropdownMenuItem
+                                    className="text-red-600 focus:text-red-600"
+                                    onClick={() => setDeleteDialog({ isOpen: true, project })}
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete Project
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
                           </div>
-
-                          {/* Stats */}
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <ArrowUp className="w-4 h-4" />
-                              <span>{project.upvotes_count}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <MessageCircle className="w-4 h-4" />
-                              <span>{project.comments_count}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              <span>{new Date(project.created_at).toLocaleDateString()}</span>
-                            </div>
-                          </div>
-
-                          {/* Actions */}
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={actionLoading === project.id}
-                              >
-                                {actionLoading === project.id ? (
-                                  <RefreshCw className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <MoreVertical className="w-4 h-4" />
-                                )}
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem asChild>
-                                <Link to={`/project/${project.id}`}>
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  View Project
-                                </Link>
-                              </DropdownMenuItem>
-
-                              <DropdownMenuSeparator />
-
-                              {project.status !== 'featured' && (
-                                <DropdownMenuItem
-                                  onClick={() => handleStatusChange(project.id, 'featured')}
-                                >
-                                  <Star className="w-4 h-4 mr-2 text-orange-500" />
-                                  Feature Project
-                                </DropdownMenuItem>
-                              )}
-
-                              {project.status === 'featured' && (
-                                <DropdownMenuItem
-                                  onClick={() => handleStatusChange(project.id, 'active')}
-                                >
-                                  <StarOff className="w-4 h-4 mr-2" />
-                                  Remove Feature
-                                </DropdownMenuItem>
-                              )}
-
-                              {project.status !== 'active' && project.status !== 'featured' && (
-                                <DropdownMenuItem
-                                  onClick={() => handleStatusChange(project.id, 'active')}
-                                >
-                                  <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
-                                  Activate
-                                </DropdownMenuItem>
-                              )}
-
-                              {project.status !== 'archived' && (
-                                <DropdownMenuItem
-                                  onClick={() => handleStatusChange(project.id, 'archived')}
-                                >
-                                  <Archive className="w-4 h-4 mr-2" />
-                                  Archive
-                                </DropdownMenuItem>
-                              )}
-
-                              <DropdownMenuSeparator />
-
-                              <DropdownMenuItem
-                                className="text-red-600 focus:text-red-600"
-                                onClick={() => setDeleteDialog({ isOpen: true, project })}
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Delete Project
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
                         </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-muted/10 rounded-lg border-2 border-dashed border-border/50">
+                  <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">
+                    No projects found
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {searchQuery
+                      ? 'Try adjusting your search query'
+                      : `No ${activeTab === 'all' ? '' : activeTab} projects to display`}
+                  </p>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="text-center py-12 bg-muted/10 rounded-lg border-2 border-dashed border-border/50">
-              <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">
-                No projects found
-              </h3>
-              <p className="text-muted-foreground">
-                {searchQuery
-                  ? 'Try adjusting your search query'
-                  : `No ${activeTab === 'all' ? '' : activeTab} projects to display`}
-              </p>
-            </div>
-          )}
-        </div>
+          </>
+        )}
+
+        {/* Reports Tab */}
+        {adminTab === 'reports' && <ReportsTab />}
+
+        {/* Comments Tab */}
+        {adminTab === 'comments' && <CommentsTab />}
+
+        {/* Users Tab */}
+        {adminTab === 'users' && <UsersTab />}
       </div>
 
       {/* Delete Confirmation Modal */}

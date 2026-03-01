@@ -105,6 +105,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const cached = !force ? getCachedProfile() : null
       if (cached) {
+        // Always recheck suspension status from DB — cache could be stale
+        const { data: freshCheck } = await supabase
+          .from('users')
+          .select('suspended_at')
+          .eq('id', user.id)
+          .single()
+
+        if (freshCheck?.suspended_at) {
+          clearCachedProfile()
+          await supabase.auth.signOut()
+          if (mountedRef.current) {
+            setState({
+              user: null,
+              profile: null,
+              session: null,
+              loading: false,
+              error: 'Your account has been suspended. Contact an administrator.'
+            })
+          }
+          return
+        }
+
         setState(prev => ({ ...prev, profile: cached, error: null, loading: false }))
         return
       }
@@ -183,6 +205,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           loading: false
         }))
       } else if (data) {
+        // Block suspended users
+        if (data.suspended_at) {
+          await supabase.auth.signOut()
+          clearCachedProfile()
+          if (mountedRef.current) {
+            setState({
+              user: null,
+              profile: null,
+              session: null,
+              loading: false,
+              error: 'Your account has been suspended. Contact an administrator.'
+            })
+          }
+          return
+        }
+
         setCachedProfile(data)
         setState(prev => ({
           ...prev,

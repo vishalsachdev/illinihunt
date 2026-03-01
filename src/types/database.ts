@@ -351,6 +351,60 @@ export type Database = {
           },
         ]
       }
+      reports: {
+        Row: {
+          id: string
+          reporter_id: string
+          target_type: string
+          target_id: string
+          reason: string
+          details: string | null
+          status: string
+          resolved_by: string | null
+          resolved_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          reporter_id: string
+          target_type: string
+          target_id: string
+          reason: string
+          details?: string | null
+          status?: string
+          resolved_by?: string | null
+          resolved_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          reporter_id?: string
+          target_type?: string
+          target_id?: string
+          reason?: string
+          details?: string | null
+          status?: string
+          resolved_by?: string | null
+          resolved_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           avatar_url: string | null
@@ -363,6 +417,7 @@ export type Database = {
           id: string
           is_verified: boolean | null
           linkedin_url: string | null
+          suspended_at: string | null
           updated_at: string | null
           username: string | null
           website_url: string | null
@@ -379,6 +434,7 @@ export type Database = {
           id: string
           is_verified?: boolean | null
           linkedin_url?: string | null
+          suspended_at?: string | null
           updated_at?: string | null
           username?: string | null
           website_url?: string | null
@@ -395,6 +451,7 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           linkedin_url?: string | null
+          suspended_at?: string | null
           updated_at?: string | null
           username?: string | null
           website_url?: string | null
