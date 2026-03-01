@@ -8,6 +8,7 @@ import { rankByTrending, periodLabel, MIN_TRENDING_POOL_SIZE, type TrendingPerio
 import { ProjectCard } from '@/components/project/ProjectCard'
 import { Button } from '@/components/ui/button'
 import { Flame, TrendingUp, Clock, Calendar, Infinity, ArrowRight } from 'lucide-react'
+import { RankBadge } from '@/components/shared/RankBadge'
 import { formatDistance } from 'date-fns'
 
 type TrendingProject = {
@@ -246,20 +247,7 @@ export function TrendingPage() {
                     to={`/project/${project.id}`}
                     className="group relative glass-premium rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 cursor-pointer hover:scale-[1.02]"
                   >
-                    {/* Rank Badge */}
-                    <div className="absolute top-4 left-4 z-10">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-lg ${
-                          index === 0
-                            ? 'bg-gradient-to-br from-yellow-400 to-orange-500 shadow-yellow-500/30'
-                            : index === 1
-                              ? 'bg-gradient-to-br from-slate-300 to-slate-500 shadow-slate-400/30'
-                              : 'bg-gradient-to-br from-amber-600 to-amber-800 shadow-amber-600/30'
-                        }`}
-                      >
-                        {index + 1}
-                      </div>
-                    </div>
+                    <RankBadge index={index} />
 
                     <div className="p-6 pt-14">
                       <div className="flex items-start justify-between mb-4">

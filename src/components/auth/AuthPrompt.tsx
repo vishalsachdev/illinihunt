@@ -3,8 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/hooks/useAuth'
 import { Lock, X } from 'lucide-react'
-
-const ILLINOIS_DOMAIN = 'illinois.edu'
+import { ILLINOIS_DOMAIN } from '@/lib/constants'
 
 function isValidIllinoisEmail(email: string) {
   return email.toLowerCase().endsWith(`@${ILLINOIS_DOMAIN}`)

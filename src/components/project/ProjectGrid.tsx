@@ -5,6 +5,7 @@ import { useCategories } from '@/hooks/useCategories'
 import { useAuth } from '@/hooks/useAuth'
 import { ProjectsService } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
+import { DEFAULT_CATEGORY_COLOR } from '@/lib/constants'
 import { ProjectCard } from './ProjectCard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -315,7 +316,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
                       <div className="flex items-center gap-2">
                         <div
                           className="w-4 h-4 rounded-full flex items-center justify-center"
-                          style={{ backgroundColor: category.color || '#6B7280' }}
+                          style={{ backgroundColor: category.color || DEFAULT_CATEGORY_COLOR }}
                         >
                           <CategoryIcon 
                             iconName={category.icon} 

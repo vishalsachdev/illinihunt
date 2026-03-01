@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { getErrorMessage, showToast } from '@/components/ui/toast'
 import { formatDistance } from 'date-fns'
+import { DEFAULT_CATEGORY_COLOR } from '@/lib/constants'
 import type { Database } from '@/types/database'
 
 type BookmarkRow = Database['public']['Views']['user_bookmarks_with_projects']['Row']
@@ -134,7 +135,7 @@ export function BookmarksPage() {
                   {bookmark.category_name && (
                     <span
                       className="rounded-full px-2 py-1 text-xs font-medium text-white"
-                      style={{ backgroundColor: bookmark.category_color || '#6B7280' }}
+                      style={{ backgroundColor: bookmark.category_color || DEFAULT_CATEGORY_COLOR }}
                     >
                       {bookmark.category_name}
                     </span>

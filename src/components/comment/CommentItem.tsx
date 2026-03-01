@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { CommentForm } from './CommentForm'
 import { Link } from 'react-router-dom'
 import { sanitizeContent } from '@/lib/sanitize'
+import { MAX_THREAD_DEPTH } from '@/lib/constants'
 import {
   MessageCircle,
   Heart,
@@ -22,22 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-
-interface CommentData {
-  id: string
-  content: string
-  created_at: string | null
-  updated_at: string | null
-  likes_count: number | null
-  thread_depth: number | null
-  is_deleted: boolean | null
-  users: {
-    id: string
-    username: string | null
-    full_name: string | null
-    avatar_url: string | null
-  } | null
-}
+import type { CommentData } from '@/types/comment'
 
 interface CommentItemProps {
   comment: CommentData
@@ -73,7 +59,7 @@ export function CommentItem({
 
   const isOwner = user && comment.users && user.id === comment.users.id
 
-  const canReply = (comment.thread_depth ?? 0) < 3 // Max 3 levels deep
+  const canReply = (comment.thread_depth ?? 0) < MAX_THREAD_DEPTH
 
   const checkLikeStatus = useCallback(async () => {
     if (!comment.id) return

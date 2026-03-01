@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState, ReactNode, useCallback,
 import { User, Session, type PostgrestError } from '@supabase/supabase-js'
 import { z } from 'zod'
 import { supabase } from '@/lib/supabase'
+import { ILLINOIS_DOMAIN } from '@/lib/constants'
 import type { Database } from '@/types/database'
 
 // Type for user profile from database
@@ -30,7 +31,6 @@ const PROFILE_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 const AUTH_CHECK_TIMEOUT = 5000
 const MAX_PROFILE_RETRIES = 3
 const PROFILE_RETRY_BASE_DELAY = 500
-const ILLINOIS_DOMAIN = 'illinois.edu'
 
 const CachedProfileSchema = z.object({
   profile: z.object({

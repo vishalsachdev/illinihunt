@@ -1,5 +1,6 @@
 import { useCategories } from '@/hooks/useCategories'
 import { CategoryIcon } from '@/lib/categoryIcons'
+import { DEFAULT_CATEGORY_COLOR } from '@/lib/constants'
 import { memo } from 'react'
 
 export type Category = {
@@ -48,7 +49,7 @@ const CategoryPreviewComponent = ({ onSelect }: CategoryPreviewProps) => {
             >
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300"
-                style={{ backgroundColor: category.color || '#6B7280' }}
+                style={{ backgroundColor: category.color || DEFAULT_CATEGORY_COLOR }}
               >
                 <CategoryIcon iconName={category.icon} className="w-6 h-6" fallback={category.name} />
               </div>

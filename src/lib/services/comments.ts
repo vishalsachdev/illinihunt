@@ -1,8 +1,7 @@
 import { supabase } from '../supabase'
 import { requireAuth } from './auth-helpers'
 import { COMMENT_WITH_USER_SELECT } from './query-constants'
-
-const MAX_THREAD_DEPTH = 3
+import { MAX_THREAD_DEPTH } from '@/lib/constants'
 
 export class CommentsService {
   static async getProjectComments(projectId: string) {

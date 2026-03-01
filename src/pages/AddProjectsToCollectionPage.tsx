@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { getErrorMessage, showToast } from '@/components/ui/toast'
 import { ArrowLeft, Check, Plus, Search } from 'lucide-react'
+import { DEFAULT_CATEGORY_COLOR } from '@/lib/constants'
 import type { Database } from '@/types/database'
 
 type CollectionProject = {
@@ -243,7 +244,7 @@ export function AddProjectsToCollectionPage() {
                     {project.categories && (
                       <span
                         className="rounded-full px-2 py-1 text-xs font-medium text-white"
-                        style={{ backgroundColor: project.categories.color || '#6B7280' }}
+                        style={{ backgroundColor: project.categories.color || DEFAULT_CATEGORY_COLOR }}
                       >
                         {project.categories.name}
                       </span>

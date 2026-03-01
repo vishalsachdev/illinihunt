@@ -4,7 +4,8 @@ import { useAdminAuth } from '@/hooks/useAdminAuth'
 import { AdminService, type AdminProject, type PlatformStats, type ProjectStatus } from '@/lib/adminService'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
+import { StatCard } from '@/components/shared/StatCard'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
 import { DeleteProjectModal } from '@/components/project/DeleteProjectModal'
@@ -189,75 +190,13 @@ export function AdminDashboardPage() {
           {/* Stats Cards */}
           {stats && (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-                  <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalProjects}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active</CardTitle>
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-green-600">{stats.activeProjects}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Featured</CardTitle>
-                  <Star className="h-4 w-4 text-orange-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-orange-600">{stats.featuredProjects}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Archived</CardTitle>
-                  <Archive className="h-4 w-4 text-gray-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-600">{stats.archivedProjects}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Users</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalUsers}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Upvotes</CardTitle>
-                  <ArrowUp className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalUpvotes}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Comments</CardTitle>
-                  <MessageCircle className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalComments}</div>
-                </CardContent>
-              </Card>
+              <StatCard title="Total Projects" value={stats.totalProjects} icon={BarChart3} />
+              <StatCard title="Active" value={stats.activeProjects} icon={CheckCircle} iconClassName="text-green-500" valueClassName="text-green-600" />
+              <StatCard title="Featured" value={stats.featuredProjects} icon={Star} iconClassName="text-orange-500" valueClassName="text-orange-600" />
+              <StatCard title="Archived" value={stats.archivedProjects} icon={Archive} iconClassName="text-gray-500" valueClassName="text-gray-600" />
+              <StatCard title="Users" value={stats.totalUsers} icon={Users} />
+              <StatCard title="Upvotes" value={stats.totalUpvotes} icon={ArrowUp} />
+              <StatCard title="Comments" value={stats.totalComments} icon={MessageCircle} />
             </div>
           )}
         </div>
