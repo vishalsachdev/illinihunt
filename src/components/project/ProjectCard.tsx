@@ -1,15 +1,17 @@
 import { useState, memo } from 'react'
 import { formatDistance } from 'date-fns'
-import { ExternalLink, MessageCircle } from 'lucide-react'
+import { ExternalLink, MessageCircle, Flag } from 'lucide-react'
 import { CategoryIcon } from '@/lib/categoryIcons'
 import { Link } from 'react-router-dom'
 import { VoteButton } from './VoteButton'
 import { BookmarkButton } from './BookmarkButton'
 import { AddToCollectionButton } from './AddToCollectionButton'
+import { ReportModal } from '@/components/moderation/ReportModal'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { sanitizeContent, sanitizeUrl } from '@/lib/sanitize'
 import { DEFAULT_CATEGORY_COLOR } from '@/lib/constants'
+import { useAuth } from '@/hooks/useAuth'
 import type { UserInfo, CategoryInfo } from '@/types/project'
 
 interface ProjectData {
@@ -40,6 +42,8 @@ interface ProjectCardProps {
  */
 const ProjectCardComponent = ({ project }: ProjectCardProps) => {
   const [imageError, setImageError] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
+  const { user: authUser } = useAuth()
   const user = project.users
   const category = project.categories
 
@@ -180,6 +184,20 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
               size="sm"
               className="text-muted-foreground hover:text-uiuc-orange"
             />
+            {authUser && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-red-500 h-8 w-8 p-0"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setReportOpen(true)
+                }}
+              >
+                <Flag className="w-3 h-3" />
+              </Button>
+            )}
           </div>
         </div>
 
@@ -195,6 +213,14 @@ const ProjectCardComponent = ({ project }: ProjectCardProps) => {
           </Link>
         </Button>
       </div>
+
+      <ReportModal
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetType="project"
+        targetId={project.id}
+        targetName={project.name}
+      />
     </div>
   )
 }
