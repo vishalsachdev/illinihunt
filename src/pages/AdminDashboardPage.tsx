@@ -9,6 +9,8 @@ import { StatCard } from '@/components/shared/StatCard'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
 import { DeleteProjectModal } from '@/components/project/DeleteProjectModal'
+import { CommentsTab } from '@/components/admin/CommentsTab'
+import { ReportsTab } from '@/components/admin/ReportsTab'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import {
   DropdownMenu,
@@ -433,13 +435,7 @@ export function AdminDashboardPage() {
         )}
 
         {/* Comments Tab */}
-        {adminTab === 'comments' && (
-          <div className="text-center py-12 bg-muted/10 rounded-lg border-2 border-dashed border-border/50">
-            <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Comments</h3>
-            <p className="text-muted-foreground">Comments tab coming soon</p>
-          </div>
-        )}
+        {adminTab === 'comments' && <CommentsTab />}
 
         {/* Users Tab */}
         {adminTab === 'users' && (
