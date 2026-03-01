@@ -55,7 +55,7 @@ export function ProjectGrid({ selectedCategory: externalCategory }: ProjectGridP
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>(externalCategory || 'all')
-  const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'trending'>('trending')
+  const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'trending'>('recent')
 
   // Real-time vote updates
   const { getVoteData } = useRealtimeVotesContext()
