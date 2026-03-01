@@ -26,7 +26,7 @@ interface UseRealtimeVotesProps {
  * Performance improvements:
  * - Uses useCallback to memoize handlers and prevent unnecessary subscription recreations
  * - Properly manages channel cleanup to prevent memory leaks
- * - Silently handles errors to avoid console noise
+ * - Logs errors in DEV mode for debugging
  */
 export function useRealtimeVotes({ 
   onVoteCountChange, 
@@ -161,7 +161,6 @@ export function useRealtimeVotes({
         // Subscribe to both channels with consistent error handling
         const subscribePromises = channelsRef.current.map(channel => {
           return new Promise<void>((resolve, reject) => {
-            // Fixed: Use consistent channel key naming pattern - lines 108-112
             const channelName = channel.topic
             
             channel.subscribe((status) => {
@@ -180,7 +179,9 @@ export function useRealtimeVotes({
         setIsConnected(true)
 
       } catch (error) {
-        // Silently handle realtime setup errors to avoid console noise
+        if (import.meta.env.DEV) {
+          console.error('Realtime subscription setup failed:', error)
+        }
         setIsConnected(false)
       }
     }
@@ -193,7 +194,9 @@ export function useRealtimeVotes({
         try {
           supabase.removeChannel(channel)
         } catch (error) {
-          // Silently handle channel cleanup errors
+          if (import.meta.env.DEV) {
+            console.error('Channel cleanup error:', error)
+          }
         }
       })
       channelsRef.current = []

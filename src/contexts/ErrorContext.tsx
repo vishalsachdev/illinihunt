@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, ReactNode, useCallback } from 'react'
+import { createContext, useContext, ReactNode, useCallback, useMemo } from 'react'
 import { showToast, getErrorMessage } from '@/components/ui/toast'
 
 interface ErrorContextType {
@@ -52,8 +52,9 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
   ) => {
     const message = getErrorMessage(error)
     
-    // Always log error for debugging
-    console.error(`Error in ${context}:`, error)
+    if (import.meta.env.DEV) {
+      console.error(`Error in ${context}:`, error)
+    }
     
     // Show to user unless explicitly disabled
     if (options.showToUser !== false) {
@@ -72,7 +73,9 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
     retry?: () => void
   ) => {
     const message = getErrorMessage(error)
-    console.error(`Service error during ${operation}:`, error)
+    if (import.meta.env.DEV) {
+      console.error(`Service error during ${operation}:`, error)
+    }
     
     // Check if it's a network error
     if (message.toLowerCase().includes('network') || 
@@ -93,7 +96,9 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
     customMessage?: string
   ) => {
     const message = getErrorMessage(error)
-    console.error('Authentication error:', error)
+    if (import.meta.env.DEV) {
+      console.error('Authentication error:', error)
+    }
     
     if (customMessage) {
       showToast.authError(customMessage)
@@ -112,7 +117,9 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
     formName: string = 'form'
   ) => {
     const message = getErrorMessage(error)
-    console.error(`Form error in ${formName}:`, error)
+    if (import.meta.env.DEV) {
+      console.error(`Form error in ${formName}:`, error)
+    }
     
     showToast.error(`${formName} error`, {
       description: message,
@@ -128,14 +135,14 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
     showToast.info(message, description)
   }, [])
 
-  const value: ErrorContextType = {
+  const value = useMemo<ErrorContextType>(() => ({
     handleError,
     handleServiceError,
     handleAuthError,
     handleFormError,
     showSuccess,
     showInfo,
-  }
+  }), [handleError, handleServiceError, handleAuthError, handleFormError, showSuccess, showInfo])
 
   return (
     <ErrorContext.Provider value={value}>
