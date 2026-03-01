@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useCallback, ReactNode, useMemo, useRef, useEffect } from 'react'
+import { createContext, useContext, useState, useCallback, ReactNode, useMemo } from 'react'
 import { useRealtimeVotes } from '@/hooks/useRealtimeVotes'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -42,11 +42,6 @@ interface RealtimeVotesProviderProps {
 export function RealtimeVotesProvider({ children }: RealtimeVotesProviderProps) {
   const { user } = useAuth()
   const [voteData, setVoteData] = useState<Map<string, VoteData>>(new Map())
-  const voteDataRef = useRef(voteData)
-
-  useEffect(() => {
-    voteDataRef.current = voteData
-  }, [voteData])
 
   const handleVoteCountChange = useCallback((change: { projectId: string; newCount: number }) => {
     setVoteData(prev => updateVoteMap(prev, change.projectId, { count: change.newCount }))
@@ -75,8 +70,8 @@ export function RealtimeVotesProvider({ children }: RealtimeVotesProviderProps) 
   })
 
   const getVoteData = useCallback((projectId: string): VoteData | null => {
-    return voteDataRef.current.get(projectId) || null
-  }, [])
+    return voteData.get(projectId) || null
+  }, [voteData])
 
   const updateVoteCount = useCallback((projectId: string, count: number) => {
     setVoteData(prev => updateVoteMap(prev, projectId, { count }))
