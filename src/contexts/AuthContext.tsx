@@ -30,6 +30,7 @@ const PROFILE_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 const AUTH_CHECK_TIMEOUT = 5000
 const MAX_PROFILE_RETRIES = 3
 const PROFILE_RETRY_BASE_DELAY = 500
+const POSTGRES_UNIQUE_VIOLATION = '23505'
 
 const CachedProfileSchema = z.object({
   profile: z.object({
@@ -181,6 +182,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .single()
 
         if (createError) {
+          // Race condition: another concurrent call (e.g. onAuthStateChange SIGNED_IN
+          // firing alongside restoreSession) already inserted the profile.
+          // Fetch the existing row instead of surfacing an error.
+          if (createError.code === POSTGRES_UNIQUE_VIOLATION) {
+            const { data: existingProfile, error: fetchError } = await supabase
+              .from('users')
+              .select('*')
+              .eq('id', user.id)
+              .single()
+
+            if (!mountedRef.current) return
+
+            if (fetchError || !existingProfile) {
+              setState(prev => ({
+                ...prev,
+                profile: null,
+                error: `Failed to load profile: ${fetchError?.message ?? 'Unknown error'}`,
+                loading: false
+              }))
+              return
+            }
+
+            setCachedProfile(existingProfile)
+            setState(prev => ({
+              ...prev,
+              profile: existingProfile,
+              error: null,
+              loading: false
+            }))
+            return
+          }
+
           setState(prev => ({
             ...prev,
             profile: null,
