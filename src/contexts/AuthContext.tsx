@@ -99,10 +99,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (profileLoadingRef.current && !force) return
     profileLoadingRef.current = true
 
-    if (import.meta.env.DEV) {
-      console.log('Loading user profile for:', user.email)
-    }
-
     try {
       const cached = !force ? getCachedProfile() : null
       if (cached) {
@@ -329,10 +325,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mountedRef.current) return
-
-      if (import.meta.env.DEV) {
-        console.log('Auth state change:', event, session?.user?.email)
-      }
 
       if (event === 'SIGNED_IN' && session?.user) {
         setState(prev => ({

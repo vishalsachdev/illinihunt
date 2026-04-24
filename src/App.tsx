@@ -94,15 +94,6 @@ function AppContent() {
   const { user, error, loading, retryAuth } = useAuth()
   const { isAdmin } = useAdminAuth()
 
-  // Debug auth state in development
-  if (import.meta.env.DEV) {
-    console.log('App auth state:', {
-      user: user?.email,
-      loading,
-      error: error?.substring(0, 50)
-    })
-  }
-
   // Show error state with retry option if auth fails
   if (error && error.includes('timed out')) {
     return (
