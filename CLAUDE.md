@@ -65,7 +65,7 @@ mcp__supabase__apply_migration({ project_id: "catzwowmxluzwbhdyhnf", name: "..."
 ## Session Log
 ### 2026-04-29
 - Completed: Resolved issue #76 (Chalkwise DNS via Cloudflare API — DKIM/SPF/MX records added; closed). Updated `chiconnect.illinihunt.org` redirect target in `illinihunt-reverse-proxy` Worker (line 52 of `SUBDOMAIN_MAP`) to `https://lgluck28.github.io/connect-my-tribe-landing/`. Patched the Worker's URL-resolution logic so full-URL targets preserve their pathname (was stripping to origin) — uses `new URL((url.pathname + url.search).replace(/^\//, ""), targetBase).href`. Committed AGENTS.md additions (Claude memory lookup + external-action approval policy).
-- Next: Testing framework, accessibility coverage. Move `illinihunt-reverse-proxy` worker source into a tracked repo (currently only edited via Cloudflare dashboard).
+- Next: Testing framework, accessibility coverage. Move `illinihunt-reverse-proxy` worker source into a tracked repo (currently only edited via Cloudflare dashboard). **Token TODO:** add `Account → Cloudflare Pages → Edit` permission to CF_API_TOKEN (id `1e0d2b7336fe37a907ddee3d39939beb`) for account `e64cab2cda0c00bba0784e6cd56e36c6` — currently DNS-only scope, can't manage Pages or Workers via API.
 
 *Older entries archived to `docs/session-archive.md`.*
 
