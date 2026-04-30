@@ -63,10 +63,9 @@ mcp__supabase__apply_migration({ project_id: "catzwowmxluzwbhdyhnf", name: "..."
 - [ ] See: [Improvement Roadmap](docs/IMPROVEMENT_ROADMAP.md) for full details
 
 ## Session Log
-### 2026-04-29
-- Completed: Resolved issue #76 (Chalkwise DNS via Cloudflare API — DKIM/SPF/MX records added; closed). Updated `chiconnect.illinihunt.org` redirect target in `illinihunt-reverse-proxy` Worker (line 52 of `SUBDOMAIN_MAP`) to `https://lgluck28.github.io/connect-my-tribe-landing/`. Patched the Worker's URL-resolution logic so full-URL targets preserve their pathname (was stripping to origin) — uses `new URL((url.pathname + url.search).replace(/^\//, ""), targetBase).href`. Committed AGENTS.md additions (Claude memory lookup + external-action approval policy).
-- Also completed (cross-cutting infra work in `~/admin/agent-infra`): audited and renamed all 7 Cloudflare API tokens (e.g. `worker-dns` → `cf-workers-and-dns`; flagged orphan `ZZ-orphan-never-used-DELETE`); created `cf-backup-readonly` token; set up monthly Cloudflare config snapshot via private repo `vishalsachdev/agent-infra` GH Actions workflow → `cloudflare-snapshots/YYYY-MM-DD/` (first snapshot captured 81 DNS records, 5 worker scripts, 8 Pages projects). Full registry + protocol in `~/admin/agent-infra/{cloudflare-tokens.md, cloudflare-backup.md}`.
-- Next: Testing framework, accessibility coverage. Move `illinihunt-reverse-proxy` worker source into a tracked repo (currently only edited via Cloudflare dashboard). **CF token cleanup carry-over:** `cf-illinihunt-zone-and-pages` (= `CF_API_TOKEN`) has a phantom IP filter the dashboard can't clear — agentlab `wrangler pages deploy` from CI/cloud will fail until the token is rolled or recreated. See `~/admin/agent-infra/cloudflare-tokens.md` "Outstanding" for remediation options. Also delete the orphan `ZZ-orphan-never-used-DELETE` token.
+### 2026-04-30
+- Completed: Bumped `agent-infra` Cloudflare backup workflow from monthly to weekly (Sundays 07:00 UTC) — reduces drift between dashboard edits and snapshots, since the `illinihunt-reverse-proxy` Worker is still dashboard-edited. `workflow_dispatch` retained for ad-hoc post-edit snapshots. Cleaned stale stashes (filter-branch reflog artifact + obsolete Aug-2025 useRealtimeVotes WIP).
+- Next: Testing framework + accessibility coverage for collection flows. Carry-overs: (a) move `illinihunt-reverse-proxy` Worker source into a tracked repo with `wrangler deploy`; (b) recreate or roll `cf-illinihunt-zone-and-pages` token to clear phantom IP filter blocking CI `wrangler pages deploy`; (c) delete orphan `ZZ-orphan-never-used-DELETE` token.
 
 *Older entries archived to `docs/session-archive.md`.*
 
