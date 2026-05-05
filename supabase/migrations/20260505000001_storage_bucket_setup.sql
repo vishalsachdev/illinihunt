@@ -10,7 +10,10 @@ VALUES (
 ON CONFLICT (id) DO NOTHING;
 
 -- Drop-and-recreate policies so this migration is idempotent against any
--- pre-existing dashboard-created policies on storage.objects.
+-- pre-existing dashboard-created policies on storage.objects. The legacy
+-- "Anyone can view project images" SELECT policy is also dropped to avoid
+-- leaving a duplicate read policy alongside the new one below.
+DROP POLICY IF EXISTS "Anyone can view project images" ON storage.objects;
 DROP POLICY IF EXISTS "Authenticated users can upload project images" ON storage.objects;
 DROP POLICY IF EXISTS "Project images are publicly accessible" ON storage.objects;
 DROP POLICY IF EXISTS "Users can update their own project images" ON storage.objects;
