@@ -3,7 +3,7 @@ import { Button } from './button'
 import { Input } from './input'
 import { Label } from './label'
 import { Upload, X, AlertCircle } from 'lucide-react'
-import { uploadProjectImage, compressImage, type ImageUploadResult } from '@/lib/imageUpload'
+import { uploadProjectImage, compressImage, RAW_INPUT_MAX_BYTES, type ImageUploadResult } from '@/lib/imageUpload'
 import { useAuth } from '@/hooks/useAuth'
 
 interface ImageUploadProps {
@@ -28,6 +28,12 @@ export function ImageUpload({
   const handleFileSelect = async (file: File) => {
     if (!user) {
       setError('You must be logged in to upload images')
+      return
+    }
+
+    if (file.size > RAW_INPUT_MAX_BYTES) {
+      const mb = Math.round(RAW_INPUT_MAX_BYTES / (1024 * 1024))
+      setError(`Image is too large. Please choose a file under ${mb} MB — it will be compressed automatically before upload.`)
       return
     }
 
@@ -146,7 +152,7 @@ export function ImageUpload({
                   Click to upload or drag and drop
                 </p>
                 <p className="text-xs text-gray-500">
-                  PNG, JPG, WebP or GIF (max 5MB)
+                  PNG, JPG, WebP or GIF (large images are compressed automatically)
                 </p>
               </div>
             </div>
