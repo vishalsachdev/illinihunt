@@ -122,25 +122,38 @@ export function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promi
         canvas.width = img.width * ratio
         canvas.height = img.height * ratio
 
-        // Draw compressed image
+        // Draw onto canvas
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
 
-        // Convert to blob and create new file
+        // Re-encode as WebP. WebP supports transparency (preserves logos)
+        // and applies the quality argument to all sources, unlike PNG where
+        // the quality arg is ignored and the output stays uncompressed.
+        // GIFs are passed through unchanged so animation isn't lost.
+        if (file.type === 'image/gif') {
+          clearTimeout(timeout)
+          cleanup()
+          resolve(file)
+          return
+        }
+
+        const outputType = 'image/webp'
+        const outputName = file.name.replace(/\.[^.]+$/, '') + '.webp'
+
         canvas.toBlob(
           (blob) => {
             clearTimeout(timeout)
             cleanup()
-            if (blob) {
-              const compressedFile = new File([blob], file.name, {
-                type: file.type,
+            if (blob && blob.size < file.size) {
+              resolve(new File([blob], outputName, {
+                type: outputType,
                 lastModified: Date.now()
-              })
-              resolve(compressedFile)
+              }))
             } else {
+              // WebP encode unavailable or made the file larger — keep original
               resolve(file)
             }
           },
-          file.type,
+          outputType,
           quality
         )
       } catch (err) {
