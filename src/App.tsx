@@ -17,6 +17,7 @@ import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { RealtimeVotesProvider } from '@/contexts/RealtimeVotesContext'
 import { GitHubPopupButton } from '@/components/GitHubPopupButton'
+import { setSentryUser } from '@/lib/sentry'
 
 // Lazy load all pages for code splitting
 const HomePage = lazy(() => import('@/pages/HomePage').then(module => ({ default: module.HomePage })))
@@ -96,9 +97,7 @@ function AppContent() {
 
   // Tag Sentry events with the current user (id + username only, no PII)
   useEffect(() => {
-    void import('@/lib/sentry').then(({ setSentryUser }) => {
-      setSentryUser(user ? { id: user.id, username: profile?.username ?? null } : null)
-    })
+    setSentryUser(user ? { id: user.id, username: profile?.username ?? null } : null)
   }, [user, profile])
 
   // Show error state with retry option if auth fails
