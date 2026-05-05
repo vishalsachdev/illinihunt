@@ -91,8 +91,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 }
 
 function AppContent() {
-  const { user, error, loading, retryAuth } = useAuth()
+  const { user, profile, error, loading, retryAuth } = useAuth()
   const { isAdmin } = useAdminAuth()
+
+  // Tag Sentry events with the current user (id + username only, no PII)
+  useEffect(() => {
+    void import('@/lib/sentry').then(({ setSentryUser }) => {
+      setSentryUser(user ? { id: user.id, username: profile?.username ?? null } : null)
+    })
+  }, [user, profile])
 
   // Show error state with retry option if auth fails
   if (error && error.includes('timed out')) {

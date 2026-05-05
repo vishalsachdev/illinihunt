@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, ReactNode, useCallback, useMemo } from 'react'
 import { showToast, getErrorMessage } from '@/components/ui/toast'
+import { captureError } from '@/lib/sentry'
 
 interface ErrorContextType {
   // Handle different types of errors with appropriate UI feedback
@@ -55,7 +56,8 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
     if (import.meta.env.DEV) {
       console.error(`Error in ${context}:`, error)
     }
-    
+    captureError(error, { operation: context })
+
     // Show to user unless explicitly disabled
     if (options.showToUser !== false) {
       showToast.error(`Failed to ${context}`, {
@@ -68,7 +70,7 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
   }, [])
 
   const handleServiceError = useCallback((
-    error: unknown, 
+    error: unknown,
     operation: string,
     retry?: () => void
   ) => {
@@ -76,6 +78,7 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
     if (import.meta.env.DEV) {
       console.error(`Service error during ${operation}:`, error)
     }
+    captureError(error, { operation })
     
     // Check if it's a network error
     if (message.toLowerCase().includes('network') || 
@@ -120,7 +123,8 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
     if (import.meta.env.DEV) {
       console.error(`Form error in ${formName}:`, error)
     }
-    
+    captureError(error, { operation: formName })
+
     showToast.error(`${formName} error`, {
       description: message,
       debugInfo: import.meta.env.DEV ? JSON.stringify(error) : undefined,
