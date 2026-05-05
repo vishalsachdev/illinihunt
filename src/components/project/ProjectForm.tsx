@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { AlertCircle } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useCategories } from '@/hooks/useCategories'
 import { useError } from '@/contexts/ErrorContext'
 import { ProjectsService } from '@/lib/database'
+import { compressImage, uploadProjectImage } from '@/lib/imageUpload'
 import { projectSchema, type ProjectFormData } from '@/lib/validations'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ImageUpload } from '@/components/ui/ImageUpload'
+import { ImageUpload, type ImagePickerValue } from '@/components/ui/ImageUpload'
 import { CategoryIcon } from '@/lib/categoryIcons'
 import type { Database } from '@/types/database'
 
@@ -31,19 +33,40 @@ interface ProjectFormProps {
   onCancel?: () => void
 }
 
+type SubmitStage = 'compressing' | 'uploading' | 'saving'
+
+const STAGE_LABEL: Record<SubmitStage, string> = {
+  compressing: 'Preparing image…',
+  uploading: 'Uploading image…',
+  saving: 'Saving project…',
+}
+
+const FIELD_LABEL: Record<keyof ProjectFormData, string> = {
+  name: 'project name',
+  tagline: 'tagline',
+  description: 'description',
+  category_id: 'category',
+  website_url: 'website URL',
+  github_url: 'GitHub URL',
+  video_url: 'YouTube URL',
+  image_url: 'image',
+}
+
 export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess, onCancel }: ProjectFormProps) {
   const { user } = useAuth()
   const { categories, loading: loadingCategories } = useCategories()
   const { handleFormError, handleAuthError, showSuccess } = useError()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [imageUrl, setImageUrl] = useState<string>('')
+  const [stage, setStage] = useState<SubmitStage | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [image, setImage] = useState<ImagePickerValue>({ kind: 'empty' })
 
   const {
     register,
     handleSubmit,
     reset,
     control,
-    formState: { errors }
+    formState: { errors, submitCount }
   } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema)
   })
@@ -60,7 +83,11 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
         github_url: initialData.github_url || '',
         video_url: initialData.video_url || ''
       })
-      setImageUrl(initialData.image_url || '')
+      setImage(
+        initialData.image_url
+          ? { kind: 'existing', url: initialData.image_url }
+          : { kind: 'empty' }
+      )
     }
   }, [mode, initialData, reset])
 
@@ -70,14 +97,34 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
       return
     }
 
+    setSubmitError(null)
     setIsSubmitting(true)
-    
+    setStage(null)
+
     try {
+      // Resolve image_url according to the deferred-upload state machine
+      let imageUrl: string | null = null
+      if (image.kind === 'pending') {
+        setStage('compressing')
+        const compressed = await compressImage(image.file)
+        setStage('uploading')
+        const result = await uploadProjectImage(compressed, user.id)
+        if (result.error || !result.url) {
+          throw new Error(result.error ?? 'Image upload failed')
+        }
+        imageUrl = result.url
+      } else if (image.kind === 'existing') {
+        imageUrl = image.url
+      }
+      // 'empty' or 'cleared' → null
+
+      setStage('saving')
+
       const projectData = {
         ...data,
         website_url: data.website_url || null,
         github_url: data.github_url || null,
-        image_url: imageUrl || null,
+        image_url: imageUrl,
         video_url: data.video_url || null,
       }
 
@@ -92,15 +139,47 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
         })
         if (error) throw error
         showSuccess('Project submitted successfully!', 'Your project is now live on IlliniHunt!')
+
+        // After a successful create, the new project's image is now persisted.
+        // Reset the picker so any remaining `pending` File reference is dropped.
+        setImage(imageUrl ? { kind: 'existing', url: imageUrl } : { kind: 'empty' })
       }
 
       onSuccess?.()
     } catch (error) {
-      handleFormError(error, `project ${mode === 'edit' ? 'update' : 'submission'}`)
+      const message = error instanceof Error ? error.message : 'Something went wrong'
+      setSubmitError(`${message} — your form is intact, please try again.`)
+      handleFormError(
+        error,
+        `project ${mode === 'edit' ? 'update' : 'submission'}`,
+        {
+          stage: stage ?? 'unknown',
+          mode,
+          projectId: mode === 'edit' ? projectId : undefined,
+          imageKind: image.kind,
+          // For pending picks, log size/type/name so we can correlate failures
+          // with file characteristics (e.g., specific MIME, very large source).
+          imageType: image.kind === 'pending' ? image.file.type : undefined,
+          imageSizeBytes: image.kind === 'pending' ? image.file.size : undefined,
+          imageNameExt: image.kind === 'pending'
+            ? image.file.name.split('.').pop()?.toLowerCase()
+            : undefined,
+          // Whether the user already had a server-stored image at submit time
+          hadExistingImage: image.kind === 'existing' || image.kind === 'cleared',
+        }
+      )
     } finally {
       setIsSubmitting(false)
+      setStage(null)
     }
   }
+
+  const missingFields = Object.keys(errors) as (keyof ProjectFormData)[]
+  const showMissingHint = submitCount > 0 && missingFields.length > 0 && !isSubmitting
+
+  const submitLabel =
+    stage ? STAGE_LABEL[stage] :
+    mode === 'edit' ? 'Update Project' : 'Submit Project'
 
   return (
     <div className="max-w-2xl mx-auto p-6 pt-24 sm:pt-28">
@@ -109,8 +188,8 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
           {mode === 'edit' ? 'Edit Your Project' : 'Submit Your Project'}
         </h1>
         <p className="text-gray-600">
-          {mode === 'edit' 
-            ? 'Update your project details and share your latest improvements with the community!' 
+          {mode === 'edit'
+            ? 'Update your project details and share your latest improvements with the community!'
             : 'Share your amazing work with the Illinois community!'
           }
         </p>
@@ -163,8 +242,8 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
               name="category_id"
               control={control}
               render={({ field }) => (
-                <Select 
-                  onValueChange={field.onChange} 
+                <Select
+                  onValueChange={field.onChange}
                   value={field.value || ''}
                   disabled={isSubmitting}
                 >
@@ -175,9 +254,9 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         <div className="flex items-center gap-2">
-                          <CategoryIcon 
-                            iconName={category.icon} 
-                            className="w-4 h-4 flex-shrink-0" 
+                          <CategoryIcon
+                            iconName={category.icon}
+                            className="w-4 h-4 flex-shrink-0"
                             fallback={category.name}
                           />
                           <div className="flex flex-col min-w-0">
@@ -265,29 +344,44 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
 
         {/* Image Upload */}
         <ImageUpload
-          onImageUploaded={setImageUrl}
-          onImageRemoved={() => setImageUrl('')}
-          currentImageUrl={imageUrl}
+          value={image}
+          onChange={setImage}
           disabled={isSubmitting}
         />
 
+        {/* Inline submit error — persistent, unlike a toast */}
+        {submitError && (
+          <div className="flex items-start space-x-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded p-3">
+            <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <span>{submitError}</span>
+          </div>
+        )}
+
+        {/* Missing-fields hint shown after the first failed submit attempt */}
+        {showMissingHint && (
+          <div className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded p-3">
+            Please complete: {missingFields.map(f => FIELD_LABEL[f]).join(', ')}.
+          </div>
+        )}
+
         {/* Submit Buttons */}
-        <div className="flex gap-3 pt-4">
-          <Button 
-            type="submit" 
+        <div className="flex gap-3 pt-4 items-center">
+          <Button
+            type="submit"
             disabled={isSubmitting}
             className="bg-uiuc-orange hover:bg-uiuc-orange/90"
           >
-            {isSubmitting 
-              ? (mode === 'edit' ? 'Updating...' : 'Submitting...') 
-              : (mode === 'edit' ? 'Update Project' : 'Submit Project')
-            }
+            {isSubmitting && (
+              <span className="inline-block w-4 h-4 mr-2 align-middle border-2 border-white/40 border-t-white rounded-full animate-spin" />
+            )}
+            {submitLabel}
           </Button>
           {onCancel && (
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={onCancel}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>

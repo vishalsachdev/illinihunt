@@ -1,133 +1,125 @@
-import { useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from './button'
 import { Input } from './input'
 import { Label } from './label'
 import { Upload, X, AlertCircle } from 'lucide-react'
-import { uploadProjectImage, compressImage, RAW_INPUT_MAX_BYTES, type ImageUploadResult } from '@/lib/imageUpload'
-import { useAuth } from '@/hooks/useAuth'
+import { RAW_INPUT_MAX_BYTES } from '@/lib/imageUpload'
 
-interface ImageUploadProps {
-  onImageUploaded: (url: string) => void
-  onImageRemoved: () => void
-  currentImageUrl?: string
+/**
+ * The image input is a *deferred* picker: it never uploads. The parent
+ * form holds the chosen state and uploads on submit. This makes "image
+ * uploaded" and "project submitted" the same atomic user action and
+ * removes the entire class of "file in storage but no project row" bugs.
+ */
+export type ImagePickerValue =
+  | { kind: 'empty' }
+  | { kind: 'existing'; url: string }   // edit mode — original server URL
+  | { kind: 'pending'; file: File }     // newly picked file, not yet uploaded
+  | { kind: 'cleared' }                 // edit mode — original removed by user
+
+interface ImagePickerProps {
+  value: ImagePickerValue
+  onChange: (next: ImagePickerValue) => void
   disabled?: boolean
 }
 
-export function ImageUpload({ 
-  onImageUploaded, 
-  onImageRemoved, 
-  currentImageUrl, 
-  disabled 
-}: ImageUploadProps) {
-  const { user } = useAuth()
-  const [uploading, setUploading] = useState(false)
+const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
+
+export function ImageUpload({ value, onChange, disabled }: ImagePickerProps) {
   const [dragOver, setDragOver] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [pickError, setPickError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileSelect = async (file: File) => {
-    if (!user) {
-      setError('You must be logged in to upload images')
+  // Manage object URL for pending File previews; revoke on change/unmount
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  useEffect(() => {
+    if (value.kind === 'pending') {
+      const url = URL.createObjectURL(value.file)
+      setPreviewUrl(url)
+      return () => URL.revokeObjectURL(url)
+    }
+    setPreviewUrl(null)
+  }, [value])
+
+  const validateAndPick = (file: File) => {
+    setPickError(null)
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setPickError('Please choose a JPG, PNG, WebP, or GIF.')
       return
     }
-
     if (file.size > RAW_INPUT_MAX_BYTES) {
       const mb = Math.round(RAW_INPUT_MAX_BYTES / (1024 * 1024))
-      setError(`Image is too large. Please choose a file under ${mb} MB — it will be compressed automatically before upload.`)
+      setPickError(`Image is too large. Please choose a file under ${mb} MB — it will be compressed automatically when you submit.`)
       return
     }
-
-    setUploading(true)
-    setError(null)
-
-    try {
-      // Compress large images
-      const compressedFile = await compressImage(file)
-      
-      // Upload to Supabase
-      const result: ImageUploadResult = await uploadProjectImage(compressedFile, user.id)
-      
-      if (result.error) {
-        setError(result.error)
-      } else if (result.url) {
-        onImageUploaded(result.url)
-      } else {
-        setError('Upload completed but no URL returned')
-      }
-    } catch (err) {
-      setError(`Upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
-    } finally {
-      setUploading(false)
-    }
+    onChange({ kind: 'pending', file })
   }
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      handleFileSelect(file)
-    }
+    if (file) validateAndPick(file)
   }
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setDragOver(false)
-    
     const file = e.dataTransfer.files[0]
     if (file && file.type.startsWith('image/')) {
-      handleFileSelect(file)
+      validateAndPick(file)
     } else {
-      setError('Please drop a valid image file')
+      setPickError('Please drop a valid image file.')
     }
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragOver(true)
-  }
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragOver(false)
-  }
-
-  const openFileDialog = () => {
-    fileInputRef.current?.click()
-  }
-
-  const removeImage = () => {
-    onImageRemoved()
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+  const handleRemove = () => {
+    setPickError(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+    if (value.kind === 'existing') {
+      // Edit mode: signal the server-stored image should be cleared on submit
+      onChange({ kind: 'cleared' })
+    } else {
+      onChange({ kind: 'empty' })
     }
   }
+
+  // Display URL: object URL for pending File, server URL for existing
+  const displayUrl =
+    value.kind === 'pending' ? previewUrl :
+    value.kind === 'existing' ? value.url :
+    null
+
+  const isPending = value.kind === 'pending'
 
   return (
     <div className="space-y-2">
       <Label>Project Screenshot/Logo</Label>
-      
-      {currentImageUrl ? (
-        // Show current image with remove option
+
+      {displayUrl ? (
         <div className="relative">
           <div className="border rounded-lg overflow-hidden">
-            <img 
-              src={currentImageUrl} 
-              alt="Project preview" 
+            <img
+              src={displayUrl}
+              alt="Project preview"
               className="w-full h-48 object-cover"
             />
           </div>
+          {isPending && (
+            <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs rounded px-2 py-1">
+              Will upload when you submit
+            </div>
+          )}
           <Button
             type="button"
             variant="destructive"
             size="sm"
             className="absolute top-2 right-2"
-            onClick={removeImage}
-            disabled={disabled || uploading}
+            onClick={handleRemove}
+            disabled={disabled}
           >
             <X className="w-4 h-4" />
           </Button>
         </div>
       ) : (
-        // Show upload area
         <div
           className={`
             border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
@@ -135,52 +127,39 @@ export function ImageUpload({
             ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
           `}
           onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onClick={!disabled ? openFileDialog : undefined}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={(e) => { e.preventDefault(); setDragOver(false) }}
+          onClick={!disabled ? () => fileInputRef.current?.click() : undefined}
         >
-          {uploading ? (
-            <div className="flex flex-col items-center space-y-2">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uiuc-orange"></div>
-              <p className="text-sm text-gray-600">Uploading image...</p>
+          <div className="flex flex-col items-center space-y-2">
+            <Upload className="w-8 h-8 text-gray-400" />
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                Click to choose an image, or drag one here
+              </p>
+              <p className="text-xs text-gray-500">
+                PNG, JPG, WebP or GIF (large images are compressed automatically when you submit)
+              </p>
             </div>
-          ) : (
-            <div className="flex flex-col items-center space-y-2">
-              <Upload className="w-8 h-8 text-gray-400" />
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-xs text-gray-500">
-                  PNG, JPG, WebP or GIF (large images are compressed automatically)
-                </p>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       )}
 
-      {/* Error message */}
-      {error && (
+      {pickError && (
         <div className="flex items-center space-x-2 text-sm text-red-600 bg-red-50 p-2 rounded">
-          <AlertCircle className="w-4 h-4" />
-          <span>{error}</span>
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>{pickError}</span>
         </div>
       )}
 
-      {/* Hidden file input */}
       <Input
         type="file"
         ref={fileInputRef}
         onChange={handleFileInputChange}
         accept="image/*"
         className="hidden"
-        disabled={disabled || uploading}
+        disabled={disabled}
       />
-
-      <p className="text-xs text-gray-500">
-        Your image will be automatically compressed and optimized for web display.
-      </p>
     </div>
   )
 }
