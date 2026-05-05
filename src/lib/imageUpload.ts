@@ -36,9 +36,13 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
     const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
 
     // Upload to Supabase Storage with a timeout to prevent infinite hangs
-    const uploadTimeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Upload timed out. Please check your connection and try again.')), UPLOAD_TIMEOUT_MS)
-    )
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined
+    const uploadTimeout = new Promise<never>((_, reject) => {
+      timeoutHandle = setTimeout(
+        () => reject(new Error('Upload timed out. Please check your connection and try again.')),
+        UPLOAD_TIMEOUT_MS
+      )
+    })
 
     const uploadRequest = supabase.storage
       .from('project-images')
@@ -47,7 +51,13 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
         upsert: false
       })
 
-    const { data, error } = await Promise.race([uploadRequest, uploadTimeout])
+    let result: Awaited<typeof uploadRequest>
+    try {
+      result = await Promise.race([uploadRequest, uploadTimeout])
+    } finally {
+      if (timeoutHandle) clearTimeout(timeoutHandle)
+    }
+    const { data, error } = result
 
     if (error) {
       if (import.meta.env.DEV) {
