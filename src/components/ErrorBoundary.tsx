@@ -1,6 +1,7 @@
 import { Component, ReactNode } from 'react'
 import { AlertTriangle, Copy, RotateCcw, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { captureError } from '@/lib/sentry'
 
 interface Props {
   children: ReactNode
@@ -44,6 +45,15 @@ export class ErrorBoundary extends Component<Props, State> {
       console.error('URL:', window.location.href)
       console.groupEnd()
     }
+
+    captureError(error, {
+      operation: 'react-render',
+      extra: {
+        componentStack: errorInfo.componentStack,
+        errorId: this.state.errorId,
+        url: window.location.href,
+      },
+    })
 
     this.setState({ errorInfo })
   }

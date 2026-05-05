@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { ensureSupabaseInitialized } from './lib/supabaseInit'
+import { initSentry } from './lib/sentry'
+
+// Initialize observability before anything else so init failures are captured
+initSentry()
 
 // Validate required environment variables before app initialization
 // This provides a user-friendly error instead of a blank page
