@@ -294,11 +294,13 @@ export class ProjectsService {
   }
 
   static async getProjectMembers(projectId: string) {
+    // project_members has two FKs to users (user_id and invited_by); pick the
+    // member relationship explicitly so PostgREST doesn't 300 on ambiguity.
     return supabase
       .from('project_members')
       .select(`
         *,
-        users (
+        users!project_members_user_id_fkey (
           id,
           username,
           full_name,
