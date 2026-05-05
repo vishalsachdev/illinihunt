@@ -17,8 +17,10 @@ interface ErrorContextType {
   // Handle authentication errors
   handleAuthError: (error: unknown, customMessage?: string) => void
   
-  // Handle form submission errors
-  handleFormError: (error: unknown, formName?: string) => void
+  // Handle form submission errors. `extra` is forwarded to Sentry as
+  // structured context (stage, mode, image kind, etc.) so we can debug
+  // failed submissions without rerunning the user's flow.
+  handleFormError: (error: unknown, formName?: string, extra?: Record<string, unknown>) => void
   
   // Show success message
   showSuccess: (message: string, description?: string) => void
@@ -117,13 +119,14 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
 
   const handleFormError = useCallback((
     error: unknown,
-    formName: string = 'form'
+    formName: string = 'form',
+    extra?: Record<string, unknown>
   ) => {
     const message = getErrorMessage(error)
     if (import.meta.env.DEV) {
-      console.error(`Form error in ${formName}:`, error)
+      console.error(`Form error in ${formName}:`, error, extra)
     }
-    captureError(error, { operation: formName })
+    captureError(error, { operation: formName, extra })
 
     showToast.error(`${formName} error`, {
       description: message,

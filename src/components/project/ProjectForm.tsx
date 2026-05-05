@@ -149,7 +149,25 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Something went wrong'
       setSubmitError(`${message} — your form is intact, please try again.`)
-      handleFormError(error, `project ${mode === 'edit' ? 'update' : 'submission'}`)
+      handleFormError(
+        error,
+        `project ${mode === 'edit' ? 'update' : 'submission'}`,
+        {
+          stage: stage ?? 'unknown',
+          mode,
+          projectId: mode === 'edit' ? projectId : undefined,
+          imageKind: image.kind,
+          // For pending picks, log size/type/name so we can correlate failures
+          // with file characteristics (e.g., specific MIME, very large source).
+          imageType: image.kind === 'pending' ? image.file.type : undefined,
+          imageSizeBytes: image.kind === 'pending' ? image.file.size : undefined,
+          imageNameExt: image.kind === 'pending'
+            ? image.file.name.split('.').pop()?.toLowerCase()
+            : undefined,
+          // Whether the user already had a server-stored image at submit time
+          hadExistingImage: image.kind === 'existing' || image.kind === 'cleared',
+        }
+      )
     } finally {
       setIsSubmitting(false)
       setStage(null)
