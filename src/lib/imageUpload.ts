@@ -8,8 +8,20 @@ export interface ImageUploadResult {
 const UPLOAD_TIMEOUT_MS = 30000
 const COMPRESSION_TIMEOUT_MS = 5000
 
+// Hard cap matching the storage bucket's file_size_limit. compressImage
+// is expected to bring large source files under this; this guard exists
+// so a bucket rejection turns into a clear UI error instead of a 4xx.
+const BUCKET_MAX_BYTES = 5 * 1024 * 1024
+
+// Permissive cap on the raw file before compression. Most phone screenshots
+// and camera photos land between 4–15 MB; canvas can re-encode them down
+// to a few hundred KB. We cap at 25 MB to avoid canvas OOM on huge sources.
+export const RAW_INPUT_MAX_BYTES = 25 * 1024 * 1024
+
 /**
- * Upload an image file to Supabase Storage
+ * Upload an image file to Supabase Storage. Expects the caller to have
+ * already run the file through compressImage; this function only checks
+ * the post-compression payload against the bucket's 5 MB limit.
  */
 export async function uploadProjectImage(file: File, userId: string): Promise<ImageUploadResult> {
   try {
@@ -22,12 +34,14 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
       }
     }
 
-    // Validate file size (5MB max)
-    const maxSize = 5 * 1024 * 1024 // 5MB in bytes
-    if (file.size > maxSize) {
+    // Final guard: the storage bucket rejects > 5 MB. compressImage should
+    // have shrunk the file already; if we still exceed the cap, the encoder
+    // didn't help (e.g., browser without WebP encode support) and the user
+    // needs a smaller source.
+    if (file.size > BUCKET_MAX_BYTES) {
       return {
         url: null,
-        error: 'Image must be smaller than 5MB'
+        error: 'Image is too large to upload after compression. Please use a smaller image (under 5 MB after compression).'
       }
     }
 
