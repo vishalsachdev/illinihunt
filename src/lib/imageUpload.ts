@@ -5,6 +5,8 @@ export interface ImageUploadResult {
   error: string | null
 }
 
+const UPLOAD_TIMEOUT_MS = 30000
+const COMPRESSION_TIMEOUT_MS = 5000
 
 /**
  * Upload an image file to Supabase Storage
@@ -33,13 +35,29 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
     const fileExt = file.name.split('.').pop()?.toLowerCase()
     const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
 
-    // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
+    // Upload to Supabase Storage with a timeout to prevent infinite hangs
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined
+    const uploadTimeout = new Promise<never>((_, reject) => {
+      timeoutHandle = setTimeout(
+        () => reject(new Error('Upload timed out. Please check your connection and try again.')),
+        UPLOAD_TIMEOUT_MS
+      )
+    })
+
+    const uploadRequest = supabase.storage
       .from('project-images')
       .upload(fileName, file, {
         cacheControl: '3600', // Cache for 1 hour
         upsert: false
       })
+
+    let result: Awaited<typeof uploadRequest>
+    try {
+      result = await Promise.race([uploadRequest, uploadTimeout])
+    } finally {
+      if (timeoutHandle) clearTimeout(timeoutHandle)
+    }
+    const { data, error } = result
 
     if (error) {
       if (import.meta.env.DEV) {
@@ -66,7 +84,7 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
     }
     return {
       url: null,
-      error: 'An unexpected error occurred while uploading the image'
+      error: err instanceof Error ? err.message : 'An unexpected error occurred while uploading the image'
     }
   }
 }
@@ -76,10 +94,10 @@ export async function uploadProjectImage(file: File, userId: string): Promise<Im
  */
 export function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
   return new Promise((resolve) => {
-    // Add timeout to prevent hanging
+    // Add timeout to prevent hanging (ample time for canvas operations)
     const timeout = setTimeout(() => {
       resolve(file) // Return original file as fallback
-    }, 30000)
+    }, COMPRESSION_TIMEOUT_MS)
 
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
@@ -99,8 +117,8 @@ export function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promi
 
     img.onload = () => {
       try {
-        // Calculate new dimensions
-        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height)
+        // Calculate new dimensions — only downscale, never upscale
+        const ratio = Math.min(1, maxWidth / img.width, maxWidth / img.height)
         canvas.width = img.width * ratio
         canvas.height = img.height * ratio
 
