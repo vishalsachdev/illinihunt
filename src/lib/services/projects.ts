@@ -6,6 +6,28 @@ import { PROJECT_LIST_SELECT, PROJECT_DETAIL_SELECT } from './query-constants'
 type ProjectInsert = Database['public']['Tables']['projects']['Insert']
 type ProjectUpdate = Database['public']['Tables']['projects']['Update']
 
+type UserSearchResult = Pick<
+  Database['public']['Tables']['users']['Row'],
+  'id' | 'email' | 'username' | 'full_name' | 'avatar_url'
+>
+
+type ProjectMember = Database['public']['Tables']['project_members']['Row'] & {
+  users: Pick<Database['public']['Tables']['users']['Row'], 'id' | 'username' | 'full_name' | 'avatar_url'> | null
+}
+
+type ProjectInvitation = Database['public']['Tables']['project_invitations']['Row'] & {
+  users: Pick<Database['public']['Tables']['users']['Row'], 'id' | 'username' | 'full_name' | 'avatar_url' | 'email'> | null
+}
+
+type ProjectWithCategory = Database['public']['Tables']['projects']['Row'] & {
+  categories: {
+    id: string
+    name: string
+    color: string | null
+    icon: string | null
+  } | null
+}
+
 export class ProjectsService {
   static async getProjects(options?: {
     category?: string
@@ -70,9 +92,12 @@ export class ProjectsService {
   }
 
   static async updateProject(id: string, updates: ProjectUpdate) {
+    const safeUpdates = { ...updates }
+    delete safeUpdates.user_id
+
     return supabase
       .from('projects')
-      .update(updates)
+      .update(safeUpdates)
       .eq('id', id)
       .select()
       .single()
@@ -156,7 +181,7 @@ export class ProjectsService {
   }
 
   static async getUserProjects(userId: string) {
-    return supabase
+    const ownedResult = await supabase
       .from('projects')
       .select(`
         *,
@@ -170,6 +195,221 @@ export class ProjectsService {
       .eq('user_id', userId)
       .eq('status', 'active')
       .order('created_at', { ascending: false })
+
+    const memberResult = await supabase
+      .from('project_members')
+      .select(`
+        role,
+        projects (
+          *,
+          categories (
+            id,
+            name,
+            color,
+            icon
+          )
+        )
+      `)
+      .eq('user_id', userId)
+
+    if (ownedResult.error) {
+      return ownedResult
+    }
+
+    if (memberResult.error) {
+      return { data: ownedResult.data, error: null }
+    }
+
+    const projectsById = new Map<string, ProjectWithCategory & {
+      membership_role?: string | null
+      is_creator?: boolean
+    }>()
+
+    for (const project of ownedResult.data || []) {
+      projectsById.set(project.id, {
+        ...project,
+        membership_role: 'owner',
+        is_creator: true
+      })
+    }
+
+    for (const row of memberResult.data || []) {
+      const project = row.projects as unknown as ProjectWithCategory | null
+      if (!project || project.status !== 'active') continue
+
+      projectsById.set(project.id, {
+        ...project,
+        membership_role: row.role,
+        is_creator: project.user_id === userId
+      })
+    }
+
+    const data = Array.from(projectsById.values()).sort((a, b) => (
+      new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+    ))
+
+    return { data, error: null }
+  }
+
+  static async canEditProject(projectId: string) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return false
+
+    const { data, error } = await supabase.rpc('is_project_member', {
+      p_project_id: projectId,
+      p_user_id: user.id
+    })
+
+    if (error) return false
+    return !!data
+  }
+
+  static async canManageProject(projectId: string) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return false
+
+    const { data, error } = await supabase.rpc('can_manage_project', {
+      p_project_id: projectId,
+      p_user_id: user.id
+    })
+
+    if (error) return false
+    return !!data
+  }
+
+  static async searchUsersForInvite(query: string) {
+    const trimmed = query.trim()
+    if (trimmed.length < 2) {
+      return { data: [] as UserSearchResult[], error: null }
+    }
+
+    const sanitized = trimmed.replace(/[%_\\,()]/g, (c) => `\\${c}`)
+
+    return supabase
+      .from('users')
+      .select('id, email, username, full_name, avatar_url')
+      .is('suspended_at', null)
+      .or(`email.ilike.%${sanitized}%,username.ilike.%${sanitized}%,full_name.ilike.%${sanitized}%`)
+      .limit(8)
+  }
+
+  static async getProjectMembers(projectId: string) {
+    return supabase
+      .from('project_members')
+      .select(`
+        *,
+        users (
+          id,
+          username,
+          full_name,
+          avatar_url
+        )
+      `)
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: true }) as unknown as Promise<{ data: ProjectMember[] | null; error: { message: string } | null }>
+  }
+
+  static async getProjectInvitations(projectId: string) {
+    return supabase
+      .from('project_invitations')
+      .select(`
+        *,
+        users!project_invitations_invitee_id_fkey (
+          id,
+          username,
+          full_name,
+          avatar_url,
+          email
+        )
+      `)
+      .eq('project_id', projectId)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false }) as unknown as Promise<{ data: ProjectInvitation[] | null; error: { message: string } | null }>
+  }
+
+  static async inviteProjectMember(projectId: string, inviteeId: string) {
+    const user = await requireAuth('invite project members')
+
+    if (user.id === inviteeId) {
+      return { data: null, error: { message: 'You are already on this project', code: 'SELF_INVITE' } }
+    }
+
+    const { data: existingMember } = await supabase
+      .from('project_members')
+      .select('id')
+      .eq('project_id', projectId)
+      .eq('user_id', inviteeId)
+      .maybeSingle()
+
+    if (existingMember) {
+      return { data: null, error: { message: 'That person is already on this project', code: 'ALREADY_MEMBER' } }
+    }
+
+    return supabase
+      .from('project_invitations')
+      .insert({
+        project_id: projectId,
+        inviter_id: user.id,
+        invitee_id: inviteeId,
+        status: 'pending'
+      })
+      .select()
+      .single()
+  }
+
+  static async revokeProjectInvitation(invitationId: string) {
+    return supabase.rpc('revoke_project_invitation', {
+      p_invitation_id: invitationId
+    })
+  }
+
+  static async removeProjectMember(projectId: string, memberUserId: string) {
+    return supabase
+      .from('project_members')
+      .delete()
+      .eq('project_id', projectId)
+      .eq('user_id', memberUserId)
+  }
+
+  static async getPendingInvitationsForCurrentUser() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return { data: [], error: null }
+    }
+
+    return supabase
+      .from('project_invitations')
+      .select(`
+        *,
+        projects (
+          id,
+          name,
+          tagline,
+          image_url
+        ),
+        users!project_invitations_inviter_id_fkey (
+          id,
+          username,
+          full_name,
+          avatar_url,
+          email
+        )
+      `)
+      .eq('invitee_id', user.id)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false })
+  }
+
+  static async acceptProjectInvitation(invitationId: string) {
+    return supabase.rpc('accept_project_invitation', {
+      p_invitation_id: invitationId
+    })
+  }
+
+  static async declineProjectInvitation(invitationId: string) {
+    return supabase.rpc('decline_project_invitation', {
+      p_invitation_id: invitationId
+    })
   }
 
   static async updateUserProfile(userId: string, updates: {

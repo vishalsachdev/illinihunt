@@ -38,9 +38,9 @@ export function EditProjectPage() {
           return
         }
 
-        // Check if user owns this project
-        if (data.user_id !== user.id) {
-          setError('You can only edit your own projects')
+        const canEdit = await ProjectsService.canEditProject(id)
+        if (!canEdit && data.user_id !== user.id) {
+          setError('Only project team members can edit this project')
           return
         }
 
@@ -82,7 +82,7 @@ export function EditProjectPage() {
             {error || 'Project not found'}
           </h1>
           <p className="text-gray-600 mb-6">
-            {error === 'You can only edit your own projects' 
+            {error === 'Only project team members can edit this project'
               ? 'You do not have permission to edit this project.'
               : 'The project you are looking for could not be found.'
             }

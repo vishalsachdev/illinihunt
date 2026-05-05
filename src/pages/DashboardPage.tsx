@@ -22,7 +22,10 @@ import {
   Calendar,
   TrendingUp,
   RefreshCw,
-  Trash2
+  Trash2,
+  UserPlus,
+  Check,
+  X
 } from 'lucide-react'
 
 type DashboardProject = {
@@ -43,12 +46,33 @@ type DashboardProject = {
     color: string
     icon: string | null
   } | null
+  membership_role?: string | null
+  is_creator?: boolean
+}
+
+type ProjectInvitation = {
+  id: string
+  created_at: string | null
+  projects: {
+    id: string
+    name: string
+    tagline: string
+    image_url: string | null
+  } | null
+  users: {
+    id: string
+    username: string | null
+    full_name: string | null
+    avatar_url: string | null
+    email: string
+  } | null
 }
 
 export function DashboardPage() {
   const { user, profile, loading: authLoading } = useAuth()
   const location = useLocation()
   const [projects, setProjects] = useState<DashboardProject[]>([])
+  const [invitations, setInvitations] = useState<ProjectInvitation[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
     totalProjects: 0,
@@ -89,10 +113,39 @@ export function DashboardPage() {
     setLoading(false)
   }, [user?.id])
 
+  const loadInvitations = useCallback(async () => {
+    if (!user?.id) return
+
+    const { data, error } = await ProjectsService.getPendingInvitationsForCurrentUser()
+    if (!error && data) {
+      setInvitations(data as ProjectInvitation[])
+    }
+  }, [user?.id])
+
   // Load projects when component mounts or when returning from another page
   useEffect(() => {
     loadUserProjects()
-  }, [loadUserProjects, location.pathname])
+    loadInvitations()
+  }, [loadUserProjects, loadInvitations, location.pathname])
+
+  const handleInvitation = async (invitationId: string, action: 'accept' | 'decline') => {
+    setDeleting(true)
+    const { error } = action === 'accept'
+      ? await ProjectsService.acceptProjectInvitation(invitationId)
+      : await ProjectsService.declineProjectInvitation(invitationId)
+
+    setDeleting(false)
+
+    if (error) {
+      showToast.error(action === 'accept' ? 'Could not accept invite' : 'Could not decline invite', {
+        description: error.message
+      })
+      return
+    }
+
+    showToast.success(action === 'accept' ? 'Invite accepted' : 'Invite declined')
+    await Promise.all([loadUserProjects(), loadInvitations()])
+  }
 
   const handleDeleteProject = (project: DashboardProject) => {
     setDeleteModal({
@@ -215,6 +268,62 @@ export function DashboardPage() {
 
         {/* Projects Section */}
         <div>
+          {invitations.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-foreground mb-4">Project Invites</h2>
+              <div className="space-y-3">
+                {invitations.map((invitation) => (
+                  <Card key={invitation.id} className="border-uiuc-orange/30">
+                    <CardContent className="p-5">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 min-w-0">
+                          {invitation.projects?.image_url ? (
+                            <img
+                              src={invitation.projects.image_url}
+                              alt={invitation.projects.name}
+                              className="w-14 h-14 rounded-lg object-cover border flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-14 h-14 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                              <UserPlus className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <h3 className="font-semibold text-foreground truncate">
+                              {invitation.projects?.name || 'Project invite'}
+                            </h3>
+                            <p className="text-sm text-muted-foreground line-clamp-1">
+                              Invited by {invitation.users?.full_name || invitation.users?.username || invitation.users?.email || 'a project owner'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => handleInvitation(invitation.id, 'accept')}
+                            disabled={deleting}
+                          >
+                            <Check className="w-4 h-4 mr-1" />
+                            Accept
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleInvitation(invitation.id, 'decline')}
+                            disabled={deleting}
+                          >
+                            <X className="w-4 h-4 mr-1" />
+                            Decline
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-foreground">Your Projects</h2>
             <div className="flex items-center gap-2">
@@ -297,6 +406,11 @@ export function DashboardPage() {
                               <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
                                 {project.status}
                               </Badge>
+                              {!project.is_creator && (
+                                <Badge variant="secondary">
+                                  Team project
+                                </Badge>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -333,15 +447,17 @@ export function DashboardPage() {
                             </Link>
                           </Button>
 
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteProject(project)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="w-4 h-4 mr-1" />
-                            Delete
-                          </Button>
+                          {project.is_creator !== false && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteProject(project)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" />
+                              Delete
+                            </Button>
+                          )}
 
                           {project.website_url && (
                             <Button asChild variant="outline" size="sm">

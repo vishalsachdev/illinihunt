@@ -4,14 +4,14 @@ import { useAuth } from '@/hooks/useAuth'
 import { useError } from '@/contexts/ErrorContext'
 import { ProjectsService } from '@/lib/database'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { VoteButton } from '@/components/project/VoteButton'
-import { ArrowLeft, ExternalLink, Github, User, RefreshCw, Edit } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Github, RefreshCw, Edit } from 'lucide-react'
 import { CommentList } from '@/components/comment/CommentList'
 import { YouTubeEmbed } from '@/components/media/YouTubeEmbed'
 import { sanitizeContent, sanitizeUrl, linkifyText } from '@/lib/sanitize'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { ProjectTeamManager } from '@/components/project/ProjectTeamManager'
 
 type ProjectDetail = {
   id: string
@@ -48,6 +48,7 @@ export function ProjectDetailPage() {
   const [error, setError] = useState('')
   const [imageError, setImageError] = useState(false)
   const [currentVoteCount, setCurrentVoteCount] = useState(0)
+  const [canManageProject, setCanManageProject] = useState(false)
 
   const loadProject = useCallback(async () => {
     if (!id) return
@@ -83,6 +84,20 @@ export function ProjectDetailPage() {
   useEffect(() => {
     loadProject()
   }, [loadProject])
+
+  useEffect(() => {
+    const loadPermissions = async () => {
+      if (!project || !user) {
+        setCanManageProject(false)
+        return
+      }
+
+      const canManage = await ProjectsService.canManageProject(project.id)
+      setCanManageProject(canManage)
+    }
+
+    loadPermissions()
+  }, [project, user])
 
   if (!id) {
     return <Navigate to="/" replace />
@@ -249,41 +264,19 @@ export function ProjectDetailPage() {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
-              {/* Creator Info */}
-              <div className="glass-card rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Project Creator</h3>
-                {project.users ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage src={project.users.avatar_url || undefined} />
-                        <AvatarFallback>
-                          {project.users.full_name?.charAt(0) ||
-                            project.users.username?.charAt(0) ||
-                            '?'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium text-foreground">
-                          {sanitizeContent(project.users.full_name || project.users.username || 'Anonymous')}
-                        </p>
-                        {project.users.username && project.users.full_name && (
-                          <p className="text-sm text-muted-foreground">@{sanitizeContent(project.users.username)}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <Button asChild variant="outline" className="w-full border-white/10 hover:bg-white/5 hover:text-foreground">
-                      <Link to={`/user/${project.users.id}`}>
-                        <User className="w-4 h-4 mr-2" />
-                        View Profile
-                      </Link>
-                    </Button>
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground">Anonymous creator</p>
-                )}
-              </div>
+              <ProjectTeamManager
+                projectId={project.id}
+                creatorId={project.users?.id || ''}
+                currentUserId={user?.id}
+                canManage={canManageProject}
+                initialMembers={project.users ? [{
+                  id: `creator-${project.id}`,
+                  user_id: project.users.id,
+                  role: 'owner',
+                  users: project.users
+                }] : []}
+                onMembershipChange={loadProject}
+              />
 
               {/* Project Stats */}
               <div className="glass-card rounded-xl p-6">
@@ -306,8 +299,8 @@ export function ProjectDetailPage() {
                 </div>
               </div>
 
-              {/* Edit Button for Project Owner */}
-              {user && project.users && user.id === project.users.id && (
+              {/* Edit Button for Project Team */}
+              {(canManageProject || (user && project.users?.id === user.id)) && (
                 <div className="glass-card rounded-xl p-6">
                   <h3 className="text-lg font-semibold text-foreground mb-4">Manage Project</h3>
                   <div className="space-y-2">

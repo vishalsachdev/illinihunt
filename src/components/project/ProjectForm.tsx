@@ -75,7 +75,6 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
     try {
       const projectData = {
         ...data,
-        user_id: user.id,
         website_url: data.website_url || null,
         github_url: data.github_url || null,
         image_url: imageUrl || null,
@@ -87,7 +86,10 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
         if (error) throw error
         showSuccess('Project updated successfully!', 'Your changes have been saved and are now live.')
       } else {
-        const { error } = await ProjectsService.createProject(projectData)
+        const { error } = await ProjectsService.createProject({
+          ...projectData,
+          user_id: user.id
+        })
         if (error) throw error
         showSuccess('Project submitted successfully!', 'Your project is now live on IlliniHunt!')
       }
