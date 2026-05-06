@@ -86,6 +86,21 @@ function toError(error: unknown): { error: Error; supabaseFields?: Record<string
 }
 
 /**
+ * Lightweight info-level event for instrumenting funnel steps that
+ * don't throw — e.g., a submit attempt that fails client-side validation
+ * and never reaches the network. Lets us see silent dead-ends in the
+ * issue feed alongside real errors. Use sparingly; high-frequency events
+ * burn the free-tier quota.
+ */
+export function captureFunnelEvent(name: string, extra?: Record<string, unknown>): void {
+  Sentry.captureMessage(name, {
+    level: 'info',
+    tags: { funnel: name },
+    extra,
+  })
+}
+
+/**
  * Capture an exception with optional context. Used by ErrorContext so
  * every toast surface ALSO produces a Sentry event we can investigate.
  */
