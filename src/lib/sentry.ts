@@ -54,12 +54,45 @@ export function setSentryUser(user: { id: string; username?: string | null } | n
 }
 
 /**
+ * Normalize anything throwable into a real Error so Sentry can group it
+ * sensibly. Supabase returns plain objects shaped {code, details, hint,
+ * message} which Sentry titles as "Fl" (minified frame) — useless. Wrap
+ * those into a proper Error and preserve the original fields as context.
+ */
+function toError(error: unknown): { error: Error; supabaseFields?: Record<string, unknown> } {
+  if (error instanceof Error) return { error }
+
+  if (error && typeof error === 'object') {
+    const obj = error as Record<string, unknown>
+    const message = typeof obj.message === 'string' && obj.message
+      ? obj.message
+      : 'Unknown error'
+    const wrapped = new Error(message)
+    // If this looks Supabase-shaped, keep the auxiliary fields as extras.
+    if ('code' in obj || 'hint' in obj || 'details' in obj) {
+      return {
+        error: wrapped,
+        supabaseFields: {
+          code: obj.code,
+          hint: obj.hint,
+          details: obj.details,
+        },
+      }
+    }
+    return { error: wrapped }
+  }
+
+  return { error: new Error(typeof error === 'string' ? error : 'Unknown non-Error throw') }
+}
+
+/**
  * Capture an exception with optional context. Used by ErrorContext so
  * every toast surface ALSO produces a Sentry event we can investigate.
  */
 export function captureError(error: unknown, context?: { operation?: string; extra?: Record<string, unknown> }): void {
-  Sentry.captureException(error, {
+  const { error: normalized, supabaseFields } = toError(error)
+  Sentry.captureException(normalized, {
     tags: context?.operation ? { operation: context.operation } : undefined,
-    extra: context?.extra,
+    extra: { ...context?.extra, ...(supabaseFields ?? {}) },
   })
 }
