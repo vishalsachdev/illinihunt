@@ -7,6 +7,7 @@ import { useCategories } from '@/hooks/useCategories'
 import { useError } from '@/contexts/ErrorContext'
 import { ProjectsService } from '@/lib/database'
 import { compressImage, uploadProjectImage } from '@/lib/imageUpload'
+import { captureFunnelEvent } from '@/lib/sentry'
 import { projectSchema, type ProjectFormData } from '@/lib/validations'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -206,7 +207,20 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={handleSubmit(onSubmit, (validationErrors) => {
+          // Submit clicked but client-side validation failed. The user sees
+          // inline errors next to each field plus the missing-fields banner,
+          // but they may not notice on a long form. Logging this lets us see
+          // silent dead-ends in the funnel that never reach the server.
+          captureFunnelEvent('submit-validation-failed', {
+            mode,
+            missingFields: Object.keys(validationErrors),
+            imageKind: image.kind,
+          })
+        })}
+        className="space-y-6"
+      >
         {/* Project Name */}
         <div className="space-y-2">
           <Label htmlFor="name">Project Name *</Label>

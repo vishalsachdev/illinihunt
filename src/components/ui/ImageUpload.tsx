@@ -4,6 +4,7 @@ import { Input } from './input'
 import { Label } from './label'
 import { Upload, X, AlertCircle } from 'lucide-react'
 import { RAW_INPUT_MAX_BYTES } from '@/lib/imageUpload'
+import { captureFunnelEvent } from '@/lib/sentry'
 
 /**
  * The image input is a *deferred* picker: it never uploads. The parent
@@ -45,11 +46,13 @@ export function ImageUpload({ value, onChange, disabled }: ImagePickerProps) {
     setPickError(null)
     if (!ALLOWED_TYPES.includes(file.type)) {
       setPickError('Please choose a JPG, PNG, WebP, or GIF.')
+      captureFunnelEvent('image-pick-rejected', { reason: 'mime', mime: file.type, size: file.size })
       return
     }
     if (file.size > RAW_INPUT_MAX_BYTES) {
       const mb = Math.round(RAW_INPUT_MAX_BYTES / (1024 * 1024))
       setPickError(`Image is too large. Please choose a file under ${mb} MB — it will be compressed automatically when you submit.`)
+      captureFunnelEvent('image-pick-rejected', { reason: 'size', mime: file.type, size: file.size })
       return
     }
     onChange({ kind: 'pending', file })
