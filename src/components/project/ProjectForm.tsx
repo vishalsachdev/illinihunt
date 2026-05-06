@@ -101,13 +101,24 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
     setIsSubmitting(true)
     setStage(null)
 
+    // Track the current stage in a local variable too. setState calls schedule
+    // a re-render but don't update the value visible inside this closure, so
+    // reading `stage` from the catch block always returns the value at submit
+    // start (null). The local var stays in sync with the React state and is
+    // what we forward to Sentry.
+    let currentStage: SubmitStage | null = null
+    const advance = (next: SubmitStage) => {
+      currentStage = next
+      setStage(next)
+    }
+
     try {
       // Resolve image_url according to the deferred-upload state machine
       let imageUrl: string | null = null
       if (image.kind === 'pending') {
-        setStage('compressing')
+        advance('compressing')
         const compressed = await compressImage(image.file)
-        setStage('uploading')
+        advance('uploading')
         const result = await uploadProjectImage(compressed, user.id)
         if (result.error || !result.url) {
           throw new Error(result.error ?? 'Image upload failed')
@@ -118,7 +129,7 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
       }
       // 'empty' or 'cleared' → null
 
-      setStage('saving')
+      advance('saving')
 
       const projectData = {
         ...data,
@@ -153,7 +164,7 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
         error,
         `project ${mode === 'edit' ? 'update' : 'submission'}`,
         {
-          stage: stage ?? 'unknown',
+          stage: currentStage ?? 'pre-flight',
           mode,
           projectId: mode === 'edit' ? projectId : undefined,
           imageKind: image.kind,
