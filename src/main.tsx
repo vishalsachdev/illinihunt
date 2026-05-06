@@ -8,6 +8,24 @@ import { initSentry } from './lib/sentry'
 // Initialize observability before anything else so init failures are captured
 initSentry()
 
+// Recover from stale lazy-loaded chunks after a deploy. Vite emits this event
+// when an `import()` call resolves to a content-hashed asset that no longer
+// exists (the user's tab was open across a deploy and the new build replaced
+// the chunk with a different hash). One-time reload picks up the fresh index
+// HTML, which references current chunk URLs. Guard with sessionStorage so a
+// genuinely-broken deploy doesn't put the user in a refresh loop.
+window.addEventListener('vite:preloadError', (event) => {
+  const RELOAD_FLAG = 'illinihunt:preload-error-reloaded'
+  if (sessionStorage.getItem(RELOAD_FLAG)) {
+    // Already tried once this session — let the error surface so we see it
+    // in Sentry rather than spinning indefinitely.
+    return
+  }
+  event.preventDefault()
+  sessionStorage.setItem(RELOAD_FLAG, '1')
+  window.location.reload()
+})
+
 // Validate required environment variables before app initialization
 // This provides a user-friendly error instead of a blank page
 const requiredEnvVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'] as const
