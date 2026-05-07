@@ -72,6 +72,14 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
     resolver: zodResolver(projectSchema)
   })
 
+  // Funnel: capture once that the form actually mounted in this user's
+  // browser. Lets us tell apart "they never reached /submit" from "they
+  // reached it but never clicked submit." Fires once per mount.
+  useEffect(() => {
+    captureFunnelEvent('project-form-mounted', { mode })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Populate form with initial data for edit mode
   useEffect(() => {
     if (mode === 'edit' && initialData) {

@@ -104,10 +104,20 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
     if (import.meta.env.DEV) {
       console.error('Authentication error:', error)
     }
-    
+
+    // Forward to Sentry tagged operation:auth so we can see auth failures
+    // alongside other errors. Skip the @illinois.edu domain rejection — that's
+    // expected user behavior, not an error worth a Sentry event.
+    if (!message.toLowerCase().includes('@illinois.edu')) {
+      captureError(error, {
+        operation: 'auth',
+        extra: customMessage ? { customMessage } : undefined,
+      })
+    }
+
     if (customMessage) {
       showToast.authError(customMessage)
-    } else if (message.toLowerCase().includes('permission') || 
+    } else if (message.toLowerCase().includes('permission') ||
                message.toLowerCase().includes('unauthorized')) {
       showToast.authError('Permission denied')
     } else if (message.toLowerCase().includes('@illinois.edu')) {
