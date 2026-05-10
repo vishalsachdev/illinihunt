@@ -222,6 +222,32 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
         </p>
       </div>
 
+      {/*
+        Temporary troubleshooting banner — show only on create. A small subset
+        of students hit a "spinner that never resolves" pattern that we can't
+        reproduce in the new code path; until we close the loop, surface the
+        two reliable workarounds inline. Remove once funnel data confirms the
+        symptom is gone.
+      */}
+      {mode === 'create' && (
+        <div className="mb-6 rounded-lg border border-uiuc-orange/40 bg-orange-50 p-4 text-sm text-gray-800">
+          <p className="font-semibold text-uiuc-blue mb-1">Having trouble submitting?</p>
+          <ol className="list-decimal pl-5 space-y-1">
+            <li>
+              <strong>Hard refresh this page first.</strong>{' '}
+              Mac: <kbd className="px-1.5 py-0.5 rounded bg-white border text-xs">⌘ Shift R</kbd>{' '}
+              · Windows: <kbd className="px-1.5 py-0.5 rounded bg-white border text-xs">Ctrl Shift R</kbd>.
+              This forces the latest version of the page to load.
+            </li>
+            <li>
+              <strong>If submitting still stalls,</strong> try submitting <em>without</em> an image
+              first. Once your project is created, edit it and add the image — the image upload
+              works fine on edit.
+            </li>
+          </ol>
+        </div>
+      )}
+
       <form
         onSubmit={handleSubmit(onSubmit, (validationErrors) => {
           // Submit clicked but client-side validation failed. The user sees
