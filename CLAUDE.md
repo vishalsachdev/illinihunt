@@ -52,6 +52,8 @@ mcp__supabase__apply_migration({ project_id: "catzwowmxluzwbhdyhnf", name: "..."
   - See: [Cloudflare + Vercel Issues](#cloudflare--vercel-issues) below
 
 ## Current Focus
+- [ ] Watch Sentry funnel data 24–48h post-#91/#92 to confirm whether stuck-submission cohort (aflasck2, calk2, critter4, mjdiaz3) completes — or root-cause via the new image-picked / submit-attempt-validated drop-off
+- [ ] Remove the troubleshooting banner (PR #92) once funnel data is clean for 48h
 - [ ] Testing framework
 - [ ] Accessibility + regression test coverage for new collection flows
 
@@ -59,13 +61,14 @@ mcp__supabase__apply_migration({ project_id: "catzwowmxluzwbhdyhnf", name: "..."
 - [x] Search & filtering system
 - [x] Trending algorithm with analytics
 - [x] Admin moderation tools
+- [x] Project submission flow overhaul (PRs #78–#92): image upload reliability + full Sentry observability stack + funnel instrumentation
 - [ ] Testing framework
 - [ ] See: [Improvement Roadmap](docs/IMPROVEMENT_ROADMAP.md) for full details
 
 ## Session Log
-### 2026-04-30
-- Completed: Bumped `agent-infra` Cloudflare backup workflow from monthly to weekly (Sundays 07:00 UTC) — reduces drift between dashboard edits and snapshots, since the `illinihunt-reverse-proxy` Worker is still dashboard-edited. `workflow_dispatch` retained for ad-hoc post-edit snapshots. Cleaned stale stashes (filter-branch reflog artifact + obsolete Aug-2025 useRealtimeVotes WIP).
-- Next: Testing framework + accessibility coverage for collection flows. Carry-overs: (a) move `illinihunt-reverse-proxy` Worker source into a tracked repo with `wrangler deploy`; (b) recreate or roll `cf-illinihunt-zone-and-pages` token to clear phantom IP filter blocking CI `wrangler pages deploy`; (c) delete orphan `ZZ-orphan-never-used-DELETE` token.
+### 2026-05-10
+- Completed: Wrapped a 6-day arc on the project-submission flow. **12 PRs (#78–#92)** covering: image-upload fixes (30s timeout, WebP re-encoding for PNGs, 25 MB raw-input cap, removed misbehaving `Cache-Control` global header), **deferred-upload pattern** (image only uploads on Submit click — eliminates "image in storage but no project row" bug entirely), full **Sentry observability** (SDK + ErrorContext + ErrorBoundary integration, CSP allowlist, Supabase plain-object error normalization, stage tracking with local-var fix for stale-closure bug, six funnel events: form-mounted / image-picked / image-pick-rejected / submit-attempt-validated / submit-validation-failed / errors-with-stage), **Vite preload-error auto-recovery** for stale chunks post-deploy, and a **temporary troubleshooting banner** on /submit (hard-refresh + submit-without-image workaround). Outside this repo: `~/admin/agent-infra/sentry-setup.md` runbook, global CLAUDE.md observability section, wrap-up-session skill nudge for Sentry adoption. Sripad ("ScreenSort") completed; aflasck2 + 3 others still at 0 projects despite reaching the form (Sentry funnel data should pinpoint where they stall).
+- Next: Reply to aflasck2 with hard-refresh + workaround. Watch Sentry funnel for 24–48h. Once stuck cohort either completes or root cause is identified, remove banner. Older carry-overs still open: (a) move `illinihunt-reverse-proxy` Worker source into a tracked repo with `wrangler deploy`; (b) recreate or roll `cf-illinihunt-zone-and-pages` token to clear phantom IP filter blocking CI `wrangler pages deploy`; (c) delete orphan `ZZ-orphan-never-used-DELETE` token.
 
 *Older entries archived to `docs/session-archive.md`.*
 

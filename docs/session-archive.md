@@ -2,6 +2,10 @@
 
 Older session log entries. Current session log lives at the top of `CLAUDE.md`.
 
+### 2026-04-30
+- Completed: Bumped `agent-infra` Cloudflare backup workflow from monthly to weekly (Sundays 07:00 UTC) — reduces drift between dashboard edits and snapshots, since the `illinihunt-reverse-proxy` Worker is still dashboard-edited. `workflow_dispatch` retained for ad-hoc post-edit snapshots. Cleaned stale stashes (filter-branch reflog artifact + obsolete Aug-2025 useRealtimeVotes WIP).
+- Next: Testing framework + accessibility coverage for collection flows. Carry-overs: (a) move `illinihunt-reverse-proxy` Worker source into a tracked repo with `wrangler deploy`; (b) recreate or roll `cf-illinihunt-zone-and-pages` token to clear phantom IP filter blocking CI `wrangler pages deploy`; (c) delete orphan `ZZ-orphan-never-used-DELETE` token.
+
 ### 2026-04-29
 - Completed: Resolved issue #76 (Chalkwise DNS via Cloudflare API — DKIM/SPF/MX records added; closed). Updated `chiconnect.illinihunt.org` redirect target in `illinihunt-reverse-proxy` Worker (line 52 of `SUBDOMAIN_MAP`) to `https://lgluck28.github.io/connect-my-tribe-landing/`. Patched the Worker's URL-resolution logic so full-URL targets preserve their pathname (was stripping to origin) — uses `new URL((url.pathname + url.search).replace(/^\//, ""), targetBase).href`. Committed AGENTS.md additions (Claude memory lookup + external-action approval policy).
 - Also completed (cross-cutting infra work in `~/admin/agent-infra`): audited and renamed all 7 Cloudflare API tokens; created `cf-backup-readonly` token; set up monthly Cloudflare config snapshot via private repo `vishalsachdev/agent-infra` GH Actions workflow → `cloudflare-snapshots/YYYY-MM-DD/` (first snapshot captured 81 DNS records, 5 worker scripts, 8 Pages projects).
