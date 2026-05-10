@@ -106,6 +106,13 @@ export function ProjectForm({ mode = 'create', projectId, initialData, onSuccess
       return
     }
 
+    // Funnel: passed Zod validation and started the actual submit chain.
+    // Pairs with submit-validation-failed; together they cover every click.
+    captureFunnelEvent('submit-attempt-validated', {
+      mode,
+      imageKind: image.kind,
+    })
+
     setSubmitError(null)
     setIsSubmitting(true)
     setStage(null)
