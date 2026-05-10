@@ -55,6 +55,7 @@ export function ImageUpload({ value, onChange, disabled }: ImagePickerProps) {
       captureFunnelEvent('image-pick-rejected', { reason: 'size', mime: file.type, size: file.size })
       return
     }
+    captureFunnelEvent('image-picked', { mime: file.type, size: file.size })
     onChange({ kind: 'pending', file })
   }
 
