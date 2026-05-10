@@ -291,6 +291,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadUserProfile])
 
   useEffect(() => {
+    mountedRef.current = true
     let timeoutId: NodeJS.Timeout | null = null
 
     const initializeAuth = async () => {

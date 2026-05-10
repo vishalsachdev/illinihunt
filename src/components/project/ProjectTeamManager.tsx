@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Mail, Search, UserMinus, UserPlus, X } from 'lucide-react'
+import { Mail, Search, UserMinus, UserPlus, UserRoundPlus, X } from 'lucide-react'
 import { ProjectsService } from '@/lib/database'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -45,6 +45,18 @@ function displayName(user: UserSummary | null) {
 function initials(user: UserSummary | null) {
   const name = displayName(user)
   return name.slice(0, 2).toUpperCase()
+}
+
+function inviteStatusLabel(
+  result: UserSummary,
+  memberIds: Set<string>,
+  pendingInviteeIds: Set<string>,
+  currentUserId?: string
+) {
+  if (result.id === currentUserId) return 'You'
+  if (memberIds.has(result.id)) return 'Added'
+  if (pendingInviteeIds.has(result.id)) return 'Invited'
+  return 'Invite'
 }
 
 export function ProjectTeamManager({
@@ -201,15 +213,40 @@ export function ProjectTeamManager({
         ))}
 
         {canManage && (
-          <div className="border-t border-white/10 pt-4 space-y-3">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
-              <Input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search by name, username, or email"
-                className="pl-9 bg-midnight-800/60 border-white/10"
-              />
+          <div className="border-t border-white/10 pt-4 space-y-4">
+            <div className="rounded-lg border border-uiuc-orange/30 bg-uiuc-orange/10 p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 rounded-md bg-uiuc-orange/20 p-2 text-uiuc-orange">
+                  <UserRoundPlus className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-semibold text-foreground">Add teammates</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Search for people already on IlliniHunt, then send an invite.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor={`team-invite-search-${projectId}`} className="text-sm font-medium text-foreground">
+                  Find a teammate
+                </label>
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
+                  <Input
+                    id={`team-invite-search-${projectId}`}
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Type a name, username, or @illinois.edu email"
+                    className="pl-9 bg-midnight-800/80 border-white/15"
+                  />
+                </div>
+                {query.trim().length < 2 && (
+                  <p className="text-xs text-muted-foreground">
+                    Start typing at least 2 characters to find someone.
+                  </p>
+                )}
+              </div>
             </div>
 
             {loading && <p className="text-sm text-muted-foreground">Searching...</p>}
@@ -218,6 +255,7 @@ export function ProjectTeamManager({
               <div className="space-y-2">
                 {searchResults.map((result) => {
                   const isUnavailable = memberIds.has(result.id) || pendingInviteeIds.has(result.id) || result.id === currentUserId
+                  const statusLabel = inviteStatusLabel(result, memberIds, pendingInviteeIds, currentUserId)
                   return (
                     <div key={result.id} className="flex items-center justify-between gap-3 rounded-lg border border-white/10 p-3">
                       <div className="flex items-center gap-3 min-w-0">
@@ -235,12 +273,18 @@ export function ProjectTeamManager({
                         onClick={() => inviteUser(result.id)}
                         disabled={isUnavailable || busyId === result.id}
                       >
-                        <UserPlus className="w-4 h-4 mr-1" />
-                        Invite
+                        {statusLabel === 'Invite' && <UserPlus className="w-4 h-4 mr-1" />}
+                        {busyId === result.id ? 'Sending...' : statusLabel}
                       </Button>
                     </div>
                   )
                 })}
+              </div>
+            )}
+
+            {!loading && query.trim().length >= 2 && searchResults.length === 0 && (
+              <div className="rounded-lg border border-white/10 bg-midnight-800/40 p-3 text-sm text-muted-foreground">
+                No matching IlliniHunt users yet. Teammates need to sign in once before they can be invited.
               </div>
             )}
 
